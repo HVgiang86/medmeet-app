@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.buildConfig)
 }
 
 kotlin {
@@ -27,8 +28,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             //Network
-            implementation(libs.ktor.core)
-            implementation(libs.ktor.logging)
+//            implementation(libs.ktor.core)
+//            implementation(libs.ktor.logging)
+            implementation(libs.bundles.ktor)
             //Coroutines
             implementation(libs.kotlinx.coroutines.core)
             //Logger
@@ -37,8 +39,12 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             //Key-Value storage
             implementation(libs.multiplatform.settings)
+            implementation(libs.multiplatform.settings.noargs)
             // DI
             api(libs.koin.core)
+
+            implementation(libs.datastore.preferences)
+            implementation(libs.datastore)
         }
 
         androidMain.dependencies {
@@ -54,7 +60,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.github.jetbrains.rssreader"
+    namespace = "com.gianghv.kmachat.shared"
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
 

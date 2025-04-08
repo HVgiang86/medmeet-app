@@ -1,8 +1,8 @@
-package com.github.jetbrains.rssreader.core
+package com.gianghv.kmachat.shared.core
 
-import com.github.jetbrains.rssreader.core.datasource.network.FeedParser
-import com.github.jetbrains.rssreader.core.entity.Feed
-import com.github.jetbrains.rssreader.core.entity.Post
+import com.gianghv.kmachat.shared.core.datasource.network.FeedParser
+import com.gianghv.kmachat.shared.core.entity.Feed
+import com.gianghv.kmachat.shared.core.entity.Post
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

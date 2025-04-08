@@ -8,14 +8,14 @@ plugins {
 }
 
 android {
-    namespace = "com.github.jetbrains.rssreader.androidApp"
+    namespace = "com.gianghv.kmachat"
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
 
     defaultConfig {
         minSdk = (findProperty("android.minSdk") as String).toInt()
         targetSdk = (findProperty("android.targetSdk") as String).toInt()
 
-        applicationId = "com.github.jetbrains.rssreader.androidApp"
+        applicationId = "com.gianghv.kmachat"
         versionCode = 2
         versionName = "1.1"
     }
@@ -87,8 +87,31 @@ android {
         implementation(libs.koin.core)
         implementation(libs.koin.android)
         //Navigation
-        implementation(libs.voyager.navigator)
+//        implementation(libs.voyager.navigator)
+        implementation(libs.bundles.voyager)
         //WorkManager
         implementation(libs.work.runtime.ktx)
+
+        //Logger
+        implementation(libs.napier)
+
+        // UI components
+        implementation(libs.sketch.compose)
+        implementation(libs.sketch.compose.resources)
+
+        implementation(libs.composableCore)
+        implementation(libs.font.awesome)
+
+        implementation(libs.sonner)
+
+        // Animation
+        implementation(libs.compottie)
+        implementation(libs.compottie.resources)
+
+        // Time
+        implementation(libs.kotlinx.datetime)
     }
+}
+dependencies {
+    implementation(libs.androidx.material3.android)
 }

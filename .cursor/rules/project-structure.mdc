@@ -1,0 +1,44 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+---
+description: Recommends a flexible project structure for Android applications, adapting to existing project organization.
+Project structure contains two module: shared, androidApp
+data (store a.k.a viewModel)  will be in shared module
+ui (ui component) will be in androidApp module
+Project Structure follow MVI architecture
+---
+- Note: This is a reference structure. Adapt to the project's existing organization
+
+- Project Structure:
+androidApp/
+    src/
+        main/
+            kotlin/com/gianghv/kmachat
+                component/
+                composeui/
+                constant/
+                sync/
+                theme/
+                    icons/
+                ui/
+                utils/
+                    ext/
+    res/
+        drawable/
+        font/
+        mipmap/
+        values/
+        xml/
+shared/
+    src/
+        commonMain/kotlin/com/gianghv/kmachat
+           app/
+           base/
+           config/
+           core/
+           di/
+           model/

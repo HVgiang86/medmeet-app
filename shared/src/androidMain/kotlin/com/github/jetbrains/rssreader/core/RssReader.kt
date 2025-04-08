@@ -1,8 +1,9 @@
-package com.github.jetbrains.rssreader.core
+package com.gianghv.kmachat.shared.core
 
 import android.content.Context
-import com.github.jetbrains.rssreader.core.datasource.network.FeedLoader
-import com.github.jetbrains.rssreader.core.datasource.storage.FeedStorage
+import com.gianghv.kmachat.shared.core.RssReader
+import com.gianghv.kmachat.shared.core.datasource.network.FeedLoader
+import com.gianghv.kmachat.shared.core.datasource.storage.FeedStorage
 import com.russhwolf.settings.SharedPreferencesSettings
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
