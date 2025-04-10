@@ -1,8 +1,5 @@
-package com.gianghv.kmachat.shared.core.datasource
+package com.gianghv.kmachat.shared.base
 
-import com.gianghv.kmachat.shared.base.BaseError
-import com.gianghv.kmachat.shared.base.ErrorException
-import com.gianghv.kmachat.shared.model.BaseResponse
 import io.github.aakira.napier.Napier
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.network.sockets.SocketTimeoutException
@@ -22,7 +19,7 @@ import kotlin.coroutines.CoroutineContext
 abstract class BaseRepository : KoinComponent {
     private val ioDispatcher: CoroutineDispatcher by inject()
 
-    protected fun getContext() = ioDispatcher
+    private fun getContext() = ioDispatcher
 
     /**
      * Make template code to get data with flow
@@ -41,6 +38,37 @@ abstract class BaseRepository : KoinComponent {
                     }
 
                     val result = response.getSuccessfulData()
+                    println("[DEBUG] $result")
+
+                    emit(result)
+                } else {
+                    throw ErrorException(response.toError())
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw ErrorException(e.toError())
+            }
+        }
+    }
+
+    /**
+     * Make template code to get data with flow
+     * @return a flow of data
+     */
+    protected suspend fun <R, T> flowContext(
+        context: CoroutineContext = getContext(),
+        block: suspend () -> BaseResponse<R>,
+        mapper: (R) -> T,
+    ): Flow<T> = withContext(context) {
+        flow {
+            try {
+                val response = block.invoke()
+                if (response.code in 200..299) {
+                    if (!response.isSuccessful()) {
+                        throw ErrorException(response.toError())
+                    }
+
+                    val result = response.mapDataOnSuccess(mapper)
                     println("[DEBUG] $result")
 
                     emit(result)

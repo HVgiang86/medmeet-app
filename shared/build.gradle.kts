@@ -45,6 +45,9 @@ kotlin {
 
             implementation(libs.datastore.preferences)
             implementation(libs.datastore)
+
+            // Time
+            implementation(libs.kotlinx.datetime)
         }
 
         androidMain.dependencies {

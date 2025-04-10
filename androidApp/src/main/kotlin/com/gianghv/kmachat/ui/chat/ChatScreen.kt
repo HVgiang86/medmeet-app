@@ -1,100 +1,112 @@
 package com.gianghv.kmachat.ui.chat
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.gianghv.kmachat.component.ChatInput
-import com.gianghv.kmachat.component.ChatMessage
-import com.gianghv.kmachat.core.ChatContract
-import com.gianghv.kmachat.core.ChatStore
-import com.gianghv.kmachat.model.Message
-import kotlinx.coroutines.flow.collectLatest
+import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.currentOrThrow
+import com.gianghv.kmachat.component.BotMessage
+import com.gianghv.kmachat.component.FailDialog
+import com.gianghv.kmachat.component.HumanChatMessage
+import com.gianghv.kmachat.shared.app.chat.ChatAction
+import com.gianghv.kmachat.shared.app.chat.ChatEffect
+import com.gianghv.kmachat.shared.app.chat.ChatStore
+import com.gianghv.kmachat.shared.core.entity.Message
+import com.gianghv.kmachat.utils.Logger
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.filterIsInstance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-@OptIn(ExperimentalMaterial3Api::class)
+class ChatScreen(
+    private val onOpenDrawer: () -> Unit,
+) : Screen, KoinComponent {
+
+    @Composable
+    override fun Content() {
+        val store: ChatStore by inject()
+        Napier.d("ChatScreen")
+        ChatScreenContent(
+            onOpenDrawer = onOpenDrawer, store = store
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun ChatScreen(
+fun Screen.ChatScreenContent(
     onOpenDrawer: () -> Unit,
     modifier: Modifier = Modifier,
-    store: ChatStore = remember { ChatStore() }
+    store: ChatStore,
 ) {
-    val state by store.state.collectAsState()
-    val listState = rememberLazyListState()
-    val snackbarHostState = remember { SnackbarHostState() }
-    
+    val state by store.observeState().collectAsState()
+    val context = LocalContext.current
+    val navigator = LocalNavigator.currentOrThrow
+
+    val refreshState = rememberPullRefreshState(refreshing = state.isLoading, onRefresh = {
+        store.sendAction(ChatAction.GetMessageHistory)
+    })
+
+    val errorEffect by store.observeSideEffect().filterIsInstance<ChatEffect.ShowError>()
+        .collectAsState(null)
+
+    val toastEffect by store.observeSideEffect().filterIsInstance<ChatEffect.ShowToast>()
+        .collectAsState(null)
+
     // Handle effects
     LaunchedEffect(Unit) {
-        store.effect.collectLatest { effect ->
-            when (effect) {
-                is ChatContract.Effect.ShowError -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
-                is ChatContract.Effect.ShowToast -> {
-                    snackbarHostState.showSnackbar(effect.message)
-                }
-                ChatContract.Effect.ScrollToBottom -> {
-                    listState.animateScrollToItem(0)
-                }
-            }
-        }
+        store.sendAction(ChatAction.GetMessageHistory)
     }
-    
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("KMA Chat") },
-                navigationIcon = {
-                    IconButton(onClick = onOpenDrawer) {
-                        Icon(Icons.Default.Menu, contentDescription = "Open menu")
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            ChatInput(
-                value = state.inputText,
-                onValueChange = { store.handleAction(ChatContract.Action.UpdateInputText(it)) },
-                onSend = { store.handleAction(ChatContract.Action.SendMessage(state.inputText)) }
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { padding ->
-        LazyColumn(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(padding),
-            state = listState,
-            contentPadding = PaddingValues(vertical = 8.dp),
-            reverseLayout = true
-        ) {
-            if (state.isGenerating) {
-                item {
-                    ChatMessage(
-                        message = "Generating response...",
-                        isFromUser = false,
-                        isGenerating = true
+
+    // Show error message
+    errorEffect?.let {
+        FailDialog(
+            title = "Error", content = it.message
+        )
+    }
+
+    Box(modifier = Modifier.pullRefresh(refreshState)) {
+        LazyColumn {
+            items(state.messages.size) { index ->
+                val message = state.messages[index]
+
+                if (message.isHuman) {
+                    HumanChatMessage(
+                        message = message
+                    )
+                } else {
+                    BotMessage(
+                        message = message
                     )
                 }
             }
-            
-            items(
-                items = state.messages.asReversed(),
-                key = { it.id }
-            ) { message ->
-                ChatMessage(
-                    message = message.content,
-                    isFromUser = message.isFromUser
-                )
-            }
         }
+
+        PullRefreshIndicator(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding(),
+            refreshing = state.isLoading,
+            state = refreshState,
+            scale = true
+        )
     }
+
+
 }
 
 @Preview(showBackground = true)
@@ -105,38 +117,7 @@ fun ChatScreenPreview() {
         Message("2", "I have a question about programming", true),
         Message("3", "Sure, I'd be happy to help! What would you like to know?", false)
     )
-    
-    val previewStore = ChatStore().apply {
-        handleAction(ChatContract.Action.SendMessage("I have a question about programming"))
-    }
-    
-    ChatScreen(
-        onOpenDrawer = {},
-        store = previewStore
-    )
+
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ChatMessagePreview() {
-    Column {
-        ChatMessage(
-            message = "Hello! How can I help you today?",
-            isFromUser = false
-        )
-        ChatMessage(
-            message = "I have a question about programming",
-            isFromUser = true
-        )
-        ChatMessage(
-            message = "Generating response...",
-            isFromUser = false,
-            isGenerating = true
-        )
-    }
-}
 
-data class ChatMessage(
-    val content: String,
-    val isFromUser: Boolean
-) 

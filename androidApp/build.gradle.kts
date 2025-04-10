@@ -110,6 +110,11 @@ android {
 
         // Time
         implementation(libs.kotlinx.datetime)
+
+        // Markdown
+        implementation(libs.markdown)
+        implementation(libs.markdown.commonmark)
+        implementation(libs.richtext)
     }
 }
 dependencies {

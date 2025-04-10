@@ -20,8 +20,6 @@ abstract class Store<S : Store.State, A : Store.Action, E : Store.Effect>(initia
         _state.tryEmit(storedState)
     }
 
-
-
     init {
         timeCapsule.addState(initialState)
     }

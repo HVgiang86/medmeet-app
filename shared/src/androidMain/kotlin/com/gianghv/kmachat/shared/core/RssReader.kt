@@ -1,7 +1,6 @@
 package com.gianghv.kmachat.shared.core
 
 import android.content.Context
-import com.gianghv.kmachat.shared.core.RssReader
 import com.gianghv.kmachat.shared.core.datasource.network.FeedLoader
 import com.gianghv.kmachat.shared.core.datasource.storage.FeedStorage
 import com.russhwolf.settings.SharedPreferencesSettings
