@@ -13,8 +13,8 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
+import com.gianghv.kmachat.composeui.HomeScreen
 import com.gianghv.kmachat.theme.AppTheme
-import com.gianghv.kmachat.utils.Logger
 import io.github.aakira.napier.Napier
 
 class AppActivity : ComponentActivity() {

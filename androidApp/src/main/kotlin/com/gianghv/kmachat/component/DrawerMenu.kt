@@ -13,7 +13,7 @@ fun DrawerMenu(
     modifier: Modifier = Modifier
 ) {
     ModalDrawerSheet(
-        modifier = modifier.width(280.dp)
+        modifier = modifier.fillMaxWidth(0.8f),
     ) {
         Spacer(Modifier.height(12.dp))
         Text(

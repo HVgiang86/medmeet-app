@@ -97,6 +97,11 @@ import kotlin.math.absoluteValue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
+import androidx.compose.foundation.Image
+import androidx.compose.ui.text.font.FontWeight
+import com.gianghv.kmachat.R
+import org.jetbrains.compose.resources.painterResource
+
 
 enum class InputSelector {
     NONE, MAP, DM, EMOJI, PHONE, PICTURE

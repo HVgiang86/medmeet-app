@@ -1,4 +1,4 @@
-rootProject.name = "RssReader"
+rootProject.name = "KmaChat"
 
 pluginManagement {
     repositories {
