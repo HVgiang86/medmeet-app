@@ -8,7 +8,10 @@ import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.Json
 
-fun RssReader.Companion.create(ctx: Context, withLog: Boolean) = RssReader(
+fun RssReader.Companion.create(
+    ctx: Context,
+    withLog: Boolean
+) = RssReader(
     FeedLoader(
         AndroidHttpClient(withLog),
         AndroidFeedParser()

@@ -27,29 +27,30 @@ abstract class BaseRepository : KoinComponent {
      */
     protected suspend fun <R> flowContext(
         context: CoroutineContext = getContext(),
-        block: suspend () -> BaseResponse<R>,
-    ): Flow<R> = withContext(context) {
-        flow {
-            try {
-                val response = block.invoke()
-                if (response.code in 200..299) {
-                    if (!response.isSuccessful()) {
+        block: suspend () -> BaseResponse<R>
+    ): Flow<R> =
+        withContext(context) {
+            flow {
+                try {
+                    val response = block.invoke()
+                    if (response.code in 200..299) {
+                        if (!response.isSuccessful()) {
+                            throw ErrorException(response.toError())
+                        }
+
+                        val result = response.getSuccessfulData()
+                        println("[DEBUG] $result")
+
+                        emit(result)
+                    } else {
                         throw ErrorException(response.toError())
                     }
-
-                    val result = response.getSuccessfulData()
-                    println("[DEBUG] $result")
-
-                    emit(result)
-                } else {
-                    throw ErrorException(response.toError())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    throw ErrorException(e.toError())
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                throw ErrorException(e.toError())
             }
         }
-    }
 
     /**
      * Make template code to get data with flow
@@ -58,96 +59,101 @@ abstract class BaseRepository : KoinComponent {
     protected suspend fun <R, T> flowContext(
         context: CoroutineContext = getContext(),
         block: suspend () -> BaseResponse<R>,
-        mapper: (R) -> T,
-    ): Flow<T> = withContext(context) {
-        flow {
-            try {
-                val response = block.invoke()
-                if (response.code in 200..299) {
-                    if (!response.isSuccessful()) {
+        mapper: (R) -> T
+    ): Flow<T> =
+        withContext(context) {
+            flow {
+                try {
+                    val response = block.invoke()
+                    if (response.code in 200..299) {
+                        if (!response.isSuccessful()) {
+                            throw ErrorException(response.toError())
+                        }
+
+                        val result = response.mapDataOnSuccess(mapper)
+                        println("[DEBUG] $result")
+
+                        emit(result)
+                    } else {
                         throw ErrorException(response.toError())
                     }
-
-                    val result = response.mapDataOnSuccess(mapper)
-                    println("[DEBUG] $result")
-
-                    emit(result)
-                } else {
-                    throw ErrorException(response.toError())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    throw ErrorException(e.toError())
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                throw ErrorException(e.toError())
             }
         }
-    }
 
     protected suspend fun returnIfSuccess(
         context: CoroutineContext = getContext(),
-        block: suspend () -> BaseResponse<*>,
-    ): Flow<Boolean> = withContext(context) {
-        flow {
-            try {
-                val response = block.invoke()
-                if (response.code in 200..299) {
-                    if (!response.isSuccessful()) {
+        block: suspend () -> BaseResponse<*>
+    ): Flow<Boolean> =
+        withContext(context) {
+            flow {
+                try {
+                    val response = block.invoke()
+                    if (response.code in 200..299) {
+                        if (!response.isSuccessful()) {
+                            throw ErrorException(response.toError())
+                        }
+
+                        val result = response.getSuccessfulData()
+                        println("[DEBUG] $result")
+
+                        emit(true)
+                    } else {
                         throw ErrorException(response.toError())
                     }
-
-                    val result = response.getSuccessfulData()
-                    println("[DEBUG] $result")
-
-                    emit(true)
-                } else {
-                    throw ErrorException(response.toError())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    throw ErrorException(e.toError())
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                throw ErrorException(e.toError())
             }
         }
-    }
 }
 
 /**
  * Extension function to map BaseResponse to BaseError
  */
-fun BaseResponse<*>.toError(): BaseError = when (this.code) {
-    401 -> BaseError.SessionExpired
-    in 400..499 -> BaseError.HttpError(this.message ?: "Unknown HTTP Error")
-    in 500..599 -> BaseError.ServerError
-    else -> {
-        Napier.e("Unknown error: [${this.code}] ${this.message}")
-        BaseError.UnknownError(Exception(this.message ?: "Unknown error"))
+fun BaseResponse<*>.toError(): BaseError =
+    when (this.code) {
+        401 -> BaseError.SessionExpired
+        in 400..499 -> BaseError.HttpError(this.message ?: "Unknown HTTP Error")
+        in 500..599 -> BaseError.ServerError
+        else -> {
+            Napier.e("Unknown error: [${this.code}] ${this.message}")
+            BaseError.UnknownError(Exception(this.message ?: "Unknown error"))
+        }
     }
-}
 
 /**
  * Extension function to map ResponseException to BaseError
  */
-fun ResponseException.toError(): BaseError = when (this.response.status.value) {
-    401 -> BaseError.SessionExpired
-    in 400..499 -> BaseError.HttpError("${this.response.status.value}: ${this.message ?: "Unknown HTTP Error"}")
-    in 500..599 -> BaseError.ServerError
-    else -> {
-        Napier.e("Unknown error: [${this.response.status.value}] ${this.message}")
-        BaseError.UnknownError(Exception(this.message ?: "Unknown error"))
+fun ResponseException.toError(): BaseError =
+    when (this.response.status.value) {
+        401 -> BaseError.SessionExpired
+        in 400..499 -> BaseError.HttpError("${this.response.status.value}: ${this.message ?: "Unknown HTTP Error"}")
+        in 500..599 -> BaseError.ServerError
+        else -> {
+            Napier.e("Unknown error: [${this.response.status.value}] ${this.message}")
+            BaseError.UnknownError(Exception(this.message ?: "Unknown error"))
+        }
     }
-}
 
 /**
  * Extension function to map generic Exception to BaseError
  */
-fun Exception.toError(): BaseError = when (this) {
-    is JsonConvertException, is SerializationException -> BaseError.JsonConvertException
-    is ConnectTimeoutException, is SocketTimeoutException, is HttpRequestTimeoutException -> BaseError.ConnectionTimeout
-    is UnresolvedAddressException -> BaseError.NetworkError
-    else -> {
-        if ((this.message ?: "").contains("NoRouteToHostException", ignoreCase = true)) {
-            BaseError.NetworkError
-        } else {
-            Napier.e("Unknown error: ${this.message}")
-            BaseError.UnknownError(this)
+fun Exception.toError(): BaseError =
+    when (this) {
+        is JsonConvertException, is SerializationException -> BaseError.JsonConvertException
+        is ConnectTimeoutException, is SocketTimeoutException, is HttpRequestTimeoutException -> BaseError.ConnectionTimeout
+        is UnresolvedAddressException -> BaseError.NetworkError
+        else -> {
+            if ((this.message ?: "").contains("NoRouteToHostException", ignoreCase = true)) {
+                BaseError.NetworkError
+            } else {
+                Napier.e("Unknown error: ${this.message}")
+                BaseError.UnknownError(this)
+            }
         }
     }
-}

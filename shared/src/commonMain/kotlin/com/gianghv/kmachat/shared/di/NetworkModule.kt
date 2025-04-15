@@ -19,15 +19,15 @@ import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
-val networkModule = module {
-    single {
-        createHttpClient()
+val networkModule =
+    module {
+        single {
+            createHttpClient()
+        }
     }
-}
 
-
-private fun createHttpClient(): HttpClient {
-    return HttpClient(CIO) {
+private fun createHttpClient(): HttpClient =
+    HttpClient(CIO) {
         engine {
             maxConnectionsCount = 100
             endpoint {
@@ -39,20 +39,25 @@ private fun createHttpClient(): HttpClient {
         }
 
         install(ContentNegotiation) {
-            json(json = Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-                prettyPrint = true
-                coerceInputValues = true
-            }, contentType = ContentType.Any)
+            json(
+                json =
+                Json {
+                    ignoreUnknownKeys = true
+                    isLenient = true
+                    prettyPrint = true
+                    coerceInputValues = true
+                },
+                contentType = ContentType.Any
+            )
         }
 
         install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) {
-                    Napier.i(tag = "KTOR", message = "Logger Ktor => $message")
+            logger =
+                object : Logger {
+                    override fun log(message: String) {
+                        Napier.i(tag = "KTOR", message = "Logger Ktor => $message")
+                    }
                 }
-            }
             level = LogLevel.ALL
         }
 
@@ -63,24 +68,27 @@ private fun createHttpClient(): HttpClient {
         }
 
         install(Logging) {
-            logger = object : Logger {
-                override fun log(message: String) {
-                    Napier.i(tag = "KTOR", message = "Logger Ktor => $message")
-                }
-            }
-            level = LogLevel.ALL
-            logger = object : Logger {
-                override fun log(message: String) {
-                    if (message.startsWith("REQUEST:")) {
-                        val curlCommand = buildString {
-                            append("curl -X GET '") // Replace GET with the actual HTTP method
-                            append(message.substringAfter("REQUEST: ").trim())
-                            append("'")
-                        }
-                        Napier.i(tag = "KTOR", message = "cURL: $curlCommand")
+            logger =
+                object : Logger {
+                    override fun log(message: String) {
+                        Napier.i(tag = "KTOR", message = "Logger Ktor => $message")
                     }
                 }
-            }
+            level = LogLevel.ALL
+            logger =
+                object : Logger {
+                    override fun log(message: String) {
+                        if (message.startsWith("REQUEST:")) {
+                            val curlCommand =
+                                buildString {
+                                    append("curl -X GET '") // Replace GET with the actual HTTP method
+                                    append(message.substringAfter("REQUEST: ").trim())
+                                    append("'")
+                                }
+                            Napier.i(tag = "KTOR", message = "cURL: $curlCommand")
+                        }
+                    }
+                }
         }
 
         install(DefaultRequest) {
@@ -93,9 +101,8 @@ private fun createHttpClient(): HttpClient {
             socketTimeoutMillis = NETWORK_TIMEOUT
         }
     }
-}
 
-//private fun createHttpClient(tokenRepository: TokenRepository): HttpClient {
+// private fun createHttpClient(tokenRepository: TokenRepository): HttpClient {
 //    return HttpClient(CIO) {
 //        engine {
 //            maxConnectionsCount = 100
@@ -146,4 +153,4 @@ private fun createHttpClient(): HttpClient {
 //            excludedUrls = listOf("sign-in", "sign-up", "refresh-token")
 //        }
 //    }
-//}
+// }

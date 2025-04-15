@@ -23,17 +23,18 @@ fun MainFeed(
     onEditClick: () -> Unit,
 ) {
     val state = store.observeState().collectAsState()
-    val posts = remember(state.value.feeds, state.value.selectedFeed) {
-        (state.value.selectedFeed?.posts ?: state.value.feeds.flatMap { it.posts })
-            .sortedByDescending { it.date }
-    }
+    val posts =
+        remember(state.value.feeds, state.value.selectedFeed) {
+            (state.value.selectedFeed?.posts ?: state.value.feeds.flatMap { it.posts })
+                .sortedByDescending { it.date }
+        }
     Column {
         val coroutineScope = rememberCoroutineScope()
         val listState = rememberLazyListState()
         PostList(
             modifier = Modifier.weight(1f),
             posts = posts,
-            listState = listState
+            listState = listState,
         ) { post -> onPostClick(post) }
         MainFeedBottomBar(
             feeds = state.value.feeds,
@@ -42,19 +43,23 @@ fun MainFeed(
                 coroutineScope.launch { listState.scrollToItem(0) }
                 store.sendAction(FeedAction.SelectFeed(feed))
             },
-            onEditClick = onEditClick
+            onEditClick = onEditClick,
         )
         Spacer(
             Modifier
                 .windowInsetsBottomHeight(WindowInsets.navigationBars)
-                .fillMaxWidth()
+                .fillMaxWidth(),
         )
     }
 }
 
 private sealed class Icons {
     object All : Icons()
-    class FeedIcon(val feed: Feed) : Icons()
+
+    class FeedIcon(
+        val feed: Feed,
+    ) : Icons()
+
     object Edit : Icons()
 }
 
@@ -63,29 +68,32 @@ fun MainFeedBottomBar(
     feeds: List<Feed>,
     selectedFeed: Feed?,
     onFeedClick: (Feed?) -> Unit,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
 ) {
-    val items = buildList {
-        add(Icons.All)
-        addAll(feeds.map { Icons.FeedIcon(it) })
-        add(Icons.Edit)
-    }
+    val items =
+        buildList {
+            add(Icons.All)
+            addAll(feeds.map { Icons.FeedIcon(it) })
+            add(Icons.Edit)
+        }
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp)
+        contentPadding = PaddingValues(16.dp),
     ) {
         this.items(items) { item ->
             when (item) {
-                is Icons.All -> FeedIcon(
-                    feed = null,
-                    isSelected = selectedFeed == null,
-                    onClick = { onFeedClick(null) }
-                )
-                is Icons.FeedIcon -> FeedIcon(
-                    feed = item.feed,
-                    isSelected = selectedFeed == item.feed,
-                    onClick = { onFeedClick(item.feed) }
-                )
+                is Icons.All ->
+                    FeedIcon(
+                        feed = null,
+                        isSelected = selectedFeed == null,
+                        onClick = { onFeedClick(null) },
+                    )
+                is Icons.FeedIcon ->
+                    FeedIcon(
+                        feed = item.feed,
+                        isSelected = selectedFeed == item.feed,
+                        onClick = { onFeedClick(item.feed) },
+                    )
                 is Icons.Edit -> EditIcon(onClick = onEditClick)
             }
             Spacer(modifier = Modifier.size(16.dp))

@@ -7,7 +7,9 @@ import java.util.TimeZone
 object DateTime {
     @JvmStatic
     fun getFormattedDate(
-        timestamp: String, format: String, outputFormat: String
+        timestamp: String,
+        format: String,
+        outputFormat: String,
     ): String? {
         val dateFormatter = SimpleDateFormat(outputFormat, Locale.getDefault())
         dateFormatter.timeZone = TimeZone.getDefault()

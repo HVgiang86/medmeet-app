@@ -15,30 +15,40 @@ import java.util.*
 internal class AndroidFeedParser : FeedParser {
     private val dateFormat = DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US)
 
-    override suspend fun parse(sourceUrl: String, xml: String, isDefault: Boolean): Feed = withContext(Dispatchers.IO) {
-        val parser = Xml.newPullParser().apply {
-            setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
-        }
+    override suspend fun parse(
+        sourceUrl: String,
+        xml: String,
+        isDefault: Boolean
+    ): Feed =
+        withContext(Dispatchers.IO) {
+            val parser =
+                Xml.newPullParser().apply {
+                    setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false)
+                }
 
-        var feed: Feed
+            var feed: Feed
 
-        xml.reader().use { reader ->
-            parser.setInput(reader)
+            xml.reader().use { reader ->
+                parser.setInput(reader)
 
-            var tag = parser.nextTag()
-            while (tag != XmlPullParser.START_TAG && parser.name != "rss") {
-                skip(parser)
-                tag = parser.next()
+                var tag = parser.nextTag()
+                while (tag != XmlPullParser.START_TAG && parser.name != "rss") {
+                    skip(parser)
+                    tag = parser.next()
+                }
+                parser.nextTag()
+
+                feed = readFeed(sourceUrl, parser, isDefault)
             }
-            parser.nextTag()
 
-            feed = readFeed(sourceUrl, parser, isDefault)
+            return@withContext feed
         }
 
-        return@withContext feed
-    }
-
-    private fun readFeed(sourceUrl: String, parser: XmlPullParser, isDefault: Boolean): Feed {
+    private fun readFeed(
+        sourceUrl: String,
+        parser: XmlPullParser,
+        isDefault: Boolean
+    ): Feed {
         parser.require(XmlPullParser.START_TAG, null, "channel")
 
         var title: String? = null
@@ -78,7 +88,10 @@ internal class AndroidFeedParser : FeedParser {
         return url
     }
 
-    private fun readPost(feedTitle: String, parser: XmlPullParser): Post {
+    private fun readPost(
+        feedTitle: String,
+        parser: XmlPullParser
+    ): Post {
         parser.require(XmlPullParser.START_TAG, null, "item")
 
         var title: String? = null
@@ -100,14 +113,15 @@ internal class AndroidFeedParser : FeedParser {
             }
         }
 
-        val dateLong: Long = date?.let {
-            try {
-                ZonedDateTime.parse(date, dateFormat).toEpochSecond() * 1000
-            } catch (e: Throwable) {
-                Napier.e("Parse date error: ${e.message}")
-                null
-            }
-        } ?: System.currentTimeMillis()
+        val dateLong: Long =
+            date?.let {
+                try {
+                    ZonedDateTime.parse(date, dateFormat).toEpochSecond() * 1000
+                } catch (e: Throwable) {
+                    Napier.e("Parse date error: ${e.message}")
+                    null
+                }
+            } ?: System.currentTimeMillis()
 
         return Post(
             title ?: feedTitle,
@@ -118,7 +132,10 @@ internal class AndroidFeedParser : FeedParser {
         )
     }
 
-    private fun readTagText(tagName: String, parser: XmlPullParser): String {
+    private fun readTagText(
+        tagName: String,
+        parser: XmlPullParser
+    ): String {
         parser.require(XmlPullParser.START_TAG, null, tagName)
         val title = readText(parser)
         parser.require(XmlPullParser.END_TAG, null, tagName)
@@ -144,5 +161,4 @@ internal class AndroidFeedParser : FeedParser {
             }
         }
     }
-
 }

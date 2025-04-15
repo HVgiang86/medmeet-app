@@ -12,32 +12,37 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import org.koin.dsl.module
 
-private val dispatcherModule = module {
-    single<CoroutineDispatcher> {
-        Dispatchers.IO
+private val dispatcherModule =
+    module {
+        single<CoroutineDispatcher> {
+            Dispatchers.IO
+        }
     }
-}
 
-private val preferencesSourceModule = module {
-    single<Settings> {
-        createSettings()
+private val preferencesSourceModule =
+    module {
+        single<Settings> {
+            createSettings()
+        }
+        single<PrefsStorage> {
+            PrefsStorageImpl(get())
+        }
     }
-    single<PrefsStorage> {
-        PrefsStorageImpl(get())
+
+private val apiModule =
+    module {
+        single<MockChatApi> {
+            MockChatApi(get())
+        }
     }
-}
 
-private val apiModule = module {
-    single<MockChatApi> {
-        MockChatApi(get())
+private val repositoryModule =
+    module {
+        // Define your repositories here
+        single<ChatRepository> { ChatRepositoryImpl(get()) }
     }
-}
 
-private val repositoryModule = module {
-    // Define your repositories here
-    single<ChatRepository> { ChatRepositoryImpl(get()) }
-}
-
-val dataModule = module {
-    includes(preferencesSourceModule, dispatcherModule, apiModule, repositoryModule)
-}
+val dataModule =
+    module {
+        includes(preferencesSourceModule, dispatcherModule, apiModule, repositoryModule)
+    }

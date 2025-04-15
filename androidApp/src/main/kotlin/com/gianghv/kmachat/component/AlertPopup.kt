@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import com.gianghv.kmachat.shared.base.BaseError
 import com.gianghv.kmachat.shared.base.ErrorException
 
-
 @Composable
 fun SuccessDialog(
     title: String = "Success",
@@ -38,10 +37,12 @@ fun SuccessDialog(
                 onCanceled()
                 openDialog.value = false
             },
-            buttonType = ButtonType.TextButton(text = btnText) {
-                onBtnClick()
-                openDialog.value = false
-            })
+            buttonType =
+                ButtonType.TextButton(text = btnText) {
+                    onBtnClick()
+                    openDialog.value = false
+                },
+        )
     }
 }
 
@@ -55,10 +56,8 @@ fun FailDialog(
     onBtnClick: (() -> Unit) = {},
     btnText: String = "OK",
 ) {
-
     val openDialog = state ?: remember { mutableStateOf(true) }
     if (openDialog.value) {
-
         BaseNoticeDialog(
             type = DialogType.FAIL,
             title = title,
@@ -68,17 +67,19 @@ fun FailDialog(
                 onCanceled()
                 openDialog.value = false
             },
-            buttonType = ButtonType.PrimaryButtons(text = btnText) {
-                onBtnClick()
-                openDialog.value = false
-            })
-
+            buttonType =
+                ButtonType.PrimaryButtons(text = btnText) {
+                    onBtnClick()
+                    openDialog.value = false
+                },
+        )
     }
 }
 
 @Composable
 fun ErrorDialog(
-    throwable: Throwable?, onDismissRequest: () -> Unit = {},
+    throwable: Throwable?,
+    onDismissRequest: () -> Unit = {},
 ) {
     var message = ""
     var title = "Thông báo"
@@ -118,9 +119,7 @@ fun ErrorDialog(
                 is BaseError.UnknownError -> {
                     title = "Unknown error"
                     message = error.throwable.message ?: "Unknown error!"
-
                 }
-
             }
         }
 
@@ -142,10 +141,12 @@ fun ErrorDialog(
                 onDismissRequest()
                 openDialog.value = false
             },
-            buttonType = ButtonType.PrimaryButtons(text = "OK") {
-                onDismissRequest()
-                openDialog.value = false
-            })
+            buttonType =
+                ButtonType.PrimaryButtons(text = "OK") {
+                    onDismissRequest()
+                    openDialog.value = false
+                },
+        )
     }
 }
 
@@ -171,11 +172,14 @@ fun MyAlertDialog(
             }
         }, title = {
             Text(
-                text = title, modifier = Modifier.padding(top = 8.dp)
+                text = title,
+                modifier = Modifier.padding(top = 8.dp),
             )
         }, text = {
             Text(
-                text = content, modifier = Modifier.padding(8.dp), maxLines = 8
+                text = content,
+                modifier = Modifier.padding(8.dp),
+                maxLines = 8,
             )
         }, confirmButton = {
             if (rightBtn != null) {

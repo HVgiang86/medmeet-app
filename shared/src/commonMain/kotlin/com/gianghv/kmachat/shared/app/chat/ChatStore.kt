@@ -12,45 +12,77 @@ data class ChatState(
     val conversationList: List<Conversation> = emptyList(),
     val displayConversationId: String? = null,
     val isGenerating: Boolean = false,
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = false
 ) : Store.State(loading = isLoading) {
     val isEmpty: Boolean
         get() = messages.isEmpty()
 }
 
 sealed interface ChatAction : Store.Action {
-    data class SendMessage(val text: String, val conversationId: String? = null) : ChatAction
-    data class NewConversation(val text: String) : ChatAction
-    data class GetConversationList(val showLatestConversation: Boolean = false) : ChatAction
-    data class SelectConversation(val conversationId: String) : ChatAction
-
-    data class GetConversationListSuccess(
-        val conversations: List<Conversation>, val showLatestConversation: Boolean = false
+    data class SendMessage(
+        val text: String,
+        val conversationId: String? = null
     ) : ChatAction
 
-    data class GetMessageHistory(val conversationId: String) : ChatAction
-    data class SendMessageSuccess(val message: Message, val conversationId: String? = null) :
-        ChatAction
+    data class NewConversation(
+        val text: String
+    ) : ChatAction
 
-    data class GetMessageHistorySuccess(val messages: List<Message>, val conversationId: String) :
-        ChatAction
+    data class GetConversationList(
+        val showLatestConversation: Boolean = false
+    ) : ChatAction
 
-    data class NewConversationSuccess(val conversation: Conversation) : ChatAction
+    data class SelectConversation(
+        val conversationId: String
+    ) : ChatAction
 
-    data class Error(val error: String) : ChatAction
+    data class GetConversationListSuccess(
+        val conversations: List<Conversation>,
+        val showLatestConversation: Boolean = false
+    ) : ChatAction
+
+    data class GetMessageHistory(
+        val conversationId: String
+    ) : ChatAction
+
+    data class SendMessageSuccess(
+        val message: Message,
+        val conversationId: String? = null
+    ) : ChatAction
+
+    data class GetMessageHistorySuccess(
+        val messages: List<Message>,
+        val conversationId: String
+    ) : ChatAction
+
+    data class NewConversationSuccess(
+        val conversation: Conversation
+    ) : ChatAction
+
+    data class Error(
+        val error: String
+    ) : ChatAction
 }
 
 sealed interface ChatEffect : Store.Effect {
-    data class ShowError(val message: String) : ChatEffect
-    data class ShowToast(val message: String) : ChatEffect
+    data class ShowError(
+        val message: String
+    ) : ChatEffect
+
+    data class ShowToast(
+        val message: String
+    ) : ChatEffect
+
     data object ScrollToBottom : ChatEffect
 }
 
 class ChatStore(
-    private val chatRepository: ChatRepository,
+    private val chatRepository: ChatRepository
 ) : Store<ChatState, ChatAction, ChatEffect>(
     ChatState(
-        isGenerating = false, messages = emptyList(), isLoading = false
+        isGenerating = false,
+        messages = emptyList(),
+        isLoading = false
     )
 ) {
     override val onException: (Throwable) -> Unit
@@ -59,7 +91,10 @@ class ChatStore(
             setEffect(ChatEffect.ShowError(it.message ?: "Unknown error"))
         }
 
-    override fun dispatch(oldState: ChatState, action: ChatAction) {
+    override fun dispatch(
+        oldState: ChatState,
+        action: ChatAction
+    ) {
         when (action) {
             is ChatAction.SendMessage -> {
                 if (action.conversationId == null) {
@@ -72,7 +107,8 @@ class ChatStore(
 
                     setState(
                         oldState.copy(
-                            messages = oldState.messages + message, isGenerating = true
+                            messages = oldState.messages + message,
+                            isGenerating = true
                         )
                     )
 
@@ -105,7 +141,9 @@ class ChatStore(
                 setEffect(ChatEffect.ScrollToBottom)
                 setState(
                     oldState.copy(
-                        messages = messages, isLoading = false, isGenerating = false
+                        messages = messages,
+                        isLoading = false,
+                        isGenerating = false
                     )
                 )
             }
@@ -114,7 +152,8 @@ class ChatStore(
                 setEffect(ChatEffect.ShowError(action.error))
                 setState(
                     oldState.copy(
-                        isLoading = false, isGenerating = false
+                        isLoading = false,
+                        isGenerating = false
                     )
                 )
             }
@@ -130,7 +169,8 @@ class ChatStore(
                 if (action.showLatestConversation) {
                     setState(
                         oldState.copy(
-                            isLoading = true, conversationList = action.conversations
+                            isLoading = true,
+                            conversationList = action.conversations
                         )
                     )
                     action.conversations.firstOrNull()?.let { conversation ->
@@ -139,18 +179,17 @@ class ChatStore(
                 } else {
                     setState(
                         oldState.copy(
-                            isLoading = false, conversationList = action.conversations
+                            isLoading = false,
+                            conversationList = action.conversations
                         )
                     )
                 }
             }
 
             is ChatAction.NewConversation -> {
-
             }
 
             is ChatAction.NewConversationSuccess -> {
-
             }
 
             is ChatAction.SelectConversation -> {
@@ -167,7 +206,8 @@ class ChatStore(
             chatRepository.getConversationList().collect { conversations ->
                 sendAction(
                     ChatAction.GetConversationListSuccess(
-                        conversations, showLatestConversation
+                        conversations,
+                        showLatestConversation
                     )
                 )
             }
@@ -182,7 +222,10 @@ class ChatStore(
         }
     }
 
-    private fun sendMessage(text: String, conversationId: String) {
+    private fun sendMessage(
+        text: String,
+        conversationId: String
+    ) {
         launch {
             chatRepository.sendMessage(text).collect { message ->
                 sendAction(ChatAction.SendMessageSuccess(message, conversationId))
@@ -190,9 +233,16 @@ class ChatStore(
         }
     }
 
-    private fun generateHumanMessage(text: String, conversationId: String): Message {
-        return Message(
-            id = Clock.System.now().toEpochMilliseconds().toString(),
+    private fun generateHumanMessage(
+        text: String,
+        conversationId: String
+    ): Message =
+        Message(
+            id =
+            Clock.System
+                .now()
+                .toEpochMilliseconds()
+                .toString(),
             userId = "human",
             content = text,
             isHuman = true,
@@ -200,5 +250,4 @@ class ChatStore(
             attachedFiles = emptyList(),
             conversationId = conversationId // Replace with actual conversation ID if needed
         )
-    }
-} 
+}

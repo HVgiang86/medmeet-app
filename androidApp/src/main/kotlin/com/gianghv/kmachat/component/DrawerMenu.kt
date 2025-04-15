@@ -36,7 +36,7 @@ fun DrawerMenu(
         Text(
             "KMA Chat",
             modifier = Modifier.padding(16.dp),
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
         )
 
         HorizontalDivider()
@@ -44,15 +44,19 @@ fun DrawerMenu(
         Spacer(Modifier.height(12.dp))
 
         if (state.conversationList.isEmpty()) {
-            NavigationDrawerItem(label = { Text("New Chat") }, selected = false, onClick = {
-                // TODO: Implement new chat functionality
-                onClose()
-            }, modifier = Modifier.padding(horizontal = 12.dp)
+            NavigationDrawerItem(
+                label = { Text("New Chat") },
+                selected = false,
+                onClick = {
+                    // TODO: Implement new chat functionality
+                    onClose()
+                },
+                modifier = Modifier.padding(horizontal = 12.dp),
             )
         }
 
         LazyColumn(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         ) {
             items(state.conversationList.size) { index ->
                 val conversation = state.conversationList[index]
@@ -61,27 +65,35 @@ fun DrawerMenu(
                     selected = state.displayConversationId == conversation.id,
                     onClick = {
                         store.sendAction(
-                            ChatAction.SelectConversation(conversation.id)
+                            ChatAction.SelectConversation(conversation.id),
                         )
                         onClose()
                     },
-                    modifier = Modifier.padding(horizontal = 12.dp)
+                    modifier = Modifier.padding(horizontal = 12.dp),
                 )
             }
         }
 
         HorizontalDivider()
 
-        NavigationDrawerItem(label = { Text("Settings") }, selected = false, onClick = {
-            // TODO: Implement settings navigation
-            onClose()
-        }, modifier = Modifier.padding(horizontal = 12.dp)
+        NavigationDrawerItem(
+            label = { Text("Settings") },
+            selected = false,
+            onClick = {
+                // TODO: Implement settings navigation
+                onClose()
+            },
+            modifier = Modifier.padding(horizontal = 12.dp),
         )
 
-        NavigationDrawerItem(label = { Text("About") }, selected = false, onClick = {
-            // TODO: Implement about navigation
-            onClose()
-        }, modifier = Modifier.padding(horizontal = 12.dp)
+        NavigationDrawerItem(
+            label = { Text("About") },
+            selected = false,
+            onClick = {
+                // TODO: Implement about navigation
+                onClose()
+            },
+            modifier = Modifier.padding(horizontal = 12.dp),
         )
     }
 } 

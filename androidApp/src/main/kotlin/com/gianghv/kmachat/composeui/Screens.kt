@@ -42,7 +42,9 @@ import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
-class HomeScreen : Screen, KoinComponent {
+class HomeScreen :
+    Screen,
+    KoinComponent {
     @Composable
     override fun Content() {
         val store: ChatStore by inject()
@@ -52,9 +54,11 @@ class HomeScreen : Screen, KoinComponent {
 
         Scaffold(scaffoldState = scaffoldState, snackbarHost = { hostState ->
             SnackbarHost(
-                hostState = hostState, modifier = Modifier.padding(
-                    WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues()
-                )
+                hostState = hostState,
+                modifier =
+                    Modifier.padding(
+                        WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
+                    ),
             )
         }) { contentPadding ->
             val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -64,37 +68,39 @@ class HomeScreen : Screen, KoinComponent {
                     DrawerMenu(onClose = {
                         Napier.d { "Close drawer" }
                     }, store = store)
-                }, drawerState = drawerState
+                },
+                drawerState = drawerState,
             ) {
                 Box(
-                    modifier = Modifier
-                        .padding(contentPadding)
-                        .statusBarsPadding()
+                    modifier =
+                        Modifier
+                            .padding(contentPadding)
+                            .statusBarsPadding(),
                 ) {
-                    Navigator(ChatScreen(store = store, onOpenDrawer = {
-                        scope.launch {
-                            drawerState.apply {
-                                if (isClosed) {
-                                    Napier.d { "Open drawer" }
-                                    open()
-                                } else {
-                                    Napier.d { "Close drawer" }
-                                    close()
+                    Navigator(
+                        ChatScreen(store = store, onOpenDrawer = {
+                            scope.launch {
+                                drawerState.apply {
+                                    if (isClosed) {
+                                        Napier.d { "Open drawer" }
+                                        open()
+                                    } else {
+                                        Napier.d { "Close drawer" }
+                                        close()
+                                    }
                                 }
                             }
-                        }
-                    }))
+                        }),
+                    )
                 }
-
             }
-
         }
-
     }
 }
 
-
-class MainScreen : Screen, KoinComponent {
+class MainScreen :
+    Screen,
+    KoinComponent {
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     override fun Content() {
@@ -102,9 +108,10 @@ class MainScreen : Screen, KoinComponent {
         val context = LocalContext.current
         val navigator = LocalNavigator.currentOrThrow
         val state by store.observeState().collectAsState()
-        val refreshState = rememberPullRefreshState(refreshing = state.progress, onRefresh = {
-            store.sendAction(FeedAction.Refresh(false))
-        })
+        val refreshState =
+            rememberPullRefreshState(refreshing = state.progress, onRefresh = {
+                store.sendAction(FeedAction.Refresh(false))
+            })
 
         LaunchedEffect(Unit) {
             store.sendAction(FeedAction.Refresh(false))
@@ -118,18 +125,21 @@ class MainScreen : Screen, KoinComponent {
                 navigator.push(FeedListScreen())
             })
             PullRefreshIndicator(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .statusBarsPadding(),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopCenter)
+                        .statusBarsPadding(),
                 refreshing = state.progress,
                 state = refreshState,
-                scale = true //https://github.com/google/accompanist/issues/572
+                scale = true, // https://github.com/google/accompanist/issues/572
             )
         }
     }
 }
 
-class FeedListScreen : Screen, KoinComponent {
+class FeedListScreen :
+    Screen,
+    KoinComponent {
     @Composable
     override fun Content() {
         val store: FeedStore by inject()

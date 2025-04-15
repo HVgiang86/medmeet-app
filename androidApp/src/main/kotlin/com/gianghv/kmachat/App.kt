@@ -15,7 +15,6 @@ import org.koin.core.logger.Level
 import org.koin.dsl.module
 
 class App : Application() {
-
     override fun onCreate() {
         super.onCreate()
         initKoin()
@@ -24,10 +23,11 @@ class App : Application() {
         Napier.d("Application Started")
     }
 
-    private val readerModules = module {
-        single { RssReader.create(get(), BuildConfig.DEBUG) }
-        single { FeedStore(get()) }
-    }
+    private val readerModules =
+        module {
+            single { RssReader.create(get(), BuildConfig.DEBUG) }
+            single { FeedStore(get()) }
+        }
 
     private fun initKoin() {
         startKoin {

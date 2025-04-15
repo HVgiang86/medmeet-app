@@ -63,9 +63,10 @@ fun ChatInputSection(
     onReasonEnable: (Boolean) -> Unit = {},
     onSearchEnable: (Boolean) -> Unit = {},
 ) {
-    val temp = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(""))
-    }
+    val temp =
+        rememberSaveable(stateSaver = TextFieldValue.Saver) {
+            mutableStateOf(TextFieldValue(""))
+        }
 
     val inputState = textState ?: temp
 
@@ -80,17 +81,18 @@ fun ChatInputSection(
     // Add keyboard visibility listener
     val view = LocalView.current
     DisposableEffect(view) {
-        val listener = ViewTreeObserver.OnGlobalLayoutListener {
-            val isKeyboardOpen =
-                ViewCompat.getRootWindowInsets(view)?.isVisible(WindowInsetsCompat.Type.ime())
-                    ?: false
+        val listener =
+            ViewTreeObserver.OnGlobalLayoutListener {
+                val isKeyboardOpen =
+                    ViewCompat.getRootWindowInsets(view)?.isVisible(WindowInsetsCompat.Type.ime())
+                        ?: false
 
-            if (!isKeyboardOpen && textFieldFocusState) {
-                // Keyboard was closed, clear focus
-                focusManager.clearFocus()
-                textFieldFocusState = false
+                if (!isKeyboardOpen && textFieldFocusState) {
+                    // Keyboard was closed, clear focus
+                    focusManager.clearFocus()
+                    textFieldFocusState = false
+                }
             }
-        }
 
         view.viewTreeObserver.addOnGlobalLayoutListener(listener)
         onDispose {
@@ -109,41 +111,49 @@ fun ChatInputSection(
     Surface(
         color = MaterialTheme.colorScheme.surface,
         shadowElevation = 6.dp,
-        shape = RoundedCornerShape(
-            topStart = 32.dp, topEnd = 32.dp, bottomEnd = 0.dp, bottomStart = 0.dp
-        ),
-        modifier = modifier
-            .wrapContentHeight()
-            .fillMaxWidth(),
-        border = BorderStroke(
-            width = 3.dp, color = Color(0, 0, 0, 10)
-        )
+        shape =
+            RoundedCornerShape(
+                topStart = 32.dp,
+                topEnd = 32.dp,
+                bottomEnd = 0.dp,
+                bottomStart = 0.dp,
+            ),
+        modifier =
+            modifier
+                .wrapContentHeight()
+                .fillMaxWidth(),
+        border =
+            BorderStroke(
+                width = 3.dp,
+                color = Color(0, 0, 0, 10),
+            ),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(8.dp)
-                .padding(bottom = if (textFieldFocusState) 16.dp else 32.dp)
-        ) {
-
-            Row(
-                modifier = Modifier
+            modifier =
+                Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
+                    .padding(8.dp)
+                    .padding(bottom = if (textFieldFocusState) 16.dp else 32.dp),
+        ) {
+            Row(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
             ) {
                 TextField(
                     value = inputState.value,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .onFocusChanged { state ->
-                            if (lastFocusState != state.isFocused) {
-                                textFieldFocusState = state.isFocused
-                            }
-                            lastFocusState = state.isFocused
-                        },
-
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .onFocusChanged { state ->
+                                if (lastFocusState != state.isFocused) {
+                                    textFieldFocusState = state.isFocused
+                                }
+                                lastFocusState = state.isFocused
+                            },
                     onValueChange = {
                         inputState.value = it
                         onTextChange(it)
@@ -156,38 +166,39 @@ fun ChatInputSection(
                         Text(
                             "Message something...",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Grey_500
+                            color = Grey_500,
                         )
                     },
                     maxLines = 5,
                     singleLine = false,
                     shape = RoundedCornerShape(16.dp),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        cursorColor = MaterialTheme.colorScheme.primary,
-                    ),
+                    colors =
+                        TextFieldDefaults.colors(
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            cursorColor = MaterialTheme.colorScheme.primary,
+                        ),
                     textStyle = MaterialTheme.typography.bodyMedium,
                 )
             }
 
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(horizontal = 16.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(horizontal = 16.dp),
             ) {
                 Row(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .align(Alignment.CenterVertically)
+                    modifier =
+                        Modifier
+                            .wrapContentSize()
+                            .align(Alignment.CenterVertically),
                 ) {
                     ChatActionItem(actionIcon = Icons.Default.Add, onActionClick = {
-
                     })
-
 
                     Spacer(modifier = Modifier.width(8.dp))
 
@@ -197,7 +208,7 @@ fun ChatInputSection(
                         onActionClick = {
                             onSearchEnable(it)
                         },
-                        isToggleItem = true
+                        isToggleItem = true,
                     )
 
                     Spacer(modifier = Modifier.width(8.dp))
@@ -208,17 +219,17 @@ fun ChatInputSection(
                         onActionClick = {
                             onReasonEnable(it)
                         },
-                        isToggleItem = true
+                        isToggleItem = true,
                     )
-
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
 
                 Row(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .align(Alignment.CenterVertically)
+                    modifier =
+                        Modifier
+                            .wrapContentSize()
+                            .align(Alignment.CenterVertically),
                 ) {
                     ChatActionItem(
                         actionIcon = ImageVector.vectorResource(R.drawable.ic_microphone),
@@ -230,25 +241,29 @@ fun ChatInputSection(
                     if (inputState.value.text.isNotBlank()) {
                         Spacer(modifier = Modifier.width(8.dp))
 
-                        Box(modifier = Modifier
-                            .background(
-                                color = MaterialTheme.colorScheme.primary, shape = CircleShape
-                            )
-                            .align(Alignment.CenterVertically)
-                            .clickable {
-                                onMessageSent(inputState.value.text)
-                                clearText()
-                            }) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_up),
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier
-                                    .padding(4.dp)
+                        Box(
+                            modifier =
+                                Modifier
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primary,
+                                        shape = CircleShape,
+                                    ).align(Alignment.CenterVertically)
                                     .clickable {
                                         onMessageSent(inputState.value.text)
                                         clearText()
                                     },
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_arrow_up),
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier =
+                                    Modifier
+                                        .padding(4.dp)
+                                        .clickable {
+                                            onMessageSent(inputState.value.text)
+                                            clearText()
+                                        },
                             )
                         }
                     }
@@ -268,56 +283,61 @@ fun RowScope.ChatActionItem(
 ) {
     val toggleState = rememberSaveable { mutableStateOf(false) }
 
-    val contentTintColor = if (isToggleItem) {
-        if (toggleState.value) {
-            MaterialTheme.colorScheme.primary
+    val contentTintColor =
+        if (isToggleItem) {
+            if (toggleState.value) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                LocalContentColor.current
+            }
         } else {
             LocalContentColor.current
         }
-    } else {
-        LocalContentColor.current
-    }
 
-    val containerColor = if (isToggleItem) {
-        Light_Teal
-        if (toggleState.value) {
+    val containerColor =
+        if (isToggleItem) {
             Light_Teal
+            if (toggleState.value) {
+                Light_Teal
+            } else {
+                Color.White
+            }
         } else {
             Color.White
         }
-    } else {
-        Color.White
-    }
 
-    Row(modifier = modifier
-        .background(
-            color = containerColor, shape = CircleShape
-        )
-        .border(
-            width = 1.dp, color = Grey_500, shape = RoundedCornerShape(50)
-        )
-        .align(Alignment.CenterVertically)
-        .clickable {
-            if (isToggleItem) {
-                toggleState.value = !toggleState.value
-            }
-            onActionClick(toggleState.value)
-        }
-
+    Row(
+        modifier =
+            modifier
+                .background(
+                    color = containerColor,
+                    shape = CircleShape,
+                ).border(
+                    width = 1.dp,
+                    color = Grey_500,
+                    shape = RoundedCornerShape(50),
+                ).align(Alignment.CenterVertically)
+                .clickable {
+                    if (isToggleItem) {
+                        toggleState.value = !toggleState.value
+                    }
+                    onActionClick(toggleState.value)
+                },
     ) {
         Box(
-            modifier = Modifier
-                .padding(horizontal = if (actionText != null) 4.dp else 0.dp)
-                .background(
-                    color = Color.Transparent, shape = CircleShape
-                )
-                .align(Alignment.CenterVertically)
+            modifier =
+                Modifier
+                    .padding(horizontal = if (actionText != null) 4.dp else 0.dp)
+                    .background(
+                        color = Color.Transparent,
+                        shape = CircleShape,
+                    ).align(Alignment.CenterVertically),
         ) {
             Icon(
                 imageVector = actionIcon,
                 contentDescription = null,
                 modifier = Modifier.padding(4.dp),
-                tint = contentTintColor
+                tint = contentTintColor,
             )
         }
 
@@ -326,10 +346,11 @@ fun RowScope.ChatActionItem(
                 text = actionText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = contentTintColor,
-                modifier = Modifier
-                    .wrapContentSize()
-                    .align(Alignment.CenterVertically)
-                    .padding(end = 8.dp)
+                modifier =
+                    Modifier
+                        .wrapContentSize()
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 8.dp),
             )
         }
     }

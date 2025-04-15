@@ -22,7 +22,7 @@ import com.gianghv.kmachat.shared.core.entity.Feed
 @Composable
 fun FeedList(store: FeedStore) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         val state = store.observeState().collectAsState()
         val showAddDialog = remember { mutableStateOf(false) }
@@ -31,17 +31,18 @@ fun FeedList(store: FeedStore) {
             feedForDelete.value = it
         }
         FloatingActionButton(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp)
-                .navigationBarsPadding()
-                .imePadding(),
-            onClick = { showAddDialog.value = true }
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+                    .navigationBarsPadding()
+                    .imePadding(),
+            onClick = { showAddDialog.value = true },
         ) {
             Image(
                 imageVector = ImageVector.vectorResource(R.drawable.ic_add),
                 modifier = Modifier.align(Alignment.Center),
-                contentDescription = null
+                contentDescription = null,
             )
         }
         if (showAddDialog.value) {
@@ -52,7 +53,7 @@ fun FeedList(store: FeedStore) {
                 },
                 onDismiss = {
                     showAddDialog.value = false
-                }
+                },
             )
         }
         feedForDelete.value?.let { feed ->
@@ -64,7 +65,7 @@ fun FeedList(store: FeedStore) {
                 },
                 onDismiss = {
                     feedForDelete.value = null
-                }
+                },
             )
         }
     }
@@ -73,7 +74,7 @@ fun FeedList(store: FeedStore) {
 @Composable
 fun FeedItemList(
     feeds: List<Feed>,
-    onClick: (Feed) -> Unit
+    onClick: (Feed) -> Unit,
 ) {
     LazyColumn {
         itemsIndexed(feeds) { i, feed ->
@@ -86,23 +87,23 @@ fun FeedItemList(
 @Composable
 fun FeedItem(
     feed: Feed,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         Modifier
             .clickable(onClick = onClick, enabled = !feed.isDefault)
-            .padding(16.dp)
+            .padding(16.dp),
     ) {
         FeedIcon(feed = feed)
         Spacer(modifier = Modifier.size(16.dp))
         Column {
             Text(
                 style = MaterialTheme.typography.body1,
-                text = feed.title
+                text = feed.title,
             )
             Text(
                 style = MaterialTheme.typography.body2,
-                text = feed.desc
+                text = feed.desc,
             )
         }
     }

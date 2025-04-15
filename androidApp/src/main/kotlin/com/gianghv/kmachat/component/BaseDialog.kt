@@ -41,13 +41,19 @@ import com.gianghv.kmachat.theme.Light_Teal
 import com.gianghv.kmachat.theme.icons.Exclamation
 import com.gianghv.kmachat.theme.icons.Shield
 
-
 enum class DialogType {
-    SUCCESS, FAIL, NOTICE, ERROR
+    SUCCESS,
+    FAIL,
+    NOTICE,
+    ERROR,
 }
 
 sealed class ButtonType {
-    data class TextButton(val text: String, val onClick: () -> Unit) : ButtonType()
+    data class TextButton(
+        val text: String,
+        val onClick: () -> Unit,
+    ) : ButtonType()
+
     data class PairButton(
         val primary: String,
         val secondary: String,
@@ -55,7 +61,10 @@ sealed class ButtonType {
         val onSecondaryClick: () -> Unit,
     ) : ButtonType()
 
-    data class PrimaryButtons(val text: String, val onClick: () -> Unit) : ButtonType()
+    data class PrimaryButtons(
+        val text: String,
+        val onClick: () -> Unit,
+    ) : ButtonType()
 }
 
 @Composable
@@ -86,29 +95,32 @@ fun DialogType.getIcon() {
     }
 
     Box(
-        modifier = Modifier
-            .background(shape = CircleShape, color = iconColor)
-            .padding(all = 24.dp)
-            .size(60.dp)
+        modifier =
+            Modifier
+                .background(shape = CircleShape, color = iconColor)
+                .padding(all = 24.dp)
+                .size(60.dp),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxSize()
-                .zIndex(1f)
-                .padding(all = 12.dp)
-                .background(color = Color.Transparent),
-            tint = Color.Black
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .fillMaxSize()
+                    .zIndex(1f)
+                    .padding(all = 12.dp)
+                    .background(color = Color.Transparent),
+            tint = Color.Black,
         )
         Icon(
             imageVector = Shield,
             contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .fillMaxSize(),
-            tint = Color.White
+            modifier =
+                Modifier
+                    .align(Alignment.Center)
+                    .fillMaxSize(),
+            tint = Color.White,
         )
     }
 }
@@ -117,21 +129,22 @@ fun DialogType.getIcon() {
 fun ColumnScope.getButtons(buttonType: ButtonType) {
     when (buttonType) {
         is ButtonType.PairButton -> {
-
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(horizontal = 32.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(horizontal = 32.dp),
             ) {
                 PrimaryButton(
                     onClick = buttonType.onPrimaryClick,
                     modifier = Modifier.fillMaxWidth(),
-                    text = { Text(text = buttonType.primary) })
+                    text = { Text(text = buttonType.primary) },
+                )
 
                 TextButton(
                     onClick = buttonType.onSecondaryClick,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(text = buttonType.secondary)
                 }
@@ -141,23 +154,28 @@ fun ColumnScope.getButtons(buttonType: ButtonType) {
         is ButtonType.PrimaryButtons -> {
             PrimaryButton(
                 onClick = buttonType.onClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp),
-                text = { Text(text = buttonType.text) })
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                text = { Text(text = buttonType.text) },
+            )
         }
 
         is ButtonType.TextButton -> {
             Row(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .align(Alignment.CenterHorizontally)
-                    .clickable(true) { buttonType.onClick() }) {
+                modifier =
+                    Modifier
+                        .wrapContentSize()
+                        .align(Alignment.CenterHorizontally)
+                        .clickable(true) { buttonType.onClick() },
+            ) {
                 TextButton(
                     onClick = buttonType.onClick,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .wrapContentSize()
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterVertically)
+                            .wrapContentSize(),
                 ) {
                     Text(text = buttonType.text)
                 }
@@ -167,9 +185,10 @@ fun ColumnScope.getButtons(buttonType: ButtonType) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .align(Alignment.CenterVertically)
+                    modifier =
+                        Modifier
+                            .size(24.dp)
+                            .align(Alignment.CenterVertically),
                 )
             }
         }
@@ -185,25 +204,26 @@ fun BaseNoticeDialog(
     onCancelRequest: () -> Unit = {},
     buttonType: ButtonType,
 ) {
-
     Dialog(
         onDismissRequest = onCancelRequest,
-        properties = DialogProperties(
-            dismissOnBackPress = cancelable,
-            dismissOnClickOutside = cancelable
-        )
+        properties =
+            DialogProperties(
+                dismissOnBackPress = cancelable,
+                dismissOnClickOutside = cancelable,
+            ),
     ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
             color = MaterialTheme.colorScheme.surface,
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
+            modifier =
+                Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
         ) {
             Column(
                 modifier = Modifier.padding(32.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 type.getIcon()
 
@@ -215,7 +235,7 @@ fun BaseNoticeDialog(
                     style = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
-                    maxLines = 1
+                    maxLines = 1,
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))

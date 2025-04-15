@@ -13,13 +13,18 @@ import kotlin.coroutines.suspendCoroutine
 
 internal class IosFeedParser : FeedParser {
     @Suppress("CAST_NEVER_SUCCEEDS")
-    override suspend fun parse(sourceUrl: String, xml: String, isDefault: Boolean): Feed =
+    override suspend fun parse(
+        sourceUrl: String,
+        xml: String,
+        isDefault: Boolean
+    ): Feed =
         withContext(Dispatchers.Default) {
             suspendCoroutine { continuation ->
                 Napier.v(tag = "IosFeedParser", message = "Start parse $sourceUrl")
-                NSXMLParser((xml as NSString).dataUsingEncoding(NSUTF8StringEncoding)!!).apply {
-                    delegate = RssFeedParser(sourceUrl, isDefault) { continuation.resume(it) }
-                }.parse()
+                NSXMLParser((xml as NSString).dataUsingEncoding(NSUTF8StringEncoding)!!)
+                    .apply {
+                        delegate = RssFeedParser(sourceUrl, isDefault) { continuation.resume(it) }
+                    }.parse()
             }
         }
 
@@ -27,7 +32,8 @@ internal class IosFeedParser : FeedParser {
         private val sourceUrl: String,
         private val isDefault: Boolean,
         private val onEnd: (Feed) -> Unit
-    ) : NSObject(), NSXMLParserDelegateProtocol {
+    ) : NSObject(),
+        NSXMLParserDelegateProtocol {
         private val posts = mutableListOf<Post>()
 
         private var currentChannelData: MutableMap<String, String> = mutableMapOf()
@@ -35,9 +41,10 @@ internal class IosFeedParser : FeedParser {
         private var currentData: MutableMap<String, String>? = null
         private var currentElement: String? = null
 
-        private val dateFormatter = NSDateFormatter().apply {
-            dateFormat = "E, d MMM yyyy HH:mm:ss Z"
-        }
+        private val dateFormatter =
+            NSDateFormatter().apply {
+                dateFormat = "E, d MMM yyyy HH:mm:ss Z"
+            }
 
         override fun parser(
             parser: NSXMLParser,
@@ -47,14 +54,18 @@ internal class IosFeedParser : FeedParser {
             attributes: Map<Any?, *>
         ) {
             currentElement = didStartElement
-            currentData = when (currentElement) {
-                "channel" -> currentChannelData
-                "item" -> currentItemData
-                else -> currentData
-            }
+            currentData =
+                when (currentElement) {
+                    "channel" -> currentChannelData
+                    "item" -> currentItemData
+                    else -> currentData
+                }
         }
 
-        override fun parser(parser: NSXMLParser, foundCharacters: String) {
+        override fun parser(
+            parser: NSXMLParser,
+            foundCharacters: String
+        ) {
             val currentElement = currentElement ?: return
             val currentData = currentData ?: return
             currentData[currentElement] = (currentData[currentElement] ?: "") + foundCharacters
@@ -80,10 +91,11 @@ internal class IosFeedParser : FeedParser {
         private fun Post.Companion.withMap(rssMap: Map<String, String>): Post {
             val pubDate = rssMap["pubDate"]
             val date =
-                if (pubDate != null)
+                if (pubDate != null) {
                     dateFormatter.dateFromString(pubDate.trim())?.timeIntervalSince1970
-                else
+                } else {
                     null
+                }
             val link = rssMap["link"]
             val description = rssMap["description"]
             val content = rssMap["content:encoded"]
@@ -112,7 +124,3 @@ internal class IosFeedParser : FeedParser {
         )
     }
 }
-
-
-
-

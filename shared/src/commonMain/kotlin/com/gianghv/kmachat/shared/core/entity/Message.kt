@@ -7,19 +7,15 @@ data class Message(
     val isHuman: Boolean = true,
     val content: String? = null,
     val timestamp: Long? = 0L,
-    val attachedFiles: List<AttachFile>? = emptyList(),
+    val attachedFiles: List<AttachFile>? = emptyList()
 ) : MessageAbstract {
-    override fun getRichText(): String {
-        return content ?: ""
-    }
+    override fun getRichText(): String = content ?: ""
 
-    override fun getCopyableText(): String {
-        return content ?: ""
-    }
-
+    override fun getCopyableText(): String = content ?: ""
 }
 
 interface MessageAbstract {
     fun getRichText(): String?
+
     fun getCopyableText(): String?
 }

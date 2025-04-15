@@ -13,18 +13,17 @@ class RssReader internal constructor(
     private val settings: Settings = Settings(setOf("https://blog.jetbrains.com/kotlin/feed/"))
 ) {
     @Throws(Exception::class)
-    suspend fun getAllFeeds(
-        forceUpdate: Boolean = false
-    ): List<Feed> {
+    suspend fun getAllFeeds(forceUpdate: Boolean = false): List<Feed> {
         var feeds = feedStorage.getAllFeeds()
 
         if (forceUpdate || feeds.isEmpty()) {
             val feedsUrls = if (feeds.isEmpty()) settings.defaultFeedUrls else feeds.map { it.sourceUrl }
-            feeds = feedsUrls.mapAsync { url ->
-                val new = feedLoader.getFeed(url, settings.isDefault(url))
-                feedStorage.saveFeed(new)
-                new
-            }
+            feeds =
+                feedsUrls.mapAsync { url ->
+                    val new = feedLoader.getFeed(url, settings.isDefault(url))
+                    feedStorage.saveFeed(new)
+                    new
+                }
         }
 
         return feeds
@@ -41,8 +40,7 @@ class RssReader internal constructor(
         feedStorage.deleteFeed(url)
     }
 
-    private suspend fun <A, B> Iterable<A>.mapAsync(f: suspend (A) -> B): List<B> =
-        coroutineScope { map { async { f(it) } }.awaitAll() }
+    private suspend fun <A, B> Iterable<A>.mapAsync(f: suspend (A) -> B): List<B> = coroutineScope { map { async { f(it) } }.awaitAll() }
 
     companion object
 }

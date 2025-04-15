@@ -5,13 +5,14 @@ package com.gianghv.kmachat.shared.base
  * or an error result containing an errorEntity of type [ErrorEntity]
  */
 sealed interface Result<out T> {
-
     /**
      * A class represents that result returned successfully.
      *
      * @property data a [T] object that contains success outcome
      */
-    data class Success<T>(val data: T) : Result<T>
+    data class Success<T>(
+        val data: T
+    ) : Result<T>
 
     /**
      * A class represents that some error happened while returning result.
@@ -19,7 +20,9 @@ sealed interface Result<out T> {
      * @property errorEntity an [ErrorEntity] object that contains error states.
      * @see ErrorEntity for different types of errors.
      */
-    data class Error(val error: BaseError) : Result<Nothing>
+    data class Error(
+        val error: BaseError
+    ) : Result<Nothing>
 
     /**
      * Companion object for [Result] class that contains empty [Result.Success] object.
@@ -32,6 +35,7 @@ sealed interface Result<out T> {
         val EMPTY = Success(Unit)
 
         fun <T> success(data: T): Result<T> = Success(data)
+
         fun error(throwable: Throwable): Result<Nothing> = Error(BaseError.UnknownError(throwable))
     }
 }
@@ -56,9 +60,8 @@ inline fun <T : Any?> Result<T>.onSuccess(action: (T) -> Unit): Result<T> {
     return this
 }
 
-inline fun <T : Any?, R> Result<T>.mapDataOnSuccess(transform: (T) -> R): Result<R> {
-    return when (this) {
+inline fun <T : Any?, R> Result<T>.mapDataOnSuccess(transform: (T) -> R): Result<R> =
+    when (this) {
         is Result.Error -> this
         is Result.Success -> Result.success(transform(data))
     }
-}

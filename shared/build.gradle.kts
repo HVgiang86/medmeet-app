@@ -6,6 +6,11 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.buildConfig)
+    alias(libs.plugins.ktlint)
+}
+
+buildscript {
+    apply(from = "$rootDir/team-props/git-hooks.gradle.kts")
 }
 
 kotlin {
@@ -27,17 +32,17 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            //Network
+            // Network
 //            implementation(libs.ktor.core)
 //            implementation(libs.ktor.logging)
             implementation(libs.bundles.ktor)
-            //Coroutines
+            // Coroutines
             implementation(libs.kotlinx.coroutines.core)
-            //Logger
+            // Logger
             implementation(libs.napier)
-            //JSON
+            // JSON
             implementation(libs.kotlinx.serialization.json)
-            //Key-Value storage
+            // Key-Value storage
             implementation(libs.multiplatform.settings)
             implementation(libs.multiplatform.settings.noargs)
             // DI
@@ -51,12 +56,12 @@ kotlin {
         }
 
         androidMain.dependencies {
-            //Network
+            // Network
             implementation(libs.ktor.client.okhttp)
         }
 
         iosMain.dependencies {
-            //Network
+            // Network
             implementation(libs.ktor.client.ios)
         }
     }
@@ -79,4 +84,15 @@ android {
     dependencies {
         coreLibraryDesugaring(libs.desugar.jdk.libs)
     }
+}
+
+ktlint {
+    disabledRules.set(
+        setOf(
+            "no-wildcard-imports",
+            "standard_no-wildcard-imports",
+            "standard_filename",
+            "standard_function-naming"
+        )
+    )
 }

@@ -1,6 +1,5 @@
 package com.gianghv.kmachat.component
 
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,12 +32,13 @@ fun PrimaryButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         contentPadding = contentPadding,
-        shape = shape
+        shape = shape,
     ) {
         text()
     }
@@ -57,17 +57,17 @@ fun SecondaryButton(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        colors = ButtonDefaults.filledTonalButtonColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-        ),
+        colors =
+            ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            ),
         contentPadding = contentPadding,
-        shape = shape
+        shape = shape,
     ) {
         text()
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,26 +77,29 @@ fun BlackButtonIconEnd(
     enable: Boolean = true,
     text: @Composable () -> Unit,
 ) {
-
     FilledTextButton(
-        onClick, modifier = modifier.fillMaxWidth(), colors = ButtonColors(
-            containerColor = Color.Black,
-            contentColor = Color.White,
-            disabledContentColor = MaterialTheme.colorScheme.onTertiary,
-            disabledContainerColor = MaterialTheme.colorScheme.tertiary
-        ), enable = enable
+        onClick,
+        modifier = modifier.fillMaxWidth(),
+        colors =
+            ButtonColors(
+                containerColor = Color.Black,
+                contentColor = Color.White,
+                disabledContentColor = MaterialTheme.colorScheme.onTertiary,
+                disabledContainerColor = MaterialTheme.colorScheme.tertiary,
+            ),
+        enable = enable,
     ) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
             text()
             Icon(
                 imageVector = ArrowRight,
                 contentDescription = null,
-                modifier = Modifier
-                    .width(24.dp)
-                    .align(Alignment.CenterEnd)
+                modifier =
+                    Modifier
+                        .width(24.dp)
+                        .align(Alignment.CenterEnd),
             )
         }
-
     }
 }
 
@@ -109,9 +112,13 @@ fun FilledTextButton(
     text: @Composable () -> Unit,
 ) {
     Button(
-        enabled = enable, onClick = {
+        enabled = enable,
+        onClick = {
             onClick.invoke()
-        }, shape = RoundedCornerShape(8.dp), modifier = modifier, colors = colors
+        },
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier,
+        colors = colors,
     ) {
         text()
     }

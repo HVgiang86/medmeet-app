@@ -24,12 +24,12 @@ fun PostList(
     modifier: Modifier,
     posts: List<Post>,
     listState: LazyListState,
-    onClick: (Post) -> Unit
+    onClick: (Post) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
-        state = listState
+        state = listState,
     ) {
         itemsIndexed(posts) { i, post ->
             if (i == 0) Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
@@ -44,29 +44,29 @@ private val dateFormatter = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault()
 @Composable
 fun PostItem(
     item: Post,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val padding = 16.dp
     Box {
         Card(
             elevation = 16.dp,
-            shape = RoundedCornerShape(padding)
+            shape = RoundedCornerShape(padding),
         ) {
             Column(
-                modifier = Modifier.clickable(onClick = onClick)
+                modifier = Modifier.clickable(onClick = onClick),
             ) {
                 Spacer(modifier = Modifier.size(padding))
                 Text(
                     modifier = Modifier.padding(start = padding, end = padding),
                     style = MaterialTheme.typography.h6,
-                    text = item.title
+                    text = item.title,
                 )
                 item.imageUrl?.let { url ->
                     Spacer(modifier = Modifier.size(padding))
                     Image(
                         painter = rememberAsyncImagePainter(url),
                         modifier = Modifier.height(180.dp).fillMaxWidth(),
-                        contentDescription = null
+                        contentDescription = null,
                     )
                 }
                 item.desc?.let { desc ->
@@ -76,7 +76,7 @@ fun PostItem(
                         style = MaterialTheme.typography.body1,
                         maxLines = 5,
                         overflow = TextOverflow.Ellipsis,
-                        text = desc
+                        text = desc,
                     )
                 }
                 Spacer(modifier = Modifier.size(padding))
@@ -84,7 +84,7 @@ fun PostItem(
                     modifier = Modifier.padding(start = padding, end = padding),
                     style = MaterialTheme.typography.body2,
                     color = MaterialTheme.colors.onSurface.copy(alpha = 0.7f),
-                    text = dateFormatter.format(Date(item.date))
+                    text = dateFormatter.format(Date(item.date)),
                 )
                 Spacer(modifier = Modifier.size(padding))
             }

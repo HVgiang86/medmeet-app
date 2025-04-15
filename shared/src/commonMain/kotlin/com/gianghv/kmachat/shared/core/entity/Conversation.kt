@@ -6,5 +6,5 @@ data class Conversation(
     val description: String? = null,
     val createdAt: Long,
     val updatedAt: Long,
-    val isArchived: Boolean = false,
+    val isArchived: Boolean = false
 )

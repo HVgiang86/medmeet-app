@@ -1,6 +1,5 @@
 package com.gianghv.kmachat.utils.ext
 
-
 import com.gianghv.kmachat.constant.YYYY_MM_DD
 import com.gianghv.kmachat.utils.DateTime
 import kotlinx.datetime.Clock
@@ -19,7 +18,7 @@ fun Any.getCurrentDate(): LocalDate {
     return instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
 }
 
-fun Long.millisToDateString(format: String) : String? {
+fun Long.millisToDateString(format: String): String? {
     val localDate = this.toLocalDate()
     return DateTime.getFormattedDate(localDate.toString(), YYYY_MM_DD, format)
 }
@@ -34,4 +33,3 @@ fun String?.toLocalDate(): LocalDate? {
         null
     }
 }
-

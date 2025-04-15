@@ -1,6 +1,5 @@
 package com.gianghv.kmachat.component
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -86,13 +85,14 @@ fun ScrollableDatePicker(
     var selectedDate by remember { mutableStateOf(currentDate) }
     val firstDateOfMonth = currentDate.minus(DatePeriod(days = currentDate.dayOfMonth - 1))
     val daysInMonth = currentDate.month.length(isLeap(currentDate.year))
-    val dates = remember {
-        mutableStateListOf<LocalDate>().apply {
-            for (i in 0 until daysInMonth) {
-                add(firstDateOfMonth.plus(DatePeriod(days = i)))
+    val dates =
+        remember {
+            mutableStateListOf<LocalDate>().apply {
+                for (i in 0 until daysInMonth) {
+                    add(firstDateOfMonth.plus(DatePeriod(days = i)))
+                }
             }
         }
-    }
 
     val listState = rememberLazyListState()
 
@@ -112,7 +112,7 @@ fun ScrollableDatePicker(
     LazyRow(
         modifier = modifier.background(color = Color.Transparent), // Background color
         horizontalArrangement = Arrangement.spacedBy(8.dp), // Spacing between date items,
-        state = listState
+        state = listState,
     ) {
         items(dates) { date ->
             DateItem(
@@ -122,7 +122,8 @@ fun ScrollableDatePicker(
                 onDateSelected = {
                     selectedDate = it
                     onDateSelected(it)
-                })
+                },
+            )
         }
     }
 }
@@ -134,50 +135,55 @@ fun DateItem(
     isCurrentDay: Boolean,
     onDateSelected: (LocalDate) -> Unit,
 ) {
+    val boxColor =
+        when {
+            isSelected -> MaterialTheme.colorScheme.primary
+            isSelected && isCurrentDay -> MaterialTheme.colorScheme.primary
+            isCurrentDay -> Grey_500
+            else -> Color.Transparent
+        }
 
-    val boxColor = when {
-        isSelected -> MaterialTheme.colorScheme.primary
-        isSelected && isCurrentDay -> MaterialTheme.colorScheme.primary
-        isCurrentDay -> Grey_500
-        else -> Color.Transparent
-    }
+    val textColor =
+        when {
+            isSelected -> MaterialTheme.colorScheme.onPrimary
+            isSelected && isCurrentDay -> MaterialTheme.colorScheme.onPrimary
+            isCurrentDay -> MaterialTheme.colorScheme.onPrimary
+            isCurrentDay -> Color.White
+            else -> Grey_500
+        }
 
-    val textColor = when {
-        isSelected -> MaterialTheme.colorScheme.onPrimary
-        isSelected && isCurrentDay -> MaterialTheme.colorScheme.onPrimary
-        isCurrentDay -> MaterialTheme.colorScheme.onPrimary
-        isCurrentDay -> Color.White
-        else -> Grey_500
-    }
-
-    val dayOfWeekColor = when {
-        isSelected -> MaterialTheme.colorScheme.onPrimary
-        isSelected && isCurrentDay -> MaterialTheme.colorScheme.onPrimary
-        isCurrentDay -> MaterialTheme.colorScheme.onPrimary
-        else -> Grey_500
-    }
+    val dayOfWeekColor =
+        when {
+            isSelected -> MaterialTheme.colorScheme.onPrimary
+            isSelected && isCurrentDay -> MaterialTheme.colorScheme.onPrimary
+            isCurrentDay -> MaterialTheme.colorScheme.onPrimary
+            else -> Grey_500
+        }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .width(48.dp) // Fixed width for each item
-            .clickable { onDateSelected(date) }
-            .background(shape = RoundedCornerShape(8.dp), color = boxColor)
+        modifier =
+            Modifier
+                .width(48.dp) // Fixed width for each item
+                .clickable { onDateSelected(date) }
+                .background(shape = RoundedCornerShape(8.dp), color = boxColor),
     ) {
         // Date Circle
         Box(
-            modifier = Modifier
-                .size(32.dp) // Fixed size for the circle
-                .clip(CircleShape)
-                .background(
-                    color = Color.Transparent
-                ), contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(32.dp) // Fixed size for the circle
+                    .clip(CircleShape)
+                    .background(
+                        color = Color.Transparent,
+                    ),
+            contentAlignment = Alignment.Center,
         ) {
             Text(
                 text = date.dayOfMonth.toString(),
                 style = MaterialTheme.typography.bodyMedium, // Date text style
                 color = dayOfWeekColor,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
             )
         }
 
@@ -185,10 +191,14 @@ fun DateItem(
 
         // Day of the Week
         Text(
-            text = date.dayOfWeek.toString().substring(0, 3)
-                .capitalizeWords(), // Get first 3 letters
+            text =
+                date.dayOfWeek
+                    .toString()
+                    .substring(0, 3)
+                    .capitalizeWords(),
+            // Get first 3 letters
             style = MaterialTheme.typography.bodySmall, // Day of week text style
-            color = textColor
+            color = textColor,
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -228,45 +238,51 @@ fun DatePicker(
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
-            modifier = modifier
-                .background(MaterialTheme.colorScheme.surfaceContainer)
-                .padding(16.dp)
+            modifier =
+                modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .padding(16.dp),
         ) {
             // Month and Year Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                val textMonth = if (vi) {
-                    "${currentDate.month.toVi()}/${currentDate.year}"
-                } else {
-                    "${currentDate.month.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }} ${currentDate.year}"
-                }.capitalizeWords()
+                val textMonth =
+                    if (vi) {
+                        "${currentDate.month.toVi()}/${currentDate.year}"
+                    } else {
+                        "${currentDate.month.name.replaceFirstChar {
+                            if (it.isLowerCase()) it.titlecase() else it.toString()
+                        }} ${currentDate.year}"
+                    }.capitalizeWords()
 
                 Text(
                     text = textMonth,
-                    style = TextStyle(
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
-                    ),
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(Alignment.CenterVertically)
-                        .clickable {
-                            // Jump to today
-                            currentDate = systemDate
+                    style =
+                        TextStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
+                        ),
+                    modifier =
+                        Modifier
+                            .weight(1f)
+                            .align(Alignment.CenterVertically)
+                            .clickable {
+                                // Jump to today
+                                currentDate = systemDate
 
-                            if (validateDate(systemDate)) {
-                                selectedDate = systemDate
-                                onDateSelected(systemDate)
-                            }
-                        },
+                                if (validateDate(systemDate)) {
+                                    selectedDate = systemDate
+                                    onDateSelected(systemDate)
+                                }
+                            },
                     textAlign = TextAlign.Start,
                 )
 
@@ -275,7 +291,7 @@ fun DatePicker(
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Previous Month"
+                        contentDescription = "Previous Month",
                     )
                 }
 
@@ -284,35 +300,41 @@ fun DatePicker(
                 }) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Next Month"
+                        contentDescription = "Next Month",
                     )
                 }
             }
 
             // Days of the Week
             Row(
-                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 val daysOfWeek =
-                    if (vi) listOf("CN", "T2", "T3", "T4", "T5", "T6", "T7") else listOf(
-                        "Sun",
-                        "Mon",
-                        "Tue",
-                        "Wed",
-                        "Thu",
-                        "Fri",
-                        "Sat"
-                    )
+                    if (vi) {
+                        listOf("CN", "T2", "T3", "T4", "T5", "T6", "T7")
+                    } else {
+                        listOf(
+                            "Sun",
+                            "Mon",
+                            "Tue",
+                            "Wed",
+                            "Thu",
+                            "Fri",
+                            "Sat",
+                        )
+                    }
                 daysOfWeek.forEach { day ->
                     Text(
                         text = day,
-                        style = TextStyle(
-                            color = Grey_600,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold
-                        ),
+                        style =
+                            TextStyle(
+                                color = Grey_600,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            ),
                         modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -327,7 +349,7 @@ fun DatePicker(
                 columns = GridCells.Fixed(7),
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 // Empty cells for padding
                 items(firstDayOfWeekNumber) {
@@ -340,49 +362,58 @@ fun DatePicker(
                     val isSelected = date == selectedDate
                     val dayNumber = day + 1
 
-                    val boxColor = if (isSelected) enableColor else {
-                        if (date.compare(systemDate) == 0) {
-                            todayColor
+                    val boxColor =
+                        if (isSelected) {
+                            enableColor
                         } else {
-                            Color.Transparent
-                        }
-                    }
-
-                    val textColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else {
-                        if (date.compare(systemDate) == 0) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            if (validateDate(date)) {
-                                Grey_500
+                            if (date.compare(systemDate) == 0) {
+                                todayColor
                             } else {
-                                Grey_300
+                                Color.Transparent
                             }
                         }
-                    }
+
+                    val textColor =
+                        if (isSelected) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            if (date.compare(systemDate) == 0) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                if (validateDate(date)) {
+                                    Grey_500
+                                } else {
+                                    Grey_300
+                                }
+                            }
+                        }
 
                     Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(MaterialTheme.shapes.small)
-                            .background(
-                                boxColor, shape = MaterialTheme.shapes.small
-                            )
-                            .clickable {
-                                if (validateDate(date)) {
-                                    currentDate = date
-                                    selectedDate = date
-                                    onDateSelected(date)
-                                }
-                            }, contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .size(40.dp)
+                                .clip(MaterialTheme.shapes.small)
+                                .background(
+                                    boxColor,
+                                    shape = MaterialTheme.shapes.small,
+                                ).clickable {
+                                    if (validateDate(date)) {
+                                        currentDate = date
+                                        selectedDate = date
+                                        onDateSelected(date)
+                                    }
+                                },
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = dayNumber.toString(),
-                            style = TextStyle(
-                                color = textColor,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                            textAlign = TextAlign.Center
+                            style =
+                                TextStyle(
+                                    color = textColor,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                ),
+                            textAlign = TextAlign.Center,
                         )
                     }
                 }
@@ -392,10 +423,7 @@ fun DatePicker(
 }
 
 // Write extension function to validate that LocalDate not weekend
-fun LocalDate.isWeekend(): Boolean {
-    return this.dayOfWeek.isoDayNumber % 7 == 6 || this.dayOfWeek.isoDayNumber % 7 == 0
-}
-
+fun LocalDate.isWeekend(): Boolean = this.dayOfWeek.isoDayNumber % 7 == 6 || this.dayOfWeek.isoDayNumber % 7 == 0
 
 /**
  * Returns a [LocalDate] in the previous month, on the same day if possible.
@@ -404,21 +432,25 @@ fun LocalDate.isWeekend(): Boolean {
  */
 fun LocalDate.previousMonth(): LocalDate {
     val previousMonth = this.month.minus(1)
-    val previousYear = if (previousMonth == Month.DECEMBER) {
-        this.year - 1
-    } else {
-        this.year
-    }
+    val previousYear =
+        if (previousMonth == Month.DECEMBER) {
+            this.year - 1
+        } else {
+            this.year
+        }
     val daysInPreviousMonth = previousMonth.length(isLeap(previousYear))
 
-    val day = if (this.dayOfMonth > daysInPreviousMonth) {
-        daysInPreviousMonth
-    } else {
-        this.dayOfMonth
-    }
+    val day =
+        if (this.dayOfMonth > daysInPreviousMonth) {
+            daysInPreviousMonth
+        } else {
+            this.dayOfMonth
+        }
 
     return LocalDate(
-        year = previousYear, month = previousMonth, dayOfMonth = day
+        year = previousYear,
+        month = previousMonth,
+        dayOfMonth = day,
     )
 }
 
@@ -432,9 +464,7 @@ fun LocalDate.compare(other: LocalDate): Int {
     return this.dayOfMonth - other.dayOfMonth
 }
 
-fun Month.toVi(): String {
-    return "Tháng $number"
-}
+fun Month.toVi(): String = "Tháng $number"
 
 /**
  * Returns a [LocalDate] in the next month, on the same day if possible.
@@ -446,22 +476,25 @@ fun LocalDate.nextMonth(): LocalDate {
     val nextYear = if (nextMonth == Month.JANUARY) this.year + 1 else this.year
     val daysInNextMonth = nextMonth.length(isLeap(nextYear))
 
-    val day = if (this.dayOfMonth > daysInNextMonth) {
-        daysInNextMonth
-    } else {
-        this.dayOfMonth
-    }
+    val day =
+        if (this.dayOfMonth > daysInNextMonth) {
+            daysInNextMonth
+        } else {
+            this.dayOfMonth
+        }
 
     return LocalDate(
-        year = nextYear, month = nextMonth, dayOfMonth = day
+        year = nextYear,
+        month = nextMonth,
+        dayOfMonth = day,
     )
 }
 
 /**
  * Returns the number of days in the month for a given year.
  */
-fun Month.length(isLeap: Boolean): Int {
-    return when (this) {
+fun Month.length(isLeap: Boolean): Int =
+    when (this) {
         Month.JANUARY,
         Month.MARCH,
         Month.MAY,
@@ -480,16 +513,13 @@ fun Month.length(isLeap: Boolean): Int {
         Month.FEBRUARY -> if (isLeap) 29 else 28
         else -> 30
     }
-}
 
 fun isLeap(date: LocalDate): Boolean {
     val year = date.year
     return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
 }
 
-fun isLeap(year: Int): Boolean {
-    return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
-}
+fun isLeap(year: Int): Boolean = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
 
 /**
  * Returns the next [Month].
@@ -536,7 +566,6 @@ fun PopupDatePicker(
                 state.selectedDateMillis?.let {
                     onDateSelected(it.toLocalDate())
                 }
-
             }, enabled = confirmEnabled.value) { Text("OK") }
         }, dismissButton = {
             TextButton(onClick = {
@@ -555,49 +584,50 @@ fun PopupDatePicker(
                     }
                 },
                 headline = {
-                    val dateFormatter = object : DatePickerFormatter {
-                        override fun formatDate(
-                            dateMillis: Long?,
-                            locale: CalendarLocale,
-                            forContentDescription: Boolean,
-                        ): String {
-                            if (dateMillis == null) {
-                                val current = getCurrentDate()
+                    val dateFormatter =
+                        object : DatePickerFormatter {
+                            override fun formatDate(
+                                dateMillis: Long?,
+                                locale: CalendarLocale,
+                                forContentDescription: Boolean,
+                            ): String {
+                                if (dateMillis == null) {
+                                    val current = getCurrentDate()
+                                    return DateTime.getFormattedDate(
+                                        current.toString(),
+                                        YYYY_MM_DD,
+                                        DD_MM_YYYY,
+                                    ) ?: "Selected date"
+                                }
+
+                                val localDate = dateMillis.toLocalDate()
                                 return DateTime.getFormattedDate(
-                                    current.toString(),
+                                    localDate.toString(),
                                     YYYY_MM_DD,
-                                    DD_MM_YYYY
+                                    DD_MM_YYYY,
                                 ) ?: "Selected date"
                             }
 
-                            val localDate = dateMillis.toLocalDate()
-                            return DateTime.getFormattedDate(
-                                localDate.toString(),
-                                YYYY_MM_DD,
-                                DD_MM_YYYY
-                            ) ?: "Selected date"
-                        }
+                            override fun formatMonthYear(
+                                monthMillis: Long?,
+                                locale: CalendarLocale,
+                            ): String {
+                                if (monthMillis == null) {
+                                    val current = getCurrentDate()
+                                    return "${current.month}/${current.year}"
+                                }
 
-                        override fun formatMonthYear(
-                            monthMillis: Long?,
-                            locale: CalendarLocale,
-                        ): String {
-                            if (monthMillis == null) {
-                                val current = getCurrentDate()
-                                return "${current.month}/${current.year}"
+                                val localDate = monthMillis.toLocalDate()
+                                return "${localDate.month}/${localDate.year}"
                             }
-
-                            val localDate = monthMillis.toLocalDate()
-                            return "${localDate.month}/${localDate.year}"
                         }
-
-                    }
                     DatePickerDefaults.DatePickerHeadline(
                         state.selectedDateMillis,
                         displayMode = DisplayMode.Picker,
-                        dateFormatter = dateFormatter
+                        dateFormatter = dateFormatter,
                     )
-                })
+                },
+            )
         }
     }
 }

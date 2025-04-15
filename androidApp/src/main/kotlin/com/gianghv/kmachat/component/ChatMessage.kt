@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,34 +52,41 @@ fun HumanChatMessage(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp)
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .wrapContentHeight()
-                .align(Alignment.CenterEnd)
-                .background(color = Color.Transparent)
+            modifier =
+                Modifier
+                    .fillMaxWidth(0.7f)
+                    .wrapContentHeight()
+                    .align(Alignment.CenterEnd)
+                    .background(color = Color.Transparent),
         ) {
             Surface(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(4.dp)
-                    .align(Alignment.CenterEnd),
-                shape = RoundedCornerShape(
-                    topStart = 20.dp, topEnd = 20.dp, bottomStart = 20.dp, bottomEnd = 20.dp
-                ),
-                color = MaterialTheme.colorScheme.primary
+                modifier =
+                    Modifier
+                        .wrapContentSize()
+                        .padding(4.dp)
+                        .align(Alignment.CenterEnd),
+                shape =
+                    RoundedCornerShape(
+                        topStart = 20.dp,
+                        topEnd = 20.dp,
+                        bottomStart = 20.dp,
+                        bottomEnd = 20.dp,
+                    ),
+                color = MaterialTheme.colorScheme.primary,
             ) {
                 Text(
                     text = message.content ?: "",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.padding(12.dp),
-                    textAlign = TextAlign.Justify
+                    textAlign = TextAlign.Justify,
                 )
             }
         }
@@ -94,11 +100,12 @@ fun BotMessage(
 ) {
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(8.dp),
-        horizontalAlignment = Alignment.Start
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(8.dp),
+        horizontalAlignment = Alignment.Start,
     ) {
         RichText {
             Markdown(message.content ?: "")
@@ -107,10 +114,11 @@ fun BotMessage(
         Spacer(modifier = Modifier.height(4.dp))
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(bottom = 4.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(bottom = 4.dp),
         ) {
             IconButton(modifier = Modifier.size(16.dp), onClick = {
                 // Handle copy to clipboard action with annotation string
@@ -120,21 +128,19 @@ fun BotMessage(
             }) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_copy),
-                    contentDescription = "Copy to clipboard"
+                    contentDescription = "Copy to clipboard",
                 )
             }
 
             Spacer(modifier = Modifier.width(4.dp))
 
             IconButton(modifier = Modifier.size(16.dp), onClick = {
-
             }) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_repeat),
-                    contentDescription = "Re-generate"
+                    contentDescription = "Re-generate",
                 )
             }
-
         }
     }
 }
@@ -148,29 +154,37 @@ fun WavingDots(
     animationDuration: Int = 300,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "")
-    val alphaValues = List(dotCount) { index ->
-        infiniteTransition.animateFloat(
-            initialValue = 0.3f, targetValue = 1f, animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = animationDuration,
-                    delayMillis = index * animationDuration / dotCount,
-                    easing = LinearEasing
-                ), repeatMode = RepeatMode.Reverse
-            ), label = "DotAlpha$index"
-        )
-    }
+    val alphaValues =
+        List(dotCount) { index ->
+            infiniteTransition.animateFloat(
+                initialValue = 0.3f,
+                targetValue = 1f,
+                animationSpec =
+                    infiniteRepeatable(
+                        animation =
+                            tween(
+                                durationMillis = animationDuration,
+                                delayMillis = index * animationDuration / dotCount,
+                                easing = LinearEasing,
+                            ),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                label = "DotAlpha$index",
+            )
+        }
 
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(dotSpacing),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         repeat(dotCount) { index ->
             Box(
-                modifier = Modifier
-                    .size(dotSize)
-                    .graphicsLayer(alpha = alphaValues[index].value)
-                    .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                modifier =
+                    Modifier
+                        .size(dotSize)
+                        .graphicsLayer(alpha = alphaValues[index].value)
+                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape),
             )
         }
     }
@@ -183,24 +197,28 @@ fun WavingDotsPreview() {
 }
 
 @Composable
-fun GeneratingIndicator(
-    modifier: Modifier = Modifier,
-) {
+fun GeneratingIndicator(modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier.padding(8.dp)
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(horizontal = 24.dp)
-            .padding(vertical = 8.dp),
+        modifier =
+            modifier
+                .padding(8.dp)
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(horizontal = 24.dp)
+                .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = "Generating...", style = MaterialTheme.typography.bodyLarge
+            text = "Generating...",
+            style = MaterialTheme.typography.bodyLarge,
         )
         Spacer(modifier = Modifier.width(8.dp))
         WavingDots(
-            dotCount = 3, dotSize = 6.dp, dotSpacing = 4.dp, animationDuration = 300
+            dotCount = 3,
+            dotSize = 6.dp,
+            dotSpacing = 4.dp,
+            animationDuration = 300,
         )
     }
 }

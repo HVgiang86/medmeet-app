@@ -1,6 +1,5 @@
 package com.gianghv.kmachat.component
 
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -47,17 +46,20 @@ fun ConfirmBottomSheet(
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { it != SheetValue.PartiallyExpanded })
+    val sheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+            confirmValueChange = { it != SheetValue.PartiallyExpanded },
+        )
 
-    ModalBottomSheet(onDismissRequest = {
-        scope.launch { sheetState.hide() }.invokeOnCompletion {
-            if (!sheetState.isVisible) {
-                onDismiss()
+    ModalBottomSheet(
+        onDismissRequest = {
+            scope.launch { sheetState.hide() }.invokeOnCompletion {
+                if (!sheetState.isVisible) {
+                    onDismiss()
+                }
             }
-        }
-    },
+        },
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius),
         containerColor = MaterialTheme.colorScheme.surface,
@@ -65,16 +67,18 @@ fun ConfirmBottomSheet(
             if (showHandle) {
                 BottomSheetDefaults.DragHandle()
             }
-        }) {
+        },
+    ) {
         val paddingTop = if (showHandle) 0.dp else 16.dp
 
         Column(
-            modifier = Modifier
-                .padding(bottom = 32.dp, top = paddingTop)
-                .padding(horizontal = 32.dp)
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .heightIn(max = 500.dp)
+            modifier =
+                Modifier
+                    .padding(bottom = 32.dp, top = paddingTop)
+                    .padding(horizontal = 32.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .heightIn(max = 500.dp),
         ) {
             // Title
             Text(
@@ -83,7 +87,7 @@ fun ConfirmBottomSheet(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 2, // Limit title lines
-                overflow = TextOverflow.Ellipsis // Truncate with ellipsis
+                overflow = TextOverflow.Ellipsis, // Truncate with ellipsis
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -97,22 +101,25 @@ fun ConfirmBottomSheet(
                 text = content,
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(scrollState), // Make content scrollable
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState),
+                // Make content scrollable
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 5, // Limit content lines
-                overflow = TextOverflow.Ellipsis // Truncate with ellipsis
+                overflow = TextOverflow.Ellipsis, // Truncate with ellipsis
             )
 
             // Buttons
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 32.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(top = 32.dp),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Dismiss Button
 
@@ -124,23 +131,30 @@ fun ConfirmBottomSheet(
                     }
                 }, text = {
                     Text(
-                        text = dismissButtonText, maxLines = 1, overflow = TextOverflow.Ellipsis
+                        text = dismissButtonText,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }, modifier = Modifier.weight(1f))
 
                 Spacer(modifier = Modifier.width(32.dp))
 
-                PrimaryButton(onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            onConfirm()
+                PrimaryButton(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                onConfirm()
+                            }
                         }
-                    }
-                }, text = {
-                    Text(
-                        text = confirmButtonText, maxLines = 1, overflow = TextOverflow.Ellipsis
-                    )
-                }, modifier = Modifier.weight(1f)
+                    },
+                    text = {
+                        Text(
+                            text = confirmButtonText,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -161,9 +175,11 @@ fun ConfirmBottomSheet(
 ) {
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { it != SheetValue.PartiallyExpanded })
+    val sheetState =
+        rememberModalBottomSheetState(
+            skipPartiallyExpanded = true,
+            confirmValueChange = { it != SheetValue.PartiallyExpanded },
+        )
 
     ModalBottomSheet(
         onDismissRequest = {
@@ -180,12 +196,13 @@ fun ConfirmBottomSheet(
         val paddingTop = if (showHandle) 0.dp else 16.dp
 
         Column(
-            modifier = Modifier
-                .padding(bottom = 32.dp, top = paddingTop)
-                .padding(horizontal = 32.dp)
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .heightIn(max = 500.dp)
+            modifier =
+                Modifier
+                    .padding(bottom = 32.dp, top = paddingTop)
+                    .padding(horizontal = 32.dp)
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .heightIn(max = 500.dp),
         ) {
             // Title
             Text(
@@ -194,7 +211,7 @@ fun ConfirmBottomSheet(
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 2, // Limit title lines
-                overflow = TextOverflow.Ellipsis // Truncate with ellipsis
+                overflow = TextOverflow.Ellipsis, // Truncate with ellipsis
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -208,12 +225,13 @@ fun ConfirmBottomSheet(
 
             // Buttons
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(top = 32.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(top = 32.dp),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 // Dismiss Button
 
@@ -225,23 +243,30 @@ fun ConfirmBottomSheet(
                     }
                 }, text = {
                     Text(
-                        text = dismissButtonText, maxLines = 1, overflow = TextOverflow.Ellipsis
+                        text = dismissButtonText,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }, modifier = Modifier.weight(1f))
 
                 Spacer(modifier = Modifier.width(32.dp))
 
-                PrimaryButton(onClick = {
-                    scope.launch { sheetState.hide() }.invokeOnCompletion {
-                        if (!sheetState.isVisible) {
-                            onConfirm()
+                PrimaryButton(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                onConfirm()
+                            }
                         }
-                    }
-                }, text = {
-                    Text(
-                        text = confirmButtonText, maxLines = 1, overflow = TextOverflow.Ellipsis
-                    )
-                }, modifier = Modifier.weight(1f)
+                    },
+                    text = {
+                        Text(
+                            text = confirmButtonText,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
                 )
             }
         }

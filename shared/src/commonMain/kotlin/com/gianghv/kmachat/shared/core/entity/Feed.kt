@@ -24,9 +24,7 @@ data class Feed(
         return true
     }
 
-    override fun hashCode(): Int {
-        return sourceUrl.hashCode()
-    }
+    override fun hashCode(): Int = sourceUrl.hashCode()
 }
 
 @Serializable

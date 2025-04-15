@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -36,17 +35,23 @@ fun TopBar(
     Surface(
         modifier = modifier.wrapContentSize(),
         border = if (!isTop) BorderStroke(1.dp, MaterialTheme.colorScheme.outline) else null,
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
-        Row(modifier = Modifier
-            .padding(16.dp)) {
-            Icon(imageVector = Icons.Default.Menu,
+        Row(
+            modifier =
+                Modifier
+                    .padding(16.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Default.Menu,
                 contentDescription = "Back",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .clickable {
-                        onOpenDrawer()
-                    })
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable {
+                            onOpenDrawer()
+                        },
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -59,13 +64,15 @@ fun TopBar(
 
             Spacer(modifier = Modifier.weight(1f))
 
-            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_new_chat),
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.ic_new_chat),
                 contentDescription = "New chat",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .clickable {
-
-                    })
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterVertically)
+                        .clickable {
+                        },
+            )
         }
     }
 }

@@ -16,37 +16,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
-import com.gianghv.kmachat.shared.core.entity.Feed
 import com.gianghv.kmachat.R
+import com.gianghv.kmachat.shared.core.entity.Feed
 
 @Composable
 fun AddFeedDialog(
     onAdd: (String) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) = Dialog(
-    onDismissRequest = onDismiss
+    onDismissRequest = onDismiss,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(8.dp))
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(8.dp))
+                .padding(16.dp),
     ) {
         val input = remember { mutableStateOf(TextFieldValue()) }
         Text(text = stringResource(R.string.rss_feed_url))
         TextField(
             maxLines = 3,
             value = input.value,
-            onValueChange = { input.value = it }
+            onValueChange = { input.value = it },
         )
         Spacer(modifier = Modifier.size(16.dp))
         Button(
             modifier = Modifier.align(Alignment.End),
             onClick = {
                 onAdd(
-                    input.value.text.replace("http://", "https://")
+                    input.value.text.replace("http://", "https://"),
                 )
-            }
+            },
         ) {
             Text(text = stringResource(R.string.add))
         }
@@ -57,21 +58,22 @@ fun AddFeedDialog(
 fun DeleteFeedDialog(
     feed: Feed,
     onDelete: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) = Dialog(
-    onDismissRequest = onDismiss
+    onDismissRequest = onDismiss,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(8.dp))
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.surface, shape = RoundedCornerShape(8.dp))
+                .padding(16.dp),
     ) {
         Text(text = feed.sourceUrl)
         Spacer(modifier = Modifier.size(16.dp))
         Button(
             modifier = Modifier.align(Alignment.End),
-            onClick = { onDelete() }
+            onClick = { onDelete() },
         ) {
             Text(text = stringResource(R.string.remove))
         }

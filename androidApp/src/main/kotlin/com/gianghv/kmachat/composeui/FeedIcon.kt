@@ -20,8 +20,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
-import com.gianghv.kmachat.shared.core.entity.Feed
 import com.gianghv.kmachat.R
+import com.gianghv.kmachat.shared.core.entity.Feed
 import java.util.Locale
 
 @Composable
@@ -33,31 +33,33 @@ fun FeedIcon(
     val txtAll = stringResource(R.string.all)
     val shortName = remember(feed) { feed?.shortName() ?: txtAll }
     Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(CircleShape)
-            .background(
-                color = if (isSelected) MaterialTheme.colors.secondary else Color.Transparent
-            )
+        modifier =
+            Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(
+                    color = if (isSelected) MaterialTheme.colors.secondary else Color.Transparent,
+                ),
     ) {
         Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(CircleShape)
-                .align(Alignment.Center)
-                .background(color = MaterialTheme.colors.primary)
-                .clickable(enabled = onClick != null, onClick = onClick ?: {})
+            modifier =
+                Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .align(Alignment.Center)
+                    .background(color = MaterialTheme.colors.primary)
+                    .clickable(enabled = onClick != null, onClick = onClick ?: {}),
         ) {
             Text(
                 modifier = Modifier.align(Alignment.Center),
                 color = MaterialTheme.colors.onPrimary,
-                text = shortName
+                text = shortName,
             )
             feed?.imageUrl?.let { url ->
                 Image(
                     painter = rememberAsyncImagePainter(url),
                     modifier = Modifier.fillMaxSize(),
-                    contentDescription = null
+                    contentDescription = null,
                 )
             }
         }
@@ -67,20 +69,19 @@ fun FeedIcon(
 private fun Feed.shortName(): String = title.replace(" ", "").take(2).uppercase(Locale.getDefault())
 
 @Composable
-fun EditIcon(
-    onClick: () -> Unit,
-) {
+fun EditIcon(onClick: () -> Unit) {
     Box(
-        modifier = Modifier
-            .size(48.dp)
-            .clip(CircleShape)
-            .background(color = MaterialTheme.colors.secondary)
-            .clickable(onClick = onClick)
+        modifier =
+            Modifier
+                .size(48.dp)
+                .clip(CircleShape)
+                .background(color = MaterialTheme.colors.secondary)
+                .clickable(onClick = onClick),
     ) {
         Image(
             imageVector = ImageVector.vectorResource(R.drawable.ic_edit),
             modifier = Modifier.align(Alignment.Center),
-            contentDescription = null
+            contentDescription = null,
         )
     }
 }

@@ -40,7 +40,7 @@ android {
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                file("proguard-rules.pro")
+                file("proguard-rules.pro"),
             )
         }
         release {
@@ -49,7 +49,7 @@ android {
 
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                file("proguard-rules.pro")
+                file("proguard-rules.pro"),
             )
         }
     }
@@ -69,30 +69,30 @@ android {
     }
     dependencies {
         implementation(project(":shared"))
-        //desugar utils
+        // desugar utils
         coreLibraryDesugaring(libs.desugar.jdk.libs)
-        //Compose
+        // Compose
         implementation(libs.androidx.compose.ui)
         implementation(libs.androidx.compose.ui.tooling)
         implementation(libs.androidx.compose.foundation)
         implementation(libs.androidx.compose.material)
-        //Compose Utils
+        // Compose Utils
         implementation(libs.coil.compose)
         implementation(libs.activity.compose)
         implementation(libs.accompanist.swiperefresh)
-        //Coroutines
+        // Coroutines
         implementation(libs.kotlinx.coroutines.core)
         implementation(libs.kotlinx.coroutines.android)
-        //DI
+        // DI
         implementation(libs.koin.core)
         implementation(libs.koin.android)
-        //Navigation
+        // Navigation
 //        implementation(libs.voyager.navigator)
         implementation(libs.bundles.voyager)
-        //WorkManager
+        // WorkManager
         implementation(libs.work.runtime.ktx)
 
-        //Logger
+        // Logger
         implementation(libs.napier)
 
         // UI components

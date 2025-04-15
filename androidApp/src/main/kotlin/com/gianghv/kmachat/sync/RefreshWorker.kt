@@ -11,22 +11,25 @@ import java.util.concurrent.TimeUnit
 
 class RefreshWorker(
     appContext: Context,
-    workerParams: WorkerParameters
-) : CoroutineWorker(appContext, workerParams), KoinComponent {
+    workerParams: WorkerParameters,
+) : CoroutineWorker(appContext, workerParams),
+    KoinComponent {
     private val rssReader: RssReader by inject()
 
-    override suspend fun doWork(): Result = withContext(Dispatchers.Main) {
-        rssReader.getAllFeeds(true)
-        Result.success()
-    }
+    override suspend fun doWork(): Result =
+        withContext(Dispatchers.Main) {
+            rssReader.getAllFeeds(true)
+            Result.success()
+        }
 
     companion object {
         private const val WORK_NAME = "refresh_work_name"
+
         fun enqueue(context: Context) {
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 WORK_NAME,
                 ExistingPeriodicWorkPolicy.KEEP,
-                PeriodicWorkRequestBuilder<RefreshWorker>(1, TimeUnit.HOURS).build()
+                PeriodicWorkRequestBuilder<RefreshWorker>(1, TimeUnit.HOURS).build(),
             )
         }
     }

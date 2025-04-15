@@ -26,9 +26,10 @@ class AppActivity : ComponentActivity() {
                 val scaffoldState = rememberScaffoldState()
                 Box(
                     Modifier.padding(
-                        WindowInsets.systemBars.only(WindowInsetsSides.Start + WindowInsetsSides.End)
-                            .asPaddingValues()
-                    )
+                        WindowInsets.systemBars
+                            .only(WindowInsetsSides.Start + WindowInsetsSides.End)
+                            .asPaddingValues(),
+                    ),
                 ) {
                     Navigator(HomeScreen())
                 }

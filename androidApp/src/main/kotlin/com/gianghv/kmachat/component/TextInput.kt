@@ -1,6 +1,5 @@
 package com.gianghv.kmachat.component
 
-
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -76,7 +75,7 @@ fun PasswordField(
             text = it,
             modifier = Modifier.padding(horizontal = 2.dp),
             style = Typography.titleSmall.copy(fontStyle = FontStyle.Italic),
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
         )
     },
     shape: Shape = RoundedCornerShape(size = 8.dp),
@@ -113,7 +112,7 @@ fun PasswordField(
         leadingIcon = leadingIcon,
         visualTransformation = visualTransformation,
         onClick = onClick,
-        hint = hint
+        hint = hint,
     )
 }
 
@@ -141,7 +140,7 @@ fun BaseInputText(
             text = it,
             modifier = Modifier.padding(horizontal = 2.dp),
             style = Typography.titleSmall.copy(fontStyle = FontStyle.Italic),
-            color = MaterialTheme.colorScheme.error
+            color = MaterialTheme.colorScheme.error,
         )
     },
     visualTransformation: VisualTransformation = VisualTransformation.None,
@@ -154,21 +153,26 @@ fun BaseInputText(
 
     val textFieldFocusState = focusState ?: remember { mutableStateOf(false) }
 
-    val textState = textFieldState ?: rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(default ?: ""))
-    }
+    val textState =
+        textFieldState ?: rememberSaveable(stateSaver = TextFieldValue.Saver) {
+            mutableStateOf(TextFieldValue(default ?: ""))
+        }
 
     var errorString by rememberSaveable {
         mutableStateOf<String?>(null)
     }
 
-    Column(modifier = modifier
-        .wrapContentHeight()
-        .fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
+    Column(
+        modifier =
+            modifier
                 .wrapContentHeight()
+                .fillMaxWidth(),
+    ) {
+        Row(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
         ) {
             Box(
                 Modifier
@@ -177,9 +181,10 @@ fun BaseInputText(
                     .align(Alignment.CenterVertically)
                     .clickable {
                         if (readOnly && !enable) onClick?.invoke()
-                    }) {
-
-                BaseTextField(textFieldValue = textState.value,
+                    },
+            ) {
+                BaseTextField(
+                    textFieldValue = textState.value,
                     onTextChanged = {
                         textState.value = it
                         errorString = validator.invoke(it.text)
@@ -200,13 +205,14 @@ fun BaseInputText(
                     },
                     readOnly = readOnly,
                     enable = enable,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .semantics {
-                            contentDescription = a11ylabel
-                            keyboardShownProperty = textFieldFocusState.value
-                        },
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .semantics {
+                                contentDescription = a11ylabel
+                                keyboardShownProperty = textFieldFocusState.value
+                            },
                     leadingIcon = leadingIcon,
                     trailingIcon = trailingIcon,
                     maxLines = maxLines,
@@ -217,7 +223,8 @@ fun BaseInputText(
                         hint?.let {
                             Text(text = it)
                         }
-                    })
+                    },
+                )
             }
         }
 
@@ -237,8 +244,12 @@ fun BoxScope.BaseTextField(
     readOnly: Boolean = false,
     enable: Boolean = true,
     modifier: Modifier = Modifier,
-    leadingIcon: @Composable() (() -> Unit)? = null,
-    trailingIcon: @Composable() (() -> Unit)? = null,
+    leadingIcon:
+        @Composable()
+        (() -> Unit)? = null,
+    trailingIcon:
+        @Composable()
+        (() -> Unit)? = null,
     maxLines: Int = 1,
     singleLine: Boolean = maxLines <= 1,
     minLines: Int = 1,
@@ -251,23 +262,26 @@ fun BoxScope.BaseTextField(
     val keyboardController = rememberKeyboardController()
     val focusManager = LocalFocusManager.current
 
-    OutlinedTextField(value = textFieldValue,
+    OutlinedTextField(
+        value = textFieldValue,
         onValueChange = { onTextChanged(it) },
-        modifier = modifier.onFocusChanged { state ->
-            if (lastFocusState != state.isFocused) {
-                onTextFieldFocused(state.isFocused)
-            }
-            lastFocusState = state.isFocused
-        },
+        modifier =
+            modifier.onFocusChanged { state ->
+                if (lastFocusState != state.isFocused) {
+                    onTextFieldFocused(state.isFocused)
+                }
+                lastFocusState = state.isFocused
+            },
         enabled = enable,
         keyboardOptions = keyboardOptions,
-        keyboardActions = KeyboardActions {
-            if (textFieldValue.text.isNotBlank()) {
-                onImeAction(textFieldValue.text)
-                keyboardController?.hide()
-                focusManager.clearFocus()
-            }
-        },
+        keyboardActions =
+            KeyboardActions {
+                if (textFieldValue.text.isNotBlank()) {
+                    onImeAction(textFieldValue.text)
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                }
+            },
         readOnly = readOnly,
         singleLine = singleLine,
         maxLines = maxLines,
@@ -277,29 +291,33 @@ fun BoxScope.BaseTextField(
         textStyle = LocalTextStyle.current.copy(color = LocalContentColor.current),
         visualTransformation = visualTransformation,
         shape = shape,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.surface,
-            unfocusedContainerColor = Grey_50
-        ),
-        placeholder = placeholder
+        colors =
+            OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = Grey_50,
+            ),
+        placeholder = placeholder,
     )
 }
 
 private fun TextFieldValue.addText(newString: String): TextFieldValue {
-    val newText = this.text.replaceRange(
-        this.selection.start, this.selection.end, newString
-    )
-    val newSelection = TextRange(
-        start = newText.length, end = newText.length
-    )
+    val newText =
+        this.text.replaceRange(
+            this.selection.start,
+            this.selection.end,
+            newString,
+        )
+    val newSelection =
+        TextRange(
+            start = newText.length,
+            end = newText.length,
+        )
 
     return this.copy(text = newText, selection = newSelection)
 }
 
 @Composable
-fun rememberKeyboardController(): SoftwareKeyboardController? {
-    return LocalSoftwareKeyboardController.current
-}
+fun rememberKeyboardController(): SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
 
 @Composable
 fun hideKeyboardAndClearFocus(
