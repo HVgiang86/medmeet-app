@@ -12,7 +12,7 @@ with [Kotlin Multiplatform Mobile](https://kotlinlang.org/lp/mobile/).
 iOS and Desktop clients were implemented as experimental features and can be viewed [here](https://github.com/Kotlin/kmm-production-sample/tree/compose-app).
 
 <img src="/media/Android+iOS+Desktop.png"/>
-
+ 
 ## Desktop and Web experiment
 
 Desktop and Web clients were implemented as experimental features and can be viewed [here](https://github.com/Kotlin/kmm-production-sample/tree/c6a0d9182802490d17729ae634fb59268f68a447).

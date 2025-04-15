@@ -3,6 +3,7 @@ package com.gianghv.kmachat.shared.core.entity
 data class Message(
     val id: String,
     val userId: String,
+    val conversationId: String,
     val isHuman: Boolean = true,
     val content: String? = null,
     val timestamp: Long? = 0L,

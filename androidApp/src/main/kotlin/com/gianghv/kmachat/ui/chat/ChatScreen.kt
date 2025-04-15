@@ -28,11 +28,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
@@ -45,6 +48,7 @@ import com.gianghv.kmachat.component.BotMessage
 import com.gianghv.kmachat.component.ChatInputSection
 import com.gianghv.kmachat.component.FailDialog
 import com.gianghv.kmachat.component.HumanChatMessage
+import com.gianghv.kmachat.component.TopBar
 import com.gianghv.kmachat.component.WavingDots
 import com.gianghv.kmachat.shared.app.chat.ChatAction
 import com.gianghv.kmachat.shared.app.chat.ChatEffect
@@ -55,12 +59,12 @@ import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 class ChatScreen(
-    private val onOpenDrawer: () -> Unit,
+    private val onOpenDrawer: () -> Unit, val store: ChatStore
 ) : Screen, KoinComponent {
 
     @Composable
     override fun Content() {
-        val store: ChatStore by inject()
+
         Napier.d("ChatScreen")
         ChatScreenContent(
             onOpenDrawer = onOpenDrawer, store = store
@@ -81,8 +85,13 @@ fun Screen.ChatScreenContent(
     val context = LocalContext.current
     val navigator = LocalNavigator.currentOrThrow
 
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+
     val refreshState = rememberPullRefreshState(refreshing = state.isLoading, onRefresh = {
-        store.sendAction(ChatAction.GetMessageHistory)
+        val conversationId = state.displayConversationId
+        if (conversationId != null) {
+            store.sendAction(ChatAction.GetMessageHistory(conversationId))
+        }
     })
 
     val errorEffect by store.observeSideEffect().filterIsInstance<ChatEffect.ShowError>()
@@ -91,9 +100,30 @@ fun Screen.ChatScreenContent(
     val toastEffect by store.observeSideEffect().filterIsInstance<ChatEffect.ShowToast>()
         .collectAsState(null)
 
+    // Create a derived state to track if the list is at the top
+    val isAtTop by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex == 0 &&
+                    listState.firstVisibleItemScrollOffset == 0
+        }
+    }
+
     // Handle effects
     LaunchedEffect(Unit) {
-        store.sendAction(ChatAction.GetMessageHistory)
+        store.sendAction(ChatAction.GetConversationList(showLatestConversation = true))
+    }
+
+    // Scroll to bottom when messages change or when generating starts/stops
+    LaunchedEffect(state.messages.size, state.isGenerating) {
+        if (state.messages.isNotEmpty() || state.isGenerating) {
+            listState.animateScrollToItem(
+                if (state.isGenerating) state.messages.size else state.messages.size - 1
+            )
+        }
+    }
+
+    // You can use this boolean in your composable or effects
+    LaunchedEffect(isAtTop) { // Trigger recomposing when isAtTop changes
     }
 
     // Show error message
@@ -109,41 +139,15 @@ fun Screen.ChatScreenContent(
             .imePadding()
             .pullRefresh(refreshState)
     ) {
-        TopAppBar(
-            backgroundColor = MaterialTheme.colorScheme.surface,
-        ) {
-            Icon(imageVector = Icons.Default.Menu,
-                contentDescription = "Back",
-                modifier = Modifier
-                    .padding(16.dp)
-                    .clickable {
-                        onOpenDrawer()
-                    })
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Text(
-                text = "Chat",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(16.dp)
-            )
-
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = "More",
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_new_chat),
-                contentDescription = "New chat",
-                modifier = Modifier
-                    .padding(16.dp)
-                    .clickable {
-
-                    })
-        }
+        TopBar(
+            onOpenDrawer = onOpenDrawer,
+            modifier = Modifier
+                .statusBarsPadding()
+                .fillMaxWidth(),
+            title = stringResource(R.string.app_name),
+            actionIcon = Icons.Default.Menu,
+            isTop = isAtTop,
+        )
 
         Column(
             modifier = Modifier
@@ -151,21 +155,31 @@ fun Screen.ChatScreenContent(
                 .padding(top = 56.dp)
         ) {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(horizontal = 16.dp)
             ) {
                 val itemNumber = if (state.isGenerating) {
-                    state.messages.size + 1
+                    state.messages.size + 2
                 } else {
-                    state.messages.size
+                    state.messages.size + 1
                 }
 
                 items(itemNumber) { index ->
                     if (index == state.messages.size) {
-                        // Show generating indicator
+                        if (!state.isGenerating) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            return@items
+                        }
+
                         WavingDots()
+                        return@items
+                    }
+
+                    if (index == state.messages.size + 1) {
+                        Spacer(modifier = Modifier.height(16.dp))
                         return@items
                     }
 
@@ -183,11 +197,11 @@ fun Screen.ChatScreenContent(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             ChatInputSection(modifier = Modifier.fillMaxWidth(), onMessageSent = { text ->
-                store.sendAction(ChatAction.SendMessage(text))
+                Napier.d("Send message: $text")
+                store.sendAction(ChatAction.SendMessage(text, state.displayConversationId))
 
+                //Scroll to the bottom
             }, onExpandRequest = {
                 onOpenDrawer()
             })
@@ -203,5 +217,3 @@ fun Screen.ChatScreenContent(
         )
     }
 }
-
-

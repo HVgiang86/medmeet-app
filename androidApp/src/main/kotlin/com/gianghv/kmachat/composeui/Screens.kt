@@ -18,7 +18,6 @@ import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -36,6 +35,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.gianghv.kmachat.component.DrawerMenu
 import com.gianghv.kmachat.shared.app.FeedAction
 import com.gianghv.kmachat.shared.app.FeedStore
+import com.gianghv.kmachat.shared.app.chat.ChatStore
 import com.gianghv.kmachat.ui.chat.ChatScreen
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
@@ -45,6 +45,8 @@ import org.koin.core.component.inject
 class HomeScreen : Screen, KoinComponent {
     @Composable
     override fun Content() {
+        val store: ChatStore by inject()
+
         val scaffoldState = rememberScaffoldState()
         val scope = rememberCoroutineScope()
 
@@ -61,7 +63,7 @@ class HomeScreen : Screen, KoinComponent {
                 drawerContent = {
                     DrawerMenu(onClose = {
                         Napier.d { "Close drawer" }
-                    })
+                    }, store = store)
                 }, drawerState = drawerState
             ) {
                 Box(
@@ -69,7 +71,7 @@ class HomeScreen : Screen, KoinComponent {
                         .padding(contentPadding)
                         .statusBarsPadding()
                 ) {
-                    Navigator(ChatScreen(onOpenDrawer = {
+                    Navigator(ChatScreen(store = store, onOpenDrawer = {
                         scope.launch {
                             drawerState.apply {
                                 if (isClosed) {

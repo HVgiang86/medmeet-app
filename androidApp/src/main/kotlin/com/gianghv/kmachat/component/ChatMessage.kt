@@ -13,11 +13,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
@@ -29,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.ClipboardManager
@@ -52,24 +54,35 @@ fun HumanChatMessage(
 ) {
     Box(
         modifier = modifier
-            .wrapContentWidth()
-            .fillMaxWidth(0.7f)
+            .fillMaxWidth()
             .wrapContentHeight()
-            .padding(horizontal = 24.dp)
-            .padding(vertical = 8.dp)
+            .padding(8.dp)
     ) {
-        Surface(
-            shape = RoundedCornerShape(
-                topStart = 20.dp, topEnd = 20.dp, bottomStart = 20.dp, bottomEnd = 20.dp
-            ), color = MaterialTheme.colorScheme.primary
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .wrapContentHeight()
+                .align(Alignment.CenterEnd)
+                .background(color = Color.Transparent)
         ) {
-            Text(
-                text = message.content ?: "",
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.padding(12.dp),
-                textAlign = TextAlign.Justify
-            )
+            Surface(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(4.dp)
+                    .align(Alignment.CenterEnd),
+                shape = RoundedCornerShape(
+                    topStart = 20.dp, topEnd = 20.dp, bottomStart = 20.dp, bottomEnd = 20.dp
+                ),
+                color = MaterialTheme.colorScheme.primary
+            ) {
+                Text(
+                    text = message.content ?: "",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.padding(12.dp),
+                    textAlign = TextAlign.Justify
+                )
+            }
         }
     }
 }
@@ -84,18 +97,14 @@ fun BotMessage(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(horizontal = 24.dp)
-            .padding(vertical = 8.dp), horizontalAlignment = Alignment.Start
+            .padding(8.dp),
+        horizontalAlignment = Alignment.Start
     ) {
         RichText {
             Markdown(message.content ?: "")
         }
 
-        HorizontalDivider(
-            modifier = Modifier.padding(vertical = 4.dp),
-            color = MaterialTheme.colorScheme.outline,
-            thickness = 1.dp
-        )
+        Spacer(modifier = Modifier.height(4.dp))
 
         Row(
             modifier = Modifier
@@ -103,7 +112,7 @@ fun BotMessage(
                 .wrapContentHeight()
                 .padding(bottom = 4.dp)
         ) {
-            IconButton(modifier = Modifier.size(24.dp), onClick = {
+            IconButton(modifier = Modifier.size(16.dp), onClick = {
                 // Handle copy to clipboard action with annotation string
                 message.getCopyableText().let { content ->
                     clipboardManager.setText(AnnotatedString(content))
@@ -117,7 +126,7 @@ fun BotMessage(
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            IconButton(modifier = Modifier.size(24.dp), onClick = {
+            IconButton(modifier = Modifier.size(16.dp), onClick = {
 
             }) {
                 Icon(
@@ -178,7 +187,7 @@ fun GeneratingIndicator(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
+        modifier = modifier.padding(8.dp)
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(horizontal = 24.dp)

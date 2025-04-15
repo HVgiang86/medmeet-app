@@ -1,6 +1,7 @@
 package com.gianghv.kmachat.shared.app.chat
 
 import com.gianghv.kmachat.shared.base.Store
+import com.gianghv.kmachat.shared.core.entity.Conversation
 import com.gianghv.kmachat.shared.core.entity.Message
 import com.gianghv.kmachat.shared.core.repository.ChatRepository
 import io.github.aakira.napier.Napier
@@ -8,6 +9,8 @@ import kotlinx.datetime.Clock
 
 data class ChatState(
     val messages: List<Message> = emptyList(),
+    val conversationList: List<Conversation> = emptyList(),
+    val displayConversationId: String? = null,
     val isGenerating: Boolean = false,
     val isLoading: Boolean = false,
 ) : Store.State(loading = isLoading) {
@@ -16,10 +19,24 @@ data class ChatState(
 }
 
 sealed interface ChatAction : Store.Action {
-    data class SendMessage(val text: String) : ChatAction
-    data object GetMessageHistory : ChatAction
-    data class SendMessageSuccess(val message: Message) : ChatAction
-    data class GetMessageHistorySuccess(val messages: List<Message>) : ChatAction
+    data class SendMessage(val text: String, val conversationId: String? = null) : ChatAction
+    data class NewConversation(val text: String) : ChatAction
+    data class GetConversationList(val showLatestConversation: Boolean = false) : ChatAction
+    data class SelectConversation(val conversationId: String) : ChatAction
+
+    data class GetConversationListSuccess(
+        val conversations: List<Conversation>, val showLatestConversation: Boolean = false
+    ) : ChatAction
+
+    data class GetMessageHistory(val conversationId: String) : ChatAction
+    data class SendMessageSuccess(val message: Message, val conversationId: String? = null) :
+        ChatAction
+
+    data class GetMessageHistorySuccess(val messages: List<Message>, val conversationId: String) :
+        ChatAction
+
+    data class NewConversationSuccess(val conversation: Conversation) : ChatAction
+
     data class Error(val error: String) : ChatAction
 }
 
@@ -43,69 +60,137 @@ class ChatStore(
         }
 
     override fun dispatch(oldState: ChatState, action: ChatAction) {
-        val newState = when (action) {
+        when (action) {
             is ChatAction.SendMessage -> {
-                if (oldState.isLoading || oldState.isGenerating) {
-                    oldState
-                } else {
-                    sendMessage(action.text)
-                    val message = generateHumanMessage(action.text)
-                    val messages = oldState.messages + message
-                    oldState.copy(isGenerating = true, messages = messages)
+                if (action.conversationId == null) {
+                    return
+                }
+
+                if (!oldState.isLoading && !oldState.isGenerating) {
+                    val message =
+                        generateHumanMessage(action.text, conversationId = action.conversationId)
+
+                    setState(
+                        oldState.copy(
+                            messages = oldState.messages + message, isGenerating = true
+                        )
+                    )
+
+                    sendMessage(action.text, conversationId = action.conversationId)
                 }
             }
 
             is ChatAction.GetMessageHistory -> {
-                if (oldState.isLoading) {
-                    oldState
-                } else {
-                    getMessageHistory()
-                    oldState.copy(isLoading = true)
+                if (!oldState.isLoading) {
+                    setState(
+                        oldState.copy(isLoading = true, messages = emptyList())
+                    )
+                    getMessageHistory(conversationId = action.conversationId)
                 }
             }
 
             is ChatAction.GetMessageHistorySuccess -> {
-                oldState.copy(
-                    isLoading = false, messages = action.messages, isGenerating = false
+                setState(
+                    oldState.copy(
+                        isLoading = false,
+                        messages = action.messages,
+                        isGenerating = false,
+                        displayConversationId = action.conversationId
+                    )
                 )
             }
 
             is ChatAction.SendMessageSuccess -> {
                 val messages = oldState.messages + action.message
                 setEffect(ChatEffect.ScrollToBottom)
-                oldState.copy(
-                    isLoading = false, messages = messages, isGenerating = false
+                setState(
+                    oldState.copy(
+                        messages = messages, isLoading = false, isGenerating = false
+                    )
                 )
             }
 
             is ChatAction.Error -> {
                 setEffect(ChatEffect.ShowError(action.error))
-                oldState.copy(isLoading = false, isGenerating = false)
+                setState(
+                    oldState.copy(
+                        isLoading = false, isGenerating = false
+                    )
+                )
             }
-        }
-        if (newState != oldState) {
-            Napier.d(tag = "FeedStore", message = "NewState: $newState")
-            setState(newState)
+
+            is ChatAction.GetConversationList -> {
+                if (!oldState.isLoading) {
+                    setState(oldState.copy(isLoading = true))
+                    getConversationList(action.showLatestConversation)
+                }
+            }
+
+            is ChatAction.GetConversationListSuccess -> {
+                if (action.showLatestConversation) {
+                    setState(
+                        oldState.copy(
+                            isLoading = true, conversationList = action.conversations
+                        )
+                    )
+                    action.conversations.firstOrNull()?.let { conversation ->
+                        getMessageHistory(conversation.id)
+                    }
+                } else {
+                    setState(
+                        oldState.copy(
+                            isLoading = false, conversationList = action.conversations
+                        )
+                    )
+                }
+            }
+
+            is ChatAction.NewConversation -> {
+
+            }
+
+            is ChatAction.NewConversationSuccess -> {
+
+            }
+
+            is ChatAction.SelectConversation -> {
+                if (!oldState.isLoading) {
+                    setState(oldState.copy(isLoading = true))
+                    getMessageHistory(action.conversationId)
+                }
+            }
         }
     }
 
-    private fun getMessageHistory() {
+    private fun getConversationList(showLatestConversation: Boolean) {
         launch {
-            chatRepository.getMessageHistory().collect { messages ->
-                sendAction(ChatAction.GetMessageHistorySuccess(messages))
+            chatRepository.getConversationList().collect { conversations ->
+                sendAction(
+                    ChatAction.GetConversationListSuccess(
+                        conversations, showLatestConversation
+                    )
+                )
             }
         }
     }
 
-    private fun sendMessage(text: String) {
+    private fun getMessageHistory(conversationId: String) {
+        launch {
+            chatRepository.getMessageHistory(conversationId).collect { messages ->
+                sendAction(ChatAction.GetMessageHistorySuccess(messages, conversationId))
+            }
+        }
+    }
+
+    private fun sendMessage(text: String, conversationId: String) {
         launch {
             chatRepository.sendMessage(text).collect { message ->
-                sendAction(ChatAction.SendMessageSuccess(message))
+                sendAction(ChatAction.SendMessageSuccess(message, conversationId))
             }
         }
     }
 
-    private fun generateHumanMessage(text: String): Message {
+    private fun generateHumanMessage(text: String, conversationId: String): Message {
         return Message(
             id = Clock.System.now().toEpochMilliseconds().toString(),
             userId = "human",
@@ -113,6 +198,7 @@ class ChatStore(
             isHuman = true,
             timestamp = Clock.System.now().toEpochMilliseconds(),
             attachedFiles = emptyList(),
+            conversationId = conversationId // Replace with actual conversation ID if needed
         )
     }
 } 
