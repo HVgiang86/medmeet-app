@@ -43,16 +43,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.annotation.InternalVoyagerApi
 import com.huongmt.medmeet.R
 import com.huongmt.medmeet.component.BaseInputText
 import com.huongmt.medmeet.component.ListPickerDialog
 import com.huongmt.medmeet.component.PasswordField
 import com.huongmt.medmeet.component.PopupDatePicker
 import com.huongmt.medmeet.component.PrimaryButton
+import com.huongmt.medmeet.shared.app.AuthAction
 import com.huongmt.medmeet.shared.app.AuthStore
 import com.huongmt.medmeet.shared.core.entity.Gender
 import com.huongmt.medmeet.shared.core.entity.SignUpData
+import com.huongmt.medmeet.shared.utils.validate.Validator
 import com.huongmt.medmeet.shared.utils.validate.Validator.validateNotEmpty
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
@@ -64,7 +65,7 @@ fun SignUpScreen(
     modifier: Modifier = Modifier.fillMaxSize(), store: AuthStore,
 ) {
     BackHandler(onBack = {
-//        viewModel.reducer.sendEvent(AuthEvent.DisplayLogin)
+        store.sendAction(AuthAction.DisplayLogin)
     }, enabled = true)
 
     SignUpScreenContent(modifier, store)
@@ -96,6 +97,7 @@ fun SignUpScreenContent(
 
     val province = remember { mutableStateOf("") }
     val district = remember { mutableStateOf("") }
+    val commune = remember { mutableStateOf("") }
     val address = remember { mutableStateOf("") }
 
     Column(
@@ -130,55 +132,39 @@ fun SignUpScreenContent(
 
         Column(modifier = Modifier) {
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.Text
-                ),
-                hint = "Name",
-                onTextChanged = {
-                    name.value = it
-                },
-                description = "Name",
-                onImeAction = {
-                    name.value = it
-                    Napier.d("name: $it")
-                },
-                validator = {
-                    validateNotEmpty(it)
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_user),
-                        contentDescription = null
-                    )
-                })
+            BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
+            ), hint = "Name", onTextChanged = {
+                name.value = it
+            }, description = "Name", onImeAction = {
+                name.value = it
+                Napier.d("name: $it")
+            }, validator = {
+                validateNotEmpty(it)
+            }, leadingIcon = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_user),
+                    contentDescription = null
+                )
+            })
 
             Spacer(Modifier.height(16.dp))
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.Email
-                ),
-                hint = "Email",
-                onTextChanged = {
-                    email.value = it
-                },
-                description = "Email",
-                onImeAction = {
-                    email.value = it
-                    Napier.d("email: $it")
-                },
-//                    validator = {
-//                        validateEmail(it)
-//                    },
-                leadingIcon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_email),
-                        contentDescription = null
-                    )
-                })
+            BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done, keyboardType = KeyboardType.Email
+            ), hint = "Email", onTextChanged = {
+                email.value = it
+            }, description = "Email", onImeAction = {
+                email.value = it
+                Napier.d("email: $it")
+            }, validator = {
+                Validator.validateEmail(it)
+            }, leadingIcon = {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_email),
+                    contentDescription = null
+                )
+            })
 
             Spacer(Modifier.height(16.dp))
 
@@ -190,16 +176,15 @@ fun SignUpScreenContent(
                     password.value = it
                 },
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Go,
-                    keyboardType = KeyboardType.Password
+                    imeAction = ImeAction.Go, keyboardType = KeyboardType.Password
                 ),
                 shape = RoundedCornerShape(10.dp),
                 onTextChanged = {
                     password.value = it
                 },
-//                    validator = {
-//                        validatePassword(it)
-//                    },
+                validator = {
+                    Validator.validatePassword(it)
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_lock),
@@ -217,16 +202,15 @@ fun SignUpScreenContent(
                     confirmPassword.value = it
                 },
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Go,
-                    keyboardType = KeyboardType.Password
+                    imeAction = ImeAction.Go, keyboardType = KeyboardType.Password
                 ),
                 shape = RoundedCornerShape(10.dp),
                 onTextChanged = {
                     confirmPassword.value = it
                 },
-//                    validator = {
-//                        validatePassword(it)
-//                    },
+                validator = {
+                    Validator.validatePassword(it)
+                },
                 leadingIcon = {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.ic_lock),
@@ -241,8 +225,7 @@ fun SignUpScreenContent(
             BaseInputText(modifier = Modifier.fillMaxWidth(),
                 textFieldState = dobTextField,
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.Text
+                    imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
                 ),
                 hint = "Date of birth",
                 description = "Dob",
@@ -267,8 +250,7 @@ fun SignUpScreenContent(
             BaseInputText(modifier = Modifier.fillMaxWidth(),
                 textFieldState = genderTextField,
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.Text
+                    imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
                 ),
                 hint = "Gender",
                 description = "Gender",
@@ -284,8 +266,7 @@ fun SignUpScreenContent(
             val listGender = listOf(Gender.MALE, Gender.FEMALE, Gender.OTHER)
 
             if (showGenderPicker.value) {
-                ListPickerDialog(
-                    title = "Gender",
+                ListPickerDialog(title = "Gender",
                     items = listGender,
                     default = listOf(gender.value),
                     onDismiss = {
@@ -303,62 +284,51 @@ fun SignUpScreenContent(
 
             Spacer(Modifier.height(24.dp))
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.Text
-                ),
-                hint = "Province",
-                description = "Province",
-                validator = {
-                    validateNotEmpty(it)
-                },
-                onTextChanged = {
-                    province.value = it
-                },
-                onImeAction = {
-                    province.value = it
-                })
+            BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
+            ), hint = "Province", description = "Province", validator = {
+                validateNotEmpty(it)
+            }, onTextChanged = {
+                province.value = it
+            }, onImeAction = {
+                province.value = it
+            })
 
             Spacer(Modifier.height(24.dp))
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.Text
-                ),
-                hint = "District",
-                description = "District",
-                validator = {
-                    validateNotEmpty(it)
-                },
-                onTextChanged = {
-                    district.value = it
-                },
-                onImeAction = {
-                    district.value = it
-                })
+            BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
+            ), hint = "District", description = "District", validator = {
+                validateNotEmpty(it)
+            }, onTextChanged = {
+                district.value = it
+            }, onImeAction = {
+                district.value = it
+            })
 
             Spacer(Modifier.height(24.dp))
 
-            BaseInputText(
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done,
-                    keyboardType = KeyboardType.Text
-                ),
-                hint = "Address",
-                description = "Address",
-                validator = {
-                    validateNotEmpty(it)
-                },
-                onTextChanged = {
-                    address.value = it
-                },
-                onImeAction = {
-                    address.value = it
-                },
-                maxLines = 3
+            BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
+            ), hint = "Commune", description = "Commune", validator = {
+                validateNotEmpty(it)
+            }, onTextChanged = {
+                commune.value = it
+            }, onImeAction = {
+                commune.value = it
+            })
+
+            Spacer(Modifier.height(24.dp))
+
+            BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
+            ), hint = "Address", description = "Address", validator = {
+                validateNotEmpty(it)
+            }, onTextChanged = {
+                address.value = it
+            }, onImeAction = {
+                address.value = it
+            }, maxLines = 3
             )
 
             Spacer(Modifier.height(24.dp))
@@ -377,20 +347,25 @@ fun SignUpScreenContent(
                     gender = gender.value,
                     province = province.value,
                     district = district.value,
+                    commune = commune.value,
                     address = address.value
                 )
-//                viewModel.signUp(data)
+                store.sendAction(AuthAction.RequestSignUp(data))
             })
 
             Spacer(Modifier.height(24.dp))
 
             Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                HorizontalDivider(modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp))
-                Box(modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(8.dp)) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(8.dp)
+                ) {
                     Text(
                         text = "or",
                         color = Color.Black,
@@ -409,12 +384,11 @@ fun SignUpScreenContent(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text("Do you have an account? ", style = MaterialTheme.typography.bodyMedium)
-                Text(
-                    "Sign In",
+                Text("Sign In",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Blue,
                     modifier = Modifier.clickable {
-//                    viewModel.reducer.sendEvent(AuthEvent.DisplayLogin)
+                        store.sendAction(AuthAction.DisplayLogin)
                     })
             }
 

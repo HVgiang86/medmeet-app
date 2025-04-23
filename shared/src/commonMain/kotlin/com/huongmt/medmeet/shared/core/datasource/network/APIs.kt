@@ -3,12 +3,15 @@ package com.huongmt.medmeet.shared.core.datasource.network
 import com.huongmt.medmeet.shared.base.BaseResponse
 import com.huongmt.medmeet.shared.config.BASE_URL
 import com.huongmt.medmeet.shared.core.datasource.network.request.SignUpRequest
+import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicListResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.LoginResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ProfileResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.Parameters
@@ -19,6 +22,7 @@ class APIs(private val httpClient: HttpClient) {
         const val LOGIN_ROUTE = "auth/sign-in"
         const val SIGN_UP_ROUTE = "auth/sign-up"
         const val USER_API_ROUTE = "user/"
+        const val CLINIC_API_ROUTE = "clinic"
     }
 
     suspend fun login(email: String, password: String): BaseResponse<LoginResponse> = httpClient.post(BASE_URL + LOGIN_ROUTE) {
@@ -38,4 +42,21 @@ class APIs(private val httpClient: HttpClient) {
         }.body()
 
     suspend fun getMyProfile(): BaseResponse<ProfileResponse> = httpClient.get(BASE_URL + USER_API_ROUTE + "me").body()
+
+    suspend fun getClinics(
+        name: String? = null,
+        address: String? = null,
+        status: Int? = null,
+        page: Int? = null,
+        pageSize: Int? = null
+    ): BaseResponse<ClinicListResponse> = httpClient.get("$BASE_URL$CLINIC_API_ROUTE") {
+        // Add non-null parameters to the request
+        name?.let { parameter("name", it) }
+        address?.let { parameter("address", it) }
+        status?.let { parameter("status", it) }
+        page?.let { parameter("_page", it) }
+        pageSize?.let { parameter("_pageSize", it) }
+    }.body()
+
+    suspend fun getClinicById(id: String): BaseResponse<ClinicResponse> = httpClient.get("$BASE_URL$CLINIC_API_ROUTE/$id").body()
 }

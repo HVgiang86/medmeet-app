@@ -12,5 +12,6 @@ data class SignUpRequest(
     val gender: Int,
     val province: String,
     val district: String,
+    val commune: String,
     val address: String
 )

@@ -42,10 +42,7 @@ import com.huongmt.medmeet.theme.icons.Exclamation
 import com.huongmt.medmeet.theme.icons.Shield
 
 enum class DialogType {
-    SUCCESS,
-    FAIL,
-    NOTICE,
-    ERROR,
+    SUCCESS, FAIL, NOTICE, ERROR,
 }
 
 sealed class ButtonType {
@@ -95,31 +92,28 @@ fun DialogType.getIcon() {
     }
 
     Box(
-        modifier =
-            Modifier
-                .background(shape = CircleShape, color = iconColor)
-                .padding(all = 24.dp)
-                .size(60.dp),
+        modifier = Modifier
+            .background(shape = CircleShape, color = iconColor)
+            .padding(all = 24.dp)
+            .size(60.dp),
     ) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            modifier =
-                Modifier
-                    .align(Alignment.Center)
-                    .fillMaxSize()
-                    .zIndex(1f)
-                    .padding(all = 12.dp)
-                    .background(color = Color.Transparent),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxSize()
+                .zIndex(1f)
+                .padding(all = 12.dp)
+                .background(color = Color.Transparent),
             tint = Color.Black,
         )
         Icon(
             imageVector = Shield,
             contentDescription = null,
-            modifier =
-                Modifier
-                    .align(Alignment.Center)
-                    .fillMaxSize(),
+            modifier = Modifier
+                .align(Alignment.Center)
+                .fillMaxSize(),
             tint = Color.White,
         )
     }
@@ -130,11 +124,10 @@ fun ColumnScope.getButtons(buttonType: ButtonType) {
     when (buttonType) {
         is ButtonType.PairButton -> {
             Column(
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(horizontal = 32.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(horizontal = 32.dp),
             ) {
                 PrimaryButton(
                     onClick = buttonType.onPrimaryClick,
@@ -154,28 +147,25 @@ fun ColumnScope.getButtons(buttonType: ButtonType) {
         is ButtonType.PrimaryButtons -> {
             PrimaryButton(
                 onClick = buttonType.onClick,
-                modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp),
                 text = { Text(text = buttonType.text) },
             )
         }
 
         is ButtonType.TextButton -> {
             Row(
-                modifier =
-                    Modifier
-                        .wrapContentSize()
-                        .align(Alignment.CenterHorizontally)
-                        .clickable(true) { buttonType.onClick() },
+                modifier = Modifier
+                    .wrapContentSize()
+                    .align(Alignment.CenterHorizontally)
+                    .clickable(true) { buttonType.onClick() },
             ) {
                 TextButton(
                     onClick = buttonType.onClick,
-                    modifier =
-                        Modifier
-                            .align(Alignment.CenterVertically)
-                            .wrapContentSize(),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .wrapContentSize(),
                 ) {
                     Text(text = buttonType.text)
                 }
@@ -185,10 +175,9 @@ fun ColumnScope.getButtons(buttonType: ButtonType) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = null,
-                    modifier =
-                        Modifier
-                            .size(24.dp)
-                            .align(Alignment.CenterVertically),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterVertically),
                 )
             }
         }
@@ -206,20 +195,19 @@ fun BaseNoticeDialog(
 ) {
     Dialog(
         onDismissRequest = onCancelRequest,
-        properties =
-            DialogProperties(
-                dismissOnBackPress = cancelable,
-                dismissOnClickOutside = cancelable,
-            ),
+        properties = DialogProperties(
+            dismissOnBackPress = cancelable,
+            dismissOnClickOutside = cancelable,
+        ),
     ) {
         Surface(
             shape = RoundedCornerShape(20.dp),
             color = MaterialTheme.colorScheme.surface,
-            modifier =
-                Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp),
+            shadowElevation = 4.dp,
         ) {
             Column(
                 modifier = Modifier.padding(32.dp),

@@ -15,6 +15,7 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.observer.ResponseObserver
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
@@ -62,12 +63,17 @@ private fun createHttpClient(tokenRepository: TokenRepository): HttpClient =
                         Napier.i(tag = "KTOR", message = "Logger Ktor => $message")
                     }
                 }
-            level = LogLevel.ALL
+            level = LogLevel.BODY
         }
 
         install(ResponseObserver) {
             onResponse { response ->
                 Napier.i(tag = "KTOR", message = "HTTP status: ${response.status.value}")
+                Napier.i(tag = "KTOR", message = "HTTP status: ${response.status.description}")
+                // Login raw response
+                response.bodyAsText().let { body ->
+                    Napier.i(tag = "KTOR", message = "HTTP body: $body")
+                }
             }
         }
 

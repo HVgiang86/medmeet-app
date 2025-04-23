@@ -19,15 +19,13 @@ import com.huongmt.medmeet.shared.base.ErrorException
 fun SuccessDialog(
     title: String = "Success",
     content: String,
-    state: MutableState<Boolean>? = null,
+    state: MutableState<Boolean>,
     cancelable: Boolean = false,
     onCanceled: (() -> Unit) = {},
     onBtnClick: (() -> Unit) = {},
     btnText: String = "OK",
 ) {
-    val openDialog = state ?: remember { mutableStateOf(true) }
-
-    if (openDialog.value) {
+    if (state.value) {
         BaseNoticeDialog(
             type = DialogType.SUCCESS,
             title = title,
@@ -35,13 +33,63 @@ fun SuccessDialog(
             cancelable = cancelable,
             onCancelRequest = {
                 onCanceled()
-                openDialog.value = false
+                state.value = false
             },
-            buttonType =
-                ButtonType.TextButton(text = btnText) {
-                    onBtnClick()
-                    openDialog.value = false
-                },
+            buttonType = ButtonType.TextButton(text = btnText) {
+                onBtnClick()
+                state.value = false
+            },
+        )
+    }
+}
+
+@Composable
+fun SuccessDialog(
+    title: String = "Success",
+    content: String,
+    cancelable: Boolean = false,
+    onCanceled: (() -> Unit) = {},
+    onBtnClick: (() -> Unit) = {},
+    btnText: String = "OK",
+) {
+    BaseNoticeDialog(
+        type = DialogType.SUCCESS,
+        title = title,
+        text = content,
+        cancelable = cancelable,
+        onCancelRequest = {
+            onCanceled()
+        },
+        buttonType = ButtonType.TextButton(text = btnText) {
+            onBtnClick()
+        },
+    )
+}
+
+@Composable
+fun FailDialog(
+    title: String = "Fail",
+    content: String,
+    state: MutableState<Boolean>,
+    cancelable: Boolean = true,
+    onCanceled: (() -> Unit) = {},
+    onBtnClick: (() -> Unit) = {},
+    btnText: String = "OK",
+) {
+    if (state.value) {
+        FailDialog(
+            title = title,
+            content = content,
+            cancelable = cancelable,
+            onCanceled = {
+                state.value = false
+                onCanceled()
+            },
+            onBtnClick = {
+                state.value = false
+                onBtnClick()
+            },
+            btnText = btnText,
         )
     }
 }
@@ -50,28 +98,39 @@ fun SuccessDialog(
 fun FailDialog(
     title: String = "Fail",
     content: String,
-    state: MutableState<Boolean>? = null,
     cancelable: Boolean = true,
     onCanceled: (() -> Unit) = {},
     onBtnClick: (() -> Unit) = {},
     btnText: String = "OK",
 ) {
-    val openDialog = state ?: remember { mutableStateOf(true) }
-    if (openDialog.value) {
-        BaseNoticeDialog(
-            type = DialogType.FAIL,
-            title = title,
-            text = content,
-            cancelable = cancelable,
-            onCancelRequest = {
-                onCanceled()
-                openDialog.value = false
+    BaseNoticeDialog(
+        type = DialogType.FAIL,
+        title = title,
+        text = content,
+        cancelable = cancelable,
+        onCancelRequest = {
+            onCanceled()
+        },
+        buttonType = ButtonType.PrimaryButtons(text = btnText) {
+            onBtnClick()
+        },
+    )
+}
+
+@Composable
+fun ErrorDialog(
+    throwable: Throwable?,
+    onDismissRequest: () -> Unit = {},
+    state: MutableState<Boolean>,
+) {
+
+    if (state.value) {
+        ErrorDialog(
+            throwable = throwable,
+            onDismissRequest = {
+                state.value = false
+                onDismissRequest()
             },
-            buttonType =
-                ButtonType.PrimaryButtons(text = btnText) {
-                    onBtnClick()
-                    openDialog.value = false
-                },
         )
     }
 }
@@ -129,25 +188,18 @@ fun ErrorDialog(
         }
     }
 
-    val openDialog = remember { mutableStateOf(true) }
-
-    if (openDialog.value) {
-        BaseNoticeDialog(
-            type = DialogType.ERROR,
-            title = title,
-            text = message,
-            cancelable = true,
-            onCancelRequest = {
-                onDismissRequest()
-                openDialog.value = false
-            },
-            buttonType =
-                ButtonType.PrimaryButtons(text = "OK") {
-                    onDismissRequest()
-                    openDialog.value = false
-                },
-        )
-    }
+    BaseNoticeDialog(
+        type = DialogType.ERROR,
+        title = title,
+        text = message,
+        cancelable = true,
+        onCancelRequest = {
+            onDismissRequest()
+        },
+        buttonType = ButtonType.PrimaryButtons(text = "OK") {
+            onDismissRequest()
+        },
+    )
 }
 
 @Composable

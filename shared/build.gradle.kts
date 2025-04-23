@@ -34,7 +34,7 @@ kotlin {
         commonMain.dependencies {
             // Network
 //            implementation(libs.ktor.core)
-//            implementation(libs.ktor.logging)
+            implementation(libs.ktor.logging)
             implementation(libs.bundles.ktor)
             // Coroutines
             implementation(libs.kotlinx.coroutines.core)

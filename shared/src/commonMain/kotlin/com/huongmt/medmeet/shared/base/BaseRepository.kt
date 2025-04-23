@@ -154,7 +154,7 @@ fun BaseResponse<*>.toError(): BaseError = when (this.code) {
     in 400..499 -> BaseError.HttpError(this.message ?: "Unknown HTTP Error")
     in 500..599 -> BaseError.ServerError
     else -> {
-        Napier.e("Unknown error: [${this.code}] ${this.message}")
+        Napier.e("Status code: ${this.code}. Unknown error: [${this.code}] ${this.message}")
         BaseError.UnknownError(Exception(this.message ?: "Unknown error"))
     }
 }
@@ -179,11 +179,14 @@ fun Exception.toError(): BaseError = when (this) {
     is JsonConvertException, is SerializationException -> BaseError.JsonConvertException
     is ConnectTimeoutException, is SocketTimeoutException, is HttpRequestTimeoutException -> BaseError.ConnectionTimeout
     is UnresolvedAddressException -> BaseError.NetworkError
+    is ErrorException -> {
+        this.error
+    }
     else -> {
         if ((this.message ?: "").contains("NoRouteToHostException", ignoreCase = true)) {
             BaseError.NetworkError
         } else {
-            Napier.e("Unknown error: ${this.message}")
+            Napier.e("Else error: $this. Unknown error: ${this.message}")
             BaseError.UnknownError(this)
         }
     }

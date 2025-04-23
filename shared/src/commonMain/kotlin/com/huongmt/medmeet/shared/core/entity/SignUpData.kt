@@ -13,5 +13,6 @@ data class SignUpData(
     val gender: Gender,
     val province: String,
     val district: String,
+    val commune: String,
     val address: String
 )

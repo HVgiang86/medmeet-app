@@ -1,11 +1,14 @@
 package com.huongmt.medmeet.shared.di
 
 import com.huongmt.medmeet.shared.core.createSettings
+import com.huongmt.medmeet.shared.core.datasource.network.APIs
 import com.huongmt.medmeet.shared.core.datasource.network.MockChatApi
 import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorage
 import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorageImpl
 import com.huongmt.medmeet.shared.core.repository.ChatRepository
 import com.huongmt.medmeet.shared.core.repository.ChatRepositoryImpl
+import com.huongmt.medmeet.shared.core.repository.ClinicRepository
+import com.huongmt.medmeet.shared.core.repository.ClinicRepositoryImpl
 import com.huongmt.medmeet.shared.core.repository.TokenRepository
 import com.huongmt.medmeet.shared.core.repository.TokenRepositoryImpl
 import com.huongmt.medmeet.shared.core.repository.UserRepository
@@ -35,6 +38,9 @@ private val apiModule = module {
     single<MockChatApi> {
         MockChatApi(get())
     }
+    single<APIs> {
+        APIs(get())
+    }
 }
 
 private val repositoryModule = module {
@@ -42,6 +48,7 @@ private val repositoryModule = module {
     single<ChatRepository> { ChatRepositoryImpl(get()) }
     single<TokenRepository> { TokenRepositoryImpl(get()) }
     single<UserRepository> { UserRepositoryImpl(get(), get()) }
+    single<ClinicRepository> { ClinicRepositoryImpl(get()) }
 }
 
 val dataModule = module {

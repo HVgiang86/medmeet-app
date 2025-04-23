@@ -4,18 +4,19 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 abstract class Store<S : Store.State, A : Store.Action, E : Store.Effect>(
     initialState: S
 ) : CoroutineScope by CoroutineScope(SupervisorJob() + Dispatchers.Main) {
     private val _state = MutableStateFlow(initialState)
-    private val _effect = MutableStateFlow<E?>(null)
+    private val _effect = Channel<E>(capacity = Channel.CONFLATED)
 
     private val timeCapsule: TimeCapsule<S> =
         TimeTravelCapsule { storedState ->
@@ -44,7 +45,7 @@ abstract class Store<S : Store.State, A : Store.Action, E : Store.Effect>(
     }
 
     fun setEffect(newEffect: E) {
-        _effect.tryEmit(newEffect)
+        _effect.trySend(newEffect)
     }
 
     fun setState(newState: S) {
@@ -62,7 +63,7 @@ abstract class Store<S : Store.State, A : Store.Action, E : Store.Effect>(
 
     fun observeState(): StateFlow<S> = _state.asStateFlow()
 
-    fun observeSideEffect(): Flow<E?> = _effect.asStateFlow().filterNotNull()
+    fun observeSideEffect(): Flow<E?> = _effect.receiveAsFlow()
 
     abstract fun dispatch(
         oldState: S,

@@ -38,6 +38,10 @@ class RootView : Screen, KoinComponent {
                         .asPaddingValues(),
                 ),
             ) {
+
+//                // TODO: Remove after testing
+//                RootAppNavigation(startDestination = RootAppDestination.Login)
+
                 when (val effectValue = effect.value) {
                     is RootEffect.ShowError -> {
                         ErrorDialog(

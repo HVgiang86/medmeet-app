@@ -43,10 +43,11 @@ import com.huongmt.medmeet.R
 import com.huongmt.medmeet.component.BaseInputText
 import com.huongmt.medmeet.component.PasswordField
 import com.huongmt.medmeet.component.PrimaryButton
+import com.huongmt.medmeet.shared.app.AuthAction
 import com.huongmt.medmeet.shared.app.AuthStore
+import com.huongmt.medmeet.shared.utils.validate.Validator
 import com.huongmt.medmeet.theme.Grey_900
 import io.github.aakira.napier.Napier
-import org.jetbrains.compose.resources.painterResource
 
 @Composable
 fun LoginScreen(
@@ -58,8 +59,7 @@ fun LoginScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.colorScheme.background), store: AuthStore) {
-    //TODO: For testing only, please remove later
-    val email = remember { mutableStateOf("phanhuuviet1@gmail.com") }
+    val email = remember { mutableStateOf("test01@gmail.com") }
     val password = remember { mutableStateOf("123456") }
 
     val state by store.observeState().collectAsState()
@@ -102,9 +102,9 @@ fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.co
                         email.value = it
                         Napier.d("email: $it")
                     },
-//                    validator = {
-//                        validateEmail(it)
-//                    },
+                    validator = {
+                        Validator.validateEmail(it)
+                    },
                     leadingIcon = {
                         Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_email), contentDescription = null)
                     })
@@ -122,9 +122,9 @@ fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.co
                     onTextChanged = { it ->
                         password.value = it
                     },
-//                    validator = {
-//                        validatePassword(it)
-//                    },
+                    validator = {
+                        Validator.validatePassword(it)
+                    },
                     leadingIcon = {
                         Icon(imageVector = ImageVector.vectorResource(R.drawable.ic_lock), contentDescription = null)
                     })
@@ -134,7 +134,7 @@ fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.co
 
                 PrimaryButton(modifier = Modifier.fillMaxWidth().height(52.dp).padding(bottom = 8.dp), onClick = {
                     // do login
-//                    viewModel.login(email.value, password.value)
+                    store.sendAction(AuthAction.RequestLogin(email.value, password.value))
                 }, text = {
                     Text(text = "Sign In", color = Color.White)
                 })
@@ -154,7 +154,7 @@ fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.co
                 Row(modifier = Modifier.fillMaxWidth().wrapContentHeight(), horizontalArrangement = Arrangement.Center) {
                     Text("Don't you have an account yet? ", style = MaterialTheme.typography.bodyMedium)
                     Text("Sign Up", style = MaterialTheme.typography.bodyMedium, color = Color.Blue, modifier = Modifier.clickable {
-//                        viewModel.reducer.sendEvent(AuthEvent.DisplaySignUp)
+                        store.sendAction(AuthAction.DisplaySignUp)
                     })
                 }
             }
