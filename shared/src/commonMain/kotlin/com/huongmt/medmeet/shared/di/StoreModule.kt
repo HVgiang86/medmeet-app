@@ -1,0 +1,12 @@
+package com.huongmt.medmeet.shared.di
+
+import com.huongmt.medmeet.shared.app.AuthStore
+import com.huongmt.medmeet.shared.app.RootStore
+import com.huongmt.medmeet.shared.app.chat.ChatStore
+import org.koin.dsl.module
+
+val storeModule = module {
+    single<ChatStore> { ChatStore(get()) }
+    single<RootStore> { RootStore(get()) }
+    single<AuthStore> { AuthStore(get(), get()) }
+}

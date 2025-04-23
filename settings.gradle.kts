@@ -1,4 +1,4 @@
-rootProject.name = "KmaChat"
+rootProject.name = "Med Meet New"
 
 pluginManagement {
     repositories {

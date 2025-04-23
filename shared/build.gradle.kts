@@ -68,7 +68,7 @@ kotlin {
 }
 
 android {
-    namespace = "com.gianghv.kmachat.shared"
+    namespace = "com.huongmt.medmeet.shared"
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
 

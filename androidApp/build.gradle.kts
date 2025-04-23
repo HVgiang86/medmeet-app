@@ -8,14 +8,14 @@ plugins {
 }
 
 android {
-    namespace = "com.gianghv.kmachat"
+    namespace = "com.huongmt.medmeet"
     compileSdk = (findProperty("android.compileSdk") as String).toInt()
 
     defaultConfig {
         minSdk = (findProperty("android.minSdk") as String).toInt()
         targetSdk = (findProperty("android.targetSdk") as String).toInt()
 
-        applicationId = "com.gianghv.kmachat"
+        applicationId = "com.huongmt.medmeet"
         versionCode = 2
         versionName = "1.1"
     }
