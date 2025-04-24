@@ -33,3 +33,8 @@ fun String?.toLocalDate(): LocalDate? {
         null
     }
 }
+
+fun LocalDate.format(format: String): String {
+    return DateTime.getFormattedDate(this.toString(), YYYY_MM_DD, format)
+        ?: this.toString()
+}

@@ -1,7 +1,11 @@
 package com.huongmt.medmeet.shared.app
 
 import com.huongmt.medmeet.shared.base.Store
+import com.huongmt.medmeet.shared.core.WholeApp
 import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorage
+import com.huongmt.medmeet.shared.core.repository.TokenRepository
+import com.huongmt.medmeet.shared.core.repository.UserRepository
+import io.github.aakira.napier.Napier
 
 data class RootState(
     val isLoading: Boolean = false
@@ -12,13 +16,11 @@ sealed interface RootAction : Store.Action {
     data object ShowOnBoarding : RootAction
     data object ShowLogin : RootAction
     data object ShowMain : RootAction
+    data object GetProfileSuccess : RootAction
+    data object GetProfileFail : RootAction
 
     data class SetFirstRun(
         val isFirstRun: Boolean
-    ) : RootAction
-
-    data class SetLoggedIn(
-        val isLoggedIn: Boolean
     ) : RootAction
 
     data class Error(
@@ -39,7 +41,9 @@ sealed interface RootEffect : Store.Effect {
 }
 
 class RootStore(
-    private val prefs: PrefsStorage
+    private val prefs: PrefsStorage,
+    private val tokenRepository: TokenRepository,
+    private val userRepository: UserRepository
 ) : Store<RootState, RootAction, RootEffect>(
     RootState(
         isLoading = true
@@ -103,35 +107,58 @@ class RootStore(
             is RootAction.SetFirstRun -> {
                 setFirstRun(action.isFirstRun)
             }
-            is RootAction.SetLoggedIn -> {
-                setLoggedIn(action.isLoggedIn)
+
+            RootAction.GetProfileFail -> {
+                setEffect(RootEffect.ShowLogin)
+                setState(
+                    oldState.copy(
+                        isLoading = false
+                    )
+                )
+            }
+
+            RootAction.GetProfileSuccess -> {
+                setEffect(RootEffect.ShowMain)
+                setState(
+                    oldState.copy(
+                        isLoading = false
+                    )
+                )
             }
         }
     }
 
     private fun init() {
-        launch {
+        runFlow {
             val isFirstRun = prefs.getBoolean(PrefsStorage.KEY_IS_ONBOARD_SHOWN, true)
-            val isLoggedIn = prefs.getBoolean(PrefsStorage.KEY_IS_LOGIN)
             if (isFirstRun) {
                 sendAction(RootAction.ShowOnBoarding)
-            } else if (isLoggedIn) {
-                sendAction(RootAction.ShowMain)
-            } else {
-                sendAction(RootAction.ShowLogin)
+                setFirstRun(false)
+                return@runFlow
             }
+
+            getMe()
         }
     }
 
     private fun setFirstRun(isFirstRun: Boolean) {
-        launch {
+        runFlow {
             prefs.putBoolean(PrefsStorage.KEY_IS_ONBOARD_SHOWN, isFirstRun)
         }
     }
 
-    private fun setLoggedIn(isLoggedIn: Boolean) {
-        launch {
-            prefs.putBoolean(PrefsStorage.KEY_IS_LOGIN, isLoggedIn)
+    private fun getMe() {
+        Napier.d("Get me")
+        runFlow(
+            exception = coroutineExceptionHandler {
+                sendAction(RootAction.GetProfileFail)
+            }
+        ) {
+            userRepository.getMyProfile().collect {
+                sendAction(RootAction.GetProfileSuccess)
+                WholeApp.USER = it
+                WholeApp.USER_ID = it.id
+            }
         }
     }
 }

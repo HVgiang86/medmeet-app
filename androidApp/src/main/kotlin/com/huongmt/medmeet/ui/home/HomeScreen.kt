@@ -21,11 +21,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyGridScope
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,12 +44,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.dokar.sonner.Toaster
@@ -66,14 +60,18 @@ import com.huongmt.medmeet.shared.app.HomeState
 import com.huongmt.medmeet.shared.app.HomeStore
 import com.huongmt.medmeet.theme.Grey_500
 import com.huongmt.medmeet.ui.home.list.ClinicItem
+import com.huongmt.medmeet.ui.home.list.HomeItemType
 import com.huongmt.medmeet.ui.home.list.ScheduleItem
+import com.huongmt.medmeet.ui.home.list.getClinicItemIndex
+import com.huongmt.medmeet.ui.home.list.getItemList
 import com.huongmt.medmeet.ui.main.nav.MainScreenDestination
+import io.github.aakira.napier.Napier
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    store: HomeStore, navigateTo: (MainScreenDestination) -> Unit, onLogout: () -> Unit = {}
+    store: HomeStore, navigateTo: (MainScreenDestination) -> Unit, onLogout: () -> Unit = {},
 ) {
     val state by store.observeState().collectAsState()
 
@@ -81,12 +79,10 @@ fun HomeScreen(
     var isRefreshing by remember { mutableStateOf(false) }
     val pullToRefreshState = rememberPullToRefreshState()
 
-
     LaunchedEffect(Unit) {
         store.sendAction(HomeAction.LoadUser)
         store.sendAction(HomeAction.LoadClinics)
     }
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         var boxWidth by remember { mutableStateOf(0.dp) }
@@ -101,183 +97,217 @@ fun HomeScreen(
                 store.sendAction(HomeAction.LoadClinics)
             }) {
 
-            Column(modifier = Modifier
-                .fillMaxSize()
-//                .verticalScroll(rememberScrollState())
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
             ) {
-                Box(
-                    modifier = Modifier
-                        .aspectRatio(1.0f)
-                        .fillMaxWidth()
-                ) {
-                    Image(
-                        modifier = Modifier.fillMaxSize(),
-                        painter = painterResource(R.drawable.png_home_bg),
-                        contentDescription = "Banner",
-                    )
+                val itemList = getItemList(
+                    clinicsAmount = state.clinics.size
+                )
+                items(itemList.size) {
+                    val index = it
+                    val listSize = itemList.size
+                    when (itemList[it]) {
+                        HomeItemType.HEADER -> {
+                            HeaderView(
+                                state = state, navigateTo = navigateTo
+                            )
+                        }
 
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        HomeHeader(modifier = Modifier.padding(top = 52.dp), state = state, onProfileClick = {
-                            navigateTo(MainScreenDestination.Profile)
-                        })
-                        Column(
-                            modifier = Modifier
-                                .padding(vertical = 32.dp)
-                                .padding(horizontal = 16.dp)
-                                .fillMaxWidth(0.5f)
-                                .fillMaxHeight(),
-                            verticalArrangement = Arrangement.Top
-                        ) {
+                        HomeItemType.CLINIC_ITEM -> {
+                            val itemIndex = getClinicItemIndex(index, listSize)
+                            Napier.d { "itemIndex: $itemIndex" }
+                            val clinic = state.clinics[itemIndex]
+                            ClinicItem(modifier = Modifier
+                                .wrapContentHeight()
+                                .padding(horizontal = 24.dp),
+                                clinic = clinic,
+                                onClick = {
+                                    // Handle clinic item click
+                                })
+                        }
 
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            Column(modifier = Modifier.wrapContentHeight()) {
-                                Text(
-                                    text = "Welcome!\n${state.user?.name ?: ""}",
-                                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                                    maxLines = 3
-                                )
-
-                                Spacer(modifier = Modifier.height(4.dp))
-
-                                Text(
-                                    text = "Have a nice day 😘",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Grey_500,
-                                    maxLines = 2
-                                )
-                            }
-
-                            Spacer(modifier = Modifier.weight(1f))
-
-                            Row(
+                        HomeItemType.NO_CLINICS -> {
+                            NotFoundCard(
                                 modifier = Modifier
-                                    .weight(1f)
-                                    .padding(vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                PrimaryButton(onClick = {
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                                    .wrapContentHeight()
+                                    .padding(horizontal = 24.dp),
+                                text = "No clinic found!"
+                            )
+                        }
 
-                                }, text = {
-                                    Text(
-                                        "A.I Advisor",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = Color.White
-                                    )
-                                }, modifier = Modifier.padding(horizontal = 4.dp))
-                            }
-
-                            Spacer(modifier = Modifier.height(32.dp))
+                        HomeItemType.PADDING_BOTTOM -> {
+                            Spacer(modifier = Modifier.height(80.dp))
                         }
                     }
                 }
-
-                HomeContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .offset(y = (-40).dp)
-                        .wrapContentHeight()
-                        .onGloballyPositioned { layoutCoordinates ->
-                            val widthInPx = layoutCoordinates.size.width
-                            boxWidth = with(density) { widthInPx.toDp() }
-                        }, state = state, width = boxWidth
-                )
             }
         }
     }
 }
 
 @Composable
-fun HomeContent(modifier: Modifier = Modifier, state: HomeState, width: Dp = 0.dp) {
-
+fun HeaderView(
+    state: HomeState,
+    navigateTo: (MainScreenDestination) -> Unit = {},
+) {
     Box(
-        modifier = modifier
-            .padding(bottom = 32.dp)
+        modifier = Modifier
+            .aspectRatio(1.0f)
+            .fillMaxWidth()
+    ) {
+        Image(
+            modifier = Modifier.fillMaxSize(),
+            painter = painterResource(R.drawable.png_home_bg),
+            contentDescription = "Banner",
+        )
+
+        Column(modifier = Modifier.fillMaxSize()) {
+            HomeHeaderBar(modifier = Modifier.padding(top = 52.dp),
+                state = state,
+                onProfileClick = {
+                    navigateTo(MainScreenDestination.Profile)
+                })
+            Column(
+                modifier = Modifier
+                    .padding(vertical = 32.dp)
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(0.5f)
+                    .fillMaxHeight(), verticalArrangement = Arrangement.Top
+            ) {
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Column(modifier = Modifier.wrapContentHeight()) {
+                    Text(
+                        text = "Welcome!\n${state.user?.name ?: ""}",
+                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        maxLines = 3
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Have a nice day 😘",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Grey_500,
+                        maxLines = 2
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Row(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    PrimaryButton(onClick = {
+                        navigateTo(MainScreenDestination.AiChat)
+                    }, text = {
+                        Text(
+                            "A.I Advisor",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                    }, modifier = Modifier.padding(horizontal = 4.dp))
+                }
+
+                Spacer(modifier = Modifier.weight(0.5f))
+            }
+        }
+    }
+
+    Column(
+        modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .offset(y = (-32).dp)
             .background(
                 color = MaterialTheme.colorScheme.background,
                 shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
-            ),
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(top = 16.dp)
-                .padding(horizontal = 32.dp)
-        ) {
-            Text(
-                "Monday, 10/03/2025", style = MaterialTheme.typography.titleMedium, color = Grey_500
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            ScrollableDatePicker(onDateSelected = {
+    ) {
+        HorizontalScheduleView()
 
-            })
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("Schedule", style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (true) {
-                ScheduleItem(onClick = {})
-            } else {
-                NotFoundCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "No schedule found!"
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        if (true) {
+            ScheduleItem(
+                modifier = Modifier.padding(horizontal = 24.dp)
             ) {
-                Text("Clinic", style = MaterialTheme.typography.titleMedium)
-                Text("See all",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Grey_500,
-                    modifier = Modifier.clickable {
+                // Handle schedule item click
 
-                    })
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            if (state.clinics.isEmpty()) {
-                NotFoundCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    text = "No clinic found!"
-                )
-            }
-
-            // Display list of clinics
-            LazyColumn(
+        } else {
+            NotFoundCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-            ) {
-                items(state.clinics) { clinic ->
-                    ClinicItem(modifier = Modifier.wrapContentHeight(), clinic = clinic, onClick = {
-                        // Handle clinic item click
-                    })
-                }
-            }
-
-            Spacer(modifier = Modifier.height(120.dp))
+                    .padding(horizontal = 24.dp),
+                text = "No schedule found!"
+            )
         }
-    }
 
+        ClinicListLabel()
+    }
 }
 
 @Composable
-fun HomeHeader(modifier: Modifier = Modifier, state: HomeState, onSearchClick: () -> Unit = {}, onProfileClick: () -> Unit = {}) {
+fun HorizontalScheduleView(
+) {
+    Column(
+        modifier = Modifier
+            .wrapContentHeight()
+            .padding(horizontal = 24.dp)
+            .padding(top = 16.dp)
+    ) {
+        ScrollableDatePicker(onDateSelected = {
+
+        })
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Schedule", style = MaterialTheme.typography.titleMedium)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+
+    }
+}
+
+@Composable
+fun ClinicListLabel(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .padding(24.dp)
+            .fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Clinic", style = MaterialTheme.typography.titleMedium)
+            Text("See all",
+                style = MaterialTheme.typography.titleMedium,
+                color = Grey_500,
+                modifier = Modifier.clickable {
+
+                })
+        }
+    }
+}
+
+@Composable
+fun HomeHeaderBar(
+    modifier: Modifier = Modifier,
+    state: HomeState,
+    onSearchClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -291,7 +321,8 @@ fun HomeHeader(modifier: Modifier = Modifier, state: HomeState, onSearchClick: (
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .align(Alignment.CenterVertically).clickable {
+                .align(Alignment.CenterVertically)
+                .clickable {
                     onProfileClick()
                 },
             error = painterResource(R.drawable.ic_default_avatar),
@@ -325,18 +356,6 @@ fun LazyGridScope.header(
 }
 
 @Composable
-fun EmptyScreen() {
-    Box(modifier = Modifier.fillMaxSize()) {
-        Text(
-            "Trống!",
-            modifier = Modifier.align(Alignment.Center),
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
-}
-
-@Composable
 fun HeaderRow(title: String, onShowMoreClicked: () -> Unit = {}) {
     Box(
         modifier = Modifier
@@ -350,11 +369,12 @@ fun HeaderRow(title: String, onShowMoreClicked: () -> Unit = {}) {
             style = MaterialTheme.typography.titleMedium,
             color = Color.Black
         )
-        Text(modifier = Modifier
-            .align(Alignment.CenterEnd)
-            .clickable {
-                onShowMoreClicked()
-            },
+        Text(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .clickable {
+                    onShowMoreClicked()
+                },
             text = "Xem thêm",
             style = MaterialTheme.typography.titleSmall,
             color = Color.Gray

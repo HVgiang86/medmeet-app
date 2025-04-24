@@ -46,7 +46,6 @@ class HomeStore(
             }
 
             HomeAction.LoadClinics -> {
-                setState(oldState.copy(isLoading = true))
                 loadClinics()
             }
 
@@ -70,7 +69,7 @@ class HomeStore(
     }
 
     private fun getProfile() {
-        launch {
+        runFlow {
             userRepository.getMyProfile().collect {
                 Napier.d("Profile: $it")
                 WholeApp.USER_ID = it.id
@@ -80,7 +79,7 @@ class HomeStore(
     }
 
     private fun loadClinics() {
-        launch {
+        runFlow {
             Napier.d("Load clinics")
             clinicRepository.getAllClinics(page = 1, pageSize = 10).collect { result ->
                 Napier.d("Clinics: $result")

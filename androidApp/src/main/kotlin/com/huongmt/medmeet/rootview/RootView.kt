@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.core.screen.Screen
 import com.huongmt.medmeet.component.ErrorDialog
+import com.huongmt.medmeet.component.LoadingDialog
 import com.huongmt.medmeet.shared.app.RootAction
 import com.huongmt.medmeet.shared.app.RootEffect
 import com.huongmt.medmeet.shared.app.RootStore
@@ -26,9 +27,14 @@ class RootView : Screen, KoinComponent {
     override fun Content() {
         val store: RootStore by inject()
         val effect = store.observeSideEffect().collectAsState(initial = null)
+        val state = store.observeState().collectAsState()
 
         LaunchedEffect(Unit) {
             store.sendAction(RootAction.Init)
+        }
+
+        if (state.value.isLoading) {
+            LoadingDialog()
         }
 
         AppTheme {
@@ -52,7 +58,6 @@ class RootView : Screen, KoinComponent {
                     RootEffect.ShowLogin -> {
                         RootAppNavigation(startDestination = RootAppDestination.Login)
                         Logger.d("ShowLogin")
-                        store.sendAction(RootAction.SetLoggedIn(true))
                     }
 
                     RootEffect.ShowMain -> {
@@ -60,9 +65,11 @@ class RootView : Screen, KoinComponent {
                     }
 
                     RootEffect.ShowOnBoarding -> {
-                        RootAppNavigation(startDestination = RootAppDestination.OnBoarding)
-                        Logger.d("ShowOnBoarding")
-                        store.sendAction(RootAction.SetFirstRun(false))
+//                        RootAppNavigation(startDestination = RootAppDestination.OnBoarding)
+//                        Logger.d("ShowOnBoarding")
+//                        store.sendAction(RootAction.SetFirstRun(false))
+                        RootAppNavigation(startDestination = RootAppDestination.Login)
+
                     }
 
                     null -> {
