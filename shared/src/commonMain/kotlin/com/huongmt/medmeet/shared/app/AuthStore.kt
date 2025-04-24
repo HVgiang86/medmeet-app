@@ -160,7 +160,7 @@ class AuthStore(
         email: String,
         password: String
     ) {
-        launch {
+        runFlow {
             Napier.d("Try login with email: $email, password: $password")
             val emailError = Validator.validateEmail(email)
             val passwordError = Validator.validatePassword(password)
@@ -179,7 +179,7 @@ class AuthStore(
     }
 
     private fun login(email: String, password: String) {
-        launch {
+        runFlow {
             userRepository.login(email, password).collect {
                 if (!it.id.isNullOrEmpty() && !it.accessToken.isNullOrEmpty()) {
                     WholeApp.USER_ID = it.id
@@ -213,7 +213,7 @@ class AuthStore(
         val commune = signUpData.commune
         val address = signUpData.address
 
-        launch {
+        runFlow {
             val emailError = Validator.validateEmail(email)
             val passwordError = Validator.validatePassword(password)
 
@@ -228,42 +228,42 @@ class AuthStore(
 
             if (!emailError.isNullOrEmpty()) {
                 sendAction(AuthAction.ValidateError(Exception(emailError)))
-                return@launch
+                return@runFlow
             }
 
             if (!passwordError.isNullOrEmpty()) {
                 sendAction(AuthAction.ValidateError(Exception(passwordError)))
-                return@launch
+                return@runFlow
             }
 
             if (!nameError.isNullOrEmpty()) {
                 sendAction(AuthAction.ValidateError(Exception(nameError)))
-                return@launch
+                return@runFlow
             }
 
             if (!confirmPasswordError.isNullOrEmpty()) {
                 sendAction(AuthAction.ValidateError(Exception(confirmPasswordError)))
-                return@launch
+                return@runFlow
             }
 
             if (!provinceError.isNullOrEmpty()) {
                 sendAction(AuthAction.ValidateError(Exception(provinceError)))
-                return@launch
+                return@runFlow
             }
 
             if (!districtError.isNullOrEmpty()) {
                 sendAction(AuthAction.ValidateError(Exception(districtError)))
-                return@launch
+                return@runFlow
             }
 
             if (!communeError.isNullOrEmpty()) {
                 sendAction(AuthAction.ValidateError(Exception("Commune is required")))
-                return@launch
+                return@runFlow
             }
 
             if (!addressError.isNullOrEmpty()) {
                 sendAction(AuthAction.ValidateError(Exception(addressError)))
-                return@launch
+                return@runFlow
             }
 
             sendAction(AuthAction.DoSignUp(signUpData))
@@ -281,7 +281,7 @@ class AuthStore(
         val commune = signUpData.commune
         val address = signUpData.address
 
-        launch {
+        runFlow {
             val dobText = dob.toString()
             val genderText = gender.value
             val signUpRequest = SignUpRequest(

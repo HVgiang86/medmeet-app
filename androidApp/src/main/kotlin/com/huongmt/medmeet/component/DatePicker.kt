@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -46,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,8 +65,10 @@ import com.huongmt.medmeet.theme.Grey_500
 import com.huongmt.medmeet.theme.Grey_600
 import com.huongmt.medmeet.utils.DateTime
 import com.huongmt.medmeet.utils.ext.capitalizeWords
+import com.huongmt.medmeet.utils.ext.format
 import com.huongmt.medmeet.utils.ext.getCurrentDate
 import com.huongmt.medmeet.utils.ext.toLocalDate
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
@@ -80,7 +84,10 @@ import kotlinx.datetime.todayIn
 fun ScrollableDatePicker(
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
+    listState: LazyListState = rememberLazyListState(),
 ) {
+    val scope = rememberCoroutineScope()
+
     val currentDate = Clock.System.todayIn(TimeZone.currentSystemDefault())
     var selectedDate by remember { mutableStateOf(currentDate) }
     val firstDateOfMonth = currentDate.minus(DatePeriod(days = currentDate.dayOfMonth - 1))
@@ -94,8 +101,6 @@ fun ScrollableDatePicker(
             }
         }
 
-    val listState = rememberLazyListState()
-
     // Scroll to the current date on initial composition
     LaunchedEffect(Unit) {
         val currentItemIndex = dates.indexOf(currentDate)
@@ -108,22 +113,45 @@ fun ScrollableDatePicker(
 
         onDateSelected(currentDate)
     }
+    Column {
+        Text(
+            "${
+                currentDate.dayOfWeek.toString().capitalizeWords()
+            }, ${currentDate.format(DD_MM_YYYY)}",
+            style = MaterialTheme.typography.titleMedium,
+            color = Grey_500,
+            modifier = Modifier.clickable {
+                scope.launch {
+                    val currentItemIndex = dates.indexOf(currentDate)
+                    if (currentItemIndex != -1) {
+                        val centerIndex = currentItemIndex - 2
+                        if (centerIndex >= 0 && centerIndex < dates.size) {
+                            listState.scrollToItem(centerIndex)
+                        }
+                    }
+                    selectedDate = currentDate
+                    onDateSelected(currentDate)
+                }
+            }
+        )
+        Spacer(modifier = Modifier.height(4.dp))
 
-    LazyRow(
-        modifier = modifier.background(color = Color.Transparent), // Background color
-        horizontalArrangement = Arrangement.spacedBy(8.dp), // Spacing between date items,
-        state = listState,
-    ) {
-        items(dates) { date ->
-            DateItem(
-                date = date,
-                isSelected = date == selectedDate,
-                isCurrentDay = date == currentDate,
-                onDateSelected = {
-                    selectedDate = it
-                    onDateSelected(it)
-                },
-            )
+        LazyRow(
+            modifier = modifier.background(color = Color.Transparent), // Background color
+            horizontalArrangement = Arrangement.spacedBy(8.dp), // Spacing between date items,
+            state = listState,
+        ) {
+            items(dates) { date ->
+                DateItem(
+                    date = date,
+                    isSelected = date == selectedDate,
+                    isCurrentDay = date == currentDate,
+                    onDateSelected = {
+                        selectedDate = it
+                        onDateSelected(it)
+                    },
+                )
+            }
         }
     }
 }

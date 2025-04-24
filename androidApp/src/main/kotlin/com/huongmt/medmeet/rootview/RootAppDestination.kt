@@ -76,7 +76,7 @@ interface RootAppDestination {
 //                    ) {
 //                        ChatScreen(
 //                            onOpenDrawer = {
-//                                scope.launch {
+//                                scope.runFlow {
 //                                    drawerState.apply {
 //                                        if (isClosed) {
 //                                            Napier.d { "Open drawer" }

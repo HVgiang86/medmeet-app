@@ -40,7 +40,7 @@ fun ClinicItem(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         shape = CardShapeDefault,
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier = modifier.clickable {
+        modifier = modifier.padding(vertical = 8.dp).clickable {
             onClick(clinic)
         },
     ) {

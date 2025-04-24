@@ -34,9 +34,17 @@ abstract class Store<S : Store.State, A : Store.Action, E : Store.Effect>(
             onException(throwable)
         }
 
-    fun launch(block: suspend () -> Unit) {
-        launch(exceptionHandler) {
-            block.invoke()
+    protected fun coroutineExceptionHandler(
+        onError: (Throwable) -> Unit
+    ): CoroutineExceptionHandler {
+        return CoroutineExceptionHandler { _, throwable ->
+            onError(throwable)
+        }
+    }
+
+    fun runFlow(exception: CoroutineExceptionHandler = exceptionHandler, block: suspend () -> Unit) {
+        launch(exception) {
+            block()
         }
     }
 

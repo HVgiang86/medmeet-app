@@ -202,7 +202,7 @@ class ChatStore(
     }
 
     private fun getConversationList(showLatestConversation: Boolean) {
-        launch {
+        runFlow {
             chatRepository.getConversationList().collect { conversations ->
                 sendAction(
                     ChatAction.GetConversationListSuccess(
@@ -215,7 +215,7 @@ class ChatStore(
     }
 
     private fun getMessageHistory(conversationId: String) {
-        launch {
+        runFlow {
             chatRepository.getMessageHistory(conversationId).collect { messages ->
                 sendAction(ChatAction.GetMessageHistorySuccess(messages, conversationId))
             }
@@ -226,7 +226,7 @@ class ChatStore(
         text: String,
         conversationId: String
     ) {
-        launch {
+        runFlow {
             chatRepository.sendMessage(text).collect { message ->
                 sendAction(ChatAction.SendMessageSuccess(message, conversationId))
             }
