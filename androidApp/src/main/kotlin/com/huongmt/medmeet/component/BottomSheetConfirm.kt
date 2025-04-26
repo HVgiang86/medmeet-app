@@ -2,6 +2,7 @@ package com.huongmt.medmeet.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -165,7 +166,7 @@ fun ConfirmBottomSheet(
 @Composable
 fun ConfirmBottomSheet(
     title: String,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     confirmButtonText: String,
