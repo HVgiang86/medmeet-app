@@ -24,7 +24,7 @@ enum class BottomNavItem(@DrawableRes val selectedIcon: Int, @DrawableRes val un
         return when (this) {
             HOME -> MainScreenDestination.Home
             NOTIFICATION -> MainScreenDestination.Notification
-            PROFILE -> MainScreenDestination.Profile
+            PROFILE -> MainScreenDestination.Profile()
             CALENDAR -> MainScreenDestination.Calendar
         }
     }

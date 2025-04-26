@@ -32,12 +32,15 @@ import com.composables.core.SheetDetent.Companion.FullyExpanded
 import com.composables.core.SheetDetent.Companion.Hidden
 import com.composables.core.rememberModalBottomSheetState
 import com.huongmt.medmeet.component.BaseInputText
+import com.huongmt.medmeet.shared.app.ProfileState
+import com.huongmt.medmeet.shared.app.ProfileStore
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SettingBottomSheet(
+    appState: ProfileState,
     state: ModalBottomSheetState? = null,
-    onChangeRecommendationServer: (String) -> Unit,
+    onChangeBackendServer: (String) -> Unit = {},
     onChangeChatServer: (String) -> Unit,
 ) {
     val show = state ?: rememberModalBottomSheetState(
@@ -82,29 +85,31 @@ fun SettingBottomSheet(
                     style = MaterialTheme.typography.titleSmall,
                     color = Color.Black
                 )
+
                 Text(
-                    "Recommendation Server URL",
+                    "Backend Server URL",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Black
                 )
 
                 BaseInputText(
+                    default = appState.currentBackendServer,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                         .height(70.dp),
-                    hint = "Recommendation Server URL",
-                    description = "Recommendation Server URL",
+                    hint = "Backend Server URL",
+                    description = "Backend Server URL",
                     onTextChanged = {
-                        onChangeRecommendationServer(it)
+                        onChangeBackendServer(it)
                     },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     onImeAction = {
-                        onChangeRecommendationServer(it)
+                        onChangeBackendServer(it)
                     }
                 )
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
                     "AI Chat Server URL",
@@ -113,6 +118,7 @@ fun SettingBottomSheet(
                 )
 
                 BaseInputText(
+                    default = appState.currentChatServer,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)

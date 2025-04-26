@@ -10,7 +10,9 @@ import kotlinx.coroutines.launch
 data class ProfileState(
     val isLoading: Boolean = false,
     val error: Throwable? = null,
-    val user: User? = null
+    val user: User? = null,
+    val currentChatServer: String = WholeApp.CHAT_BASE_URL,
+    val currentBackendServer: String = WholeApp.BACKEND_URL
 ) : Store.State(isLoading)
 
 sealed interface ProfileAction : Store.Action {
@@ -24,6 +26,14 @@ sealed interface ProfileAction : Store.Action {
     data object NavigateExaminationHistory : ProfileAction
 
     data object DismissError : ProfileAction
+
+    data class ChangeChatServer(
+        val server: String
+    ) : ProfileAction
+
+    data class ChangeBackendServer(
+        val server: String
+    ) : ProfileAction
 }
 
 sealed class ProfileEffect : Store.Effect {
@@ -77,6 +87,16 @@ class ProfileStore(private val userRepository: UserRepository, private val token
             ProfileAction.NavigateHealthRecord -> {
                 setEffect(ProfileEffect.NavigateHealthRecord)
             }
+
+            is ProfileAction.ChangeChatServer -> {
+                changeChatServer(action.server)
+                setState(oldState.copy(currentChatServer = action.server))
+            }
+
+            is ProfileAction.ChangeBackendServer -> {
+                changeBackendServer(action.server)
+                setState(oldState.copy(currentBackendServer = action.server))
+            }
         }
     }
 
@@ -93,6 +113,20 @@ class ProfileStore(private val userRepository: UserRepository, private val token
     private fun logout() {
         launch {
             tokenRepository.clearTokens()
+        }
+    }
+
+    private fun changeChatServer(server: String) {
+        WholeApp.CHAT_BASE_URL = server
+        runFlow {
+            userRepository.setChatBaseUrl(server)
+        }
+    }
+
+    private fun changeBackendServer(server: String) {
+        WholeApp.BACKEND_URL = server
+        runFlow {
+            userRepository.setBackendUrl(server)
         }
     }
 }

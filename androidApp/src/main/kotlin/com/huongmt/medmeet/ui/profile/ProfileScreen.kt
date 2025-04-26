@@ -76,19 +76,23 @@ fun ProfileScreen(
     val sideEffect by store.observeSideEffect().collectAsState(initial = null)
 
     LaunchedEffect(sideEffect) {
-        when(sideEffect) {
+        when (sideEffect) {
             ProfileEffect.Logout -> {
                 onLogout()
             }
+
             ProfileEffect.NavigateExaminationHistory -> {
 
             }
+
             ProfileEffect.NavigateHealthRecord -> {
 
             }
+
             ProfileEffect.NavigateUpdateProfile -> {
 
             }
+
             null -> {
 
             }
@@ -224,6 +228,22 @@ fun ProfileScreen(
                         }
                     })
 
+                SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_help),
+                    title = "Help & support",
+                    onClick = {
+                        scope.launch {
+                            bottomSheetState.animateTo(FullyExpanded)
+                        }
+                    })
+
+                SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_term),
+                    title = "Terms & Privacy",
+                    onClick = {
+                        scope.launch {
+                            bottomSheetState.animateTo(FullyExpanded)
+                        }
+                    })
+
                 SettingItem(
                     icon = ImageVector.vectorResource(R.drawable.ic_logout),
                     title = "Logout",
@@ -250,18 +270,11 @@ fun ProfileScreen(
                 )
             }
 
-            SettingBottomSheet(state = bottomSheetState, onChangeRecommendationServer = {
-//            viewModel.sendEvent(ProfileUiEvent.ChangeRecommendationServer(it))
-            }, onChangeChatServer = {
-//            viewModel.sendEvent(ProfileUiEvent.ChangeChatServer(it))
+            SettingBottomSheet(appState = state, state = bottomSheetState, onChangeChatServer = {
+                store.sendAction(ProfileAction.ChangeChatServer(it))
+            }, onChangeBackendServer = {
+                store.sendAction(ProfileAction.ChangeBackendServer(it))
             })
-
-//        ChangePassBottomSheet(state = changePassSheetState, onChangePassword = { oldPass, newPass ->
-//            scope.launch {
-//                changePassSheetState.animateTo(Hidden)
-//            }
-//        })
-
         }
     }
 }

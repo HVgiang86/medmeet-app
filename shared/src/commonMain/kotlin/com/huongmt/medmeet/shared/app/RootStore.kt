@@ -137,6 +137,13 @@ class RootStore(
                 }
             }
 
+            userRepository.getBackendUrl().collect {
+                Napier.d("Backend url: $it")
+                if (it.isNotEmpty()) {
+                    WholeApp.BACKEND_URL = it
+                }
+            }
+
             val isFirstRun = prefs.getBoolean(PrefsStorage.KEY_IS_ONBOARD_SHOWN, true)
             if (isFirstRun) {
                 sendAction(RootAction.ShowOnBoarding)

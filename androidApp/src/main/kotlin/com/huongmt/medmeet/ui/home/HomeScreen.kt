@@ -52,9 +52,11 @@ import coil.compose.AsyncImage
 import com.dokar.sonner.Toaster
 import com.dokar.sonner.rememberToasterState
 import com.huongmt.medmeet.R
+import com.huongmt.medmeet.component.ConfirmChatBotSheet
 import com.huongmt.medmeet.component.NotFoundCard
 import com.huongmt.medmeet.component.PrimaryButton
 import com.huongmt.medmeet.component.ScrollableDatePicker
+import com.huongmt.medmeet.data.WholeApp
 import com.huongmt.medmeet.shared.app.HomeAction
 import com.huongmt.medmeet.shared.app.HomeState
 import com.huongmt.medmeet.shared.app.HomeStore
@@ -154,6 +156,8 @@ fun HeaderView(
             .aspectRatio(1.0f)
             .fillMaxWidth()
     ) {
+        val openConfirmChatBotSheet = remember { mutableStateOf(false) }
+
         Image(
             modifier = Modifier.fillMaxSize(),
             painter = painterResource(R.drawable.png_home_bg),
@@ -202,7 +206,7 @@ fun HeaderView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     PrimaryButton(onClick = {
-
+                        openConfirmChatBotSheet.value = true
                     }, text = {
                         Text(
                             "A.I Advisor",
@@ -213,6 +217,21 @@ fun HeaderView(
                 }
 
                 Spacer(modifier = Modifier.weight(0.5f))
+            }
+        }
+
+        if (openConfirmChatBotSheet.value) {
+            if (!WholeApp.confirmChatBot) {
+                ConfirmChatBotSheet(onConfirm = {
+                    navigateTo(MainScreenDestination.ChatScreen)
+                    openConfirmChatBotSheet.value = false
+                    WholeApp.confirmChatBot = true
+                }, onDismiss = {
+                    openConfirmChatBotSheet.value = false
+                })
+            } else {
+                navigateTo(MainScreenDestination.ChatScreen)
+                openConfirmChatBotSheet.value = false
             }
         }
     }

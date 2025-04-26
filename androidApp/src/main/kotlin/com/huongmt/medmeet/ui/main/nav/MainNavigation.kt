@@ -72,6 +72,7 @@ interface MainScreenDestination {
             ChatScreenContent(chatStore, onBack = {
                 navigator.pop()
             })
+        }
     }
 
     class Profile : Screen, TopLevelScreenDestination, KoinComponent, LogoutFromDestination()  {
