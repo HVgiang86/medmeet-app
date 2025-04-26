@@ -17,7 +17,7 @@ interface RootAppDestination {
         override fun Content() {
             val navigator = LocalNavigator.currentOrThrow
             MainScreenNavigation(onLogout = {
-
+                navigator.replaceAll(Login)
             })
         }
     }

@@ -39,3 +39,4 @@ fun MainScreenDestination.asBottomNavItem(): BottomNavItem {
         else -> BottomNavItem.HOME
     }
 }
+

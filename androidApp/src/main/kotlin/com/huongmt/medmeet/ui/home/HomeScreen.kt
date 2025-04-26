@@ -85,9 +85,6 @@ fun HomeScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        var boxWidth by remember { mutableStateOf(0.dp) }
-        val density = LocalDensity.current
-
         Toaster(state = toasterState)
         PullToRefreshBox(modifier = Modifier.fillMaxSize(),
             state = pullToRefreshState,
@@ -167,7 +164,7 @@ fun HeaderView(
             HomeHeaderBar(modifier = Modifier.padding(top = 52.dp),
                 state = state,
                 onProfileClick = {
-                    navigateTo(MainScreenDestination.Profile)
+                    navigateTo(MainScreenDestination.Profile())
                 })
             Column(
                 modifier = Modifier

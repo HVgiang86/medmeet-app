@@ -9,9 +9,11 @@ import com.huongmt.medmeet.shared.core.datasource.network.request.SignUpRequest
 import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicListResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ConversationResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.HealthRecordResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.LoginResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.MessageResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ProfileResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.UpdateHealthRecord
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -19,6 +21,7 @@ import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.Parameters
 
@@ -31,6 +34,7 @@ class APIs(private val httpClient: HttpClient) {
         const val CLINIC_API_ROUTE = "clinic"
         const val CONVERSATION_ROUTE = "api/conversations"
         const val MESSAGE_ROUTE = "api/messages"
+        const val HEALTH_RECORD_API_ROUTE = "health-record"
     }
 
     suspend fun login(email: String, password: String): BaseResponse<LoginResponse> =
@@ -109,4 +113,27 @@ class APIs(private val httpClient: HttpClient) {
 
     suspend fun deleteConversation(conversationId: String): BaseResponse<Boolean> =
         httpClient.delete("${WholeApp.CHAT_BASE_URL}/$CONVERSATION_ROUTE/$conversationId").body()
+    suspend fun getHealthRecord(id: String): BaseResponse<HealthRecordResponse> =
+        httpClient.get("$BASE_URL$HEALTH_RECORD_API_ROUTE/$id").body()
+
+    suspend fun updateHealthRecord(
+        id: String,
+        bloodType: String,
+        height: Int,
+        weight: Int,
+        healthHistory: String
+    ): BaseResponse<UpdateHealthRecord> = httpClient.put(
+        "$BASE_URL$HEALTH_RECORD_API_ROUTE/$id"
+    ) {
+        setBody(
+            FormDataContent(
+                Parameters.build {
+                    append("bloodType", bloodType)
+                    append("height", height.toString())
+                    append("weight", weight.toString())
+                    append("healthHistory", healthHistory)
+                }
+            )
+        )
+    }.body()
 }
