@@ -130,6 +130,13 @@ class RootStore(
 
     private fun init() {
         runFlow {
+            userRepository.getChatBaseUrl().collect {
+                Napier.d("Chat base url: $it")
+                if (it.isNotEmpty()) {
+                    WholeApp.CHAT_BASE_URL = it
+                }
+            }
+
             val isFirstRun = prefs.getBoolean(PrefsStorage.KEY_IS_ONBOARD_SHOWN, true)
             if (isFirstRun) {
                 sendAction(RootAction.ShowOnBoarding)

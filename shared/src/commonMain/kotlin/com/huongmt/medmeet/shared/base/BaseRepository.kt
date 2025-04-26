@@ -93,10 +93,6 @@ abstract class BaseRepository : KoinComponent {
                     if (!response.isSuccessful()) {
                         throw ErrorException(response.toError())
                     }
-
-                    val result = response.getSuccessfulData()
-                    println("[DEBUG] $result")
-
                     emit(true)
                 } else {
                     throw ErrorException(response.toError())

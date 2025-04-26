@@ -5,6 +5,7 @@ import com.huongmt.medmeet.shared.core.datasource.network.APIs
 import com.huongmt.medmeet.shared.core.datasource.network.request.SignUpRequest
 import com.huongmt.medmeet.shared.core.datasource.network.response.LoginResponse
 import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorage
+import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorage.Keys.KEY_CHAT_URL
 import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorage.Keys.KEY_USER_ID
 import com.huongmt.medmeet.shared.core.entity.User
 import com.huongmt.medmeet.shared.core.maper.toUser
@@ -17,6 +18,8 @@ interface UserRepository {
     suspend fun saveLocalUserId(userId: String)
     suspend fun getLocalUserId(): Flow<String>
     suspend fun clearLocalUserId()
+    suspend fun getChatBaseUrl(): Flow<String>
+    suspend fun setChatBaseUrl(url: String)
 }
 
 class UserRepositoryImpl(private val api: APIs, private val prefs: PrefsStorage) : UserRepository,
@@ -45,5 +48,13 @@ class UserRepositoryImpl(private val api: APIs, private val prefs: PrefsStorage)
 
     override suspend fun clearLocalUserId() {
         prefs.putString(KEY_USER_ID, "")
+    }
+
+    override suspend fun getChatBaseUrl(): Flow<String> = launchResult {
+        prefs.getString(KEY_CHAT_URL, "")
+    }
+
+    override suspend fun setChatBaseUrl(url: String) {
+        prefs.putString(KEY_CHAT_URL, url)
     }
 }

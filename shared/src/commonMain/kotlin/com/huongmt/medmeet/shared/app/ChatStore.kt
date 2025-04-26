@@ -1,22 +1,19 @@
-package com.huongmt.medmeet.shared.app.chat
+package com.huongmt.medmeet.shared.app
 
 import com.huongmt.medmeet.shared.base.Store
 import com.huongmt.medmeet.shared.core.entity.Conversation
 import com.huongmt.medmeet.shared.core.entity.Message
 import com.huongmt.medmeet.shared.core.repository.ChatRepository
-import io.github.aakira.napier.Napier
-import kotlinx.datetime.Clock
+import com.huongmt.medmeet.shared.utils.ext.nowDateTime
 
 data class ChatState(
     val messages: List<Message> = emptyList(),
     val conversationList: List<Conversation> = emptyList(),
-    val displayConversationId: String? = null,
+    val currentConversationId: String? = null,
     val isGenerating: Boolean = false,
-    val isLoading: Boolean = false
-) : Store.State(loading = isLoading) {
-    val isEmpty: Boolean
-        get() = messages.isEmpty()
-}
+    val isLoading: Boolean = false,
+    val error: Throwable? = null
+) : Store.State(loading = isLoading)
 
 sealed interface ChatAction : Store.Action {
     data class SendMessage(
@@ -24,13 +21,9 @@ sealed interface ChatAction : Store.Action {
         val conversationId: String? = null
     ) : ChatAction
 
-    data class NewConversation(
-        val text: String
-    ) : ChatAction
+    data object NewConversation : ChatAction
 
-    data class GetConversationList(
-        val showLatestConversation: Boolean = false
-    ) : ChatAction
+    data class GetConversationList(val showLatest: Boolean = false) : ChatAction
 
     data class SelectConversation(
         val conversationId: String
@@ -38,8 +31,10 @@ sealed interface ChatAction : Store.Action {
 
     data class GetConversationListSuccess(
         val conversations: List<Conversation>,
-        val showLatestConversation: Boolean = false
+        val showLatest: Boolean
     ) : ChatAction
+
+    data object GetConversationListError : ChatAction
 
     data class GetMessageHistory(
         val conversationId: String
@@ -60,15 +55,21 @@ sealed interface ChatAction : Store.Action {
     ) : ChatAction
 
     data class Error(
-        val error: String
+        val error: Throwable
     ) : ChatAction
+
+    data class DeleteConversation(
+        val conversationId: String
+    ) : ChatAction
+
+    data class DeleteConversationSuccess(
+        val conversationId: String
+    ) : ChatAction
+
+    data object ClearError : ChatAction
 }
 
 sealed interface ChatEffect : Store.Effect {
-    data class ShowError(
-        val message: String
-    ) : ChatEffect
-
     data class ShowToast(
         val message: String
     ) : ChatEffect
@@ -87,8 +88,9 @@ class ChatStore(
 ) {
     override val onException: (Throwable) -> Unit
         get() = {
-            Napier.e(tag = "ChatStore", message = "Exception: $it")
-            setEffect(ChatEffect.ShowError(it.message ?: "Unknown error"))
+            sendAction(
+                ChatAction.Error(it)
+            )
         }
 
     override fun dispatch(
@@ -121,8 +123,8 @@ class ChatStore(
                     setState(
                         oldState.copy(isLoading = true, messages = emptyList())
                     )
-                    getMessageHistory(conversationId = action.conversationId)
                 }
+                getMessageHistory(conversationId = action.conversationId)
             }
 
             is ChatAction.GetMessageHistorySuccess -> {
@@ -131,7 +133,7 @@ class ChatStore(
                         isLoading = false,
                         messages = action.messages,
                         isGenerating = false,
-                        displayConversationId = action.conversationId
+                        currentConversationId = action.conversationId
                     )
                 )
             }
@@ -149,47 +151,51 @@ class ChatStore(
             }
 
             is ChatAction.Error -> {
-                setEffect(ChatEffect.ShowError(action.error))
                 setState(
                     oldState.copy(
                         isLoading = false,
-                        isGenerating = false
+                        isGenerating = false,
+                        error = action.error
                     )
                 )
             }
 
             is ChatAction.GetConversationList -> {
-                if (!oldState.isLoading) {
-                    setState(oldState.copy(isLoading = true))
-                    getConversationList(action.showLatestConversation)
-                }
+                getConversationList(action.showLatest)
             }
 
             is ChatAction.GetConversationListSuccess -> {
-                if (action.showLatestConversation) {
-                    setState(
-                        oldState.copy(
-                            isLoading = true,
-                            conversationList = action.conversations
-                        )
+                setState(
+                    oldState.copy(
+                        isLoading = false,
+                        isGenerating = false,
+                        conversationList = action.conversations
                     )
-                    action.conversations.firstOrNull()?.let { conversation ->
-                        getMessageHistory(conversation.id)
-                    }
-                } else {
-                    setState(
-                        oldState.copy(
-                            isLoading = false,
-                            conversationList = action.conversations
-                        )
-                    )
+                )
+                if (action.showLatest) {
+                    sendAction(ChatAction.SelectConversation(action.conversations.first().id))
                 }
             }
 
             is ChatAction.NewConversation -> {
+                if (!oldState.isLoading) {
+                    setState(oldState.copy(isLoading = true))
+                }
+                createConversation()
             }
 
             is ChatAction.NewConversationSuccess -> {
+                val conversations = oldState.conversationList + action.conversation
+                val sorted = conversations.sortedByDescending { it.updatedAt }
+                setState(
+                    oldState.copy(
+                        isLoading = false,
+                        messages = emptyList(),
+                        currentConversationId = action.conversation.id,
+                        conversationList = sorted
+                    )
+                )
+                sendAction(ChatAction.SelectConversation(action.conversation.id))
             }
 
             is ChatAction.SelectConversation -> {
@@ -198,17 +204,85 @@ class ChatStore(
                     getMessageHistory(action.conversationId)
                 }
             }
+
+            ChatAction.ClearError -> setState(oldState.copy(error = null))
+            ChatAction.GetConversationListError -> {
+                setState(
+                    oldState.copy(
+                        isLoading = false,
+                        error = null,
+                        conversationList = emptyList()
+                    )
+                )
+            }
+
+            is ChatAction.DeleteConversation -> {
+                deleteConversation(action.conversationId)
+            }
+
+            is ChatAction.DeleteConversationSuccess -> {
+                val conversations = oldState.conversationList.filter {
+                    it.id != action.conversationId
+                }.sortedByDescending { it.updatedAt }
+
+                setState(
+                    oldState.copy(
+                        isLoading = false,
+                        conversationList = conversations
+                    )
+                )
+            }
         }
     }
 
-    private fun getConversationList(showLatestConversation: Boolean) {
+    private fun deleteConversation(
+        conversationId: String
+    ) {
+        runFlow(
+            exception = coroutineExceptionHandler {
+            }
+        ) {
+            chatRepository.deleteConversation(conversationId).collect { success ->
+                if (success) {
+                    sendAction(ChatAction.DeleteConversationSuccess(conversationId))
+                }
+            }
+        }
+    }
+
+    private fun generateHumanMessage(
+        text: String,
+        conversationId: String
+    ): Message {
+        val nowDate = nowDateTime()
+        return Message(
+            id = "$nowDate",
+            userId = "",
+            content = text,
+            conversationId = conversationId,
+            isHuman = true,
+            timestamp = nowDate
+        )
+    }
+
+    private fun createConversation() {
         runFlow {
+            chatRepository.createConversation().collect { conversation ->
+                sendAction(ChatAction.NewConversationSuccess(conversation))
+            }
+        }
+    }
+
+    private fun getConversationList(showLatest: Boolean) {
+        runFlow(
+            exception = coroutineExceptionHandler {
+                sendAction(ChatAction.GetConversationListError)
+            }
+        ) {
             chatRepository.getConversationList().collect { conversations ->
+                val sorted = conversations.sortedByDescending { it.updatedAt }
                 sendAction(
-                    ChatAction.GetConversationListSuccess(
-                        conversations,
-                        showLatestConversation
-                    )
+                    ChatAction.GetConversationListSuccess(sorted, showLatest)
                 )
             }
         }
@@ -227,27 +301,10 @@ class ChatStore(
         conversationId: String
     ) {
         runFlow {
-            chatRepository.sendMessage(text).collect { message ->
-                sendAction(ChatAction.SendMessageSuccess(message, conversationId))
-            }
+            chatRepository.sendMessage(message = text, conversationId = conversationId)
+                .collect { message ->
+                    sendAction(ChatAction.SendMessageSuccess(message, conversationId))
+                }
         }
     }
-
-    private fun generateHumanMessage(
-        text: String,
-        conversationId: String
-    ): Message =
-        Message(
-            id =
-            Clock.System
-                .now()
-                .toEpochMilliseconds()
-                .toString(),
-            userId = "human",
-            content = text,
-            isHuman = true,
-            timestamp = Clock.System.now().toEpochMilliseconds(),
-            attachedFiles = emptyList(),
-            conversationId = conversationId // Replace with actual conversation ID if needed
-        )
 }

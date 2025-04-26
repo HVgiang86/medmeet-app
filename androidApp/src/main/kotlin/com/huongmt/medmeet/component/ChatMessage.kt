@@ -41,7 +41,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.huongmt.medmeet.R
-import com.huongmt.medmeet.shared.core.datasource.network.mockMsg
 import com.huongmt.medmeet.shared.core.entity.Message
 import com.halilibo.richtext.commonmark.Markdown
 import com.halilibo.richtext.ui.material3.RichText
@@ -52,33 +51,29 @@ fun HumanChatMessage(
     modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(8.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(8.dp),
     ) {
         Box(
-            modifier =
-                Modifier
-                    .fillMaxWidth(0.7f)
-                    .wrapContentHeight()
-                    .align(Alignment.CenterEnd)
-                    .background(color = Color.Transparent),
+            modifier = Modifier
+                .fillMaxWidth(0.7f)
+                .wrapContentHeight()
+                .align(Alignment.CenterEnd)
+                .background(color = Color.Transparent),
         ) {
             Surface(
-                modifier =
-                    Modifier
-                        .wrapContentSize()
-                        .padding(4.dp)
-                        .align(Alignment.CenterEnd),
-                shape =
-                    RoundedCornerShape(
-                        topStart = 20.dp,
-                        topEnd = 20.dp,
-                        bottomStart = 20.dp,
-                        bottomEnd = 20.dp,
-                    ),
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(4.dp)
+                    .align(Alignment.CenterEnd),
+                shape = RoundedCornerShape(
+                    topStart = 20.dp,
+                    topEnd = 20.dp,
+                    bottomStart = 20.dp,
+                    bottomEnd = 20.dp,
+                ),
                 color = MaterialTheme.colorScheme.primary,
             ) {
                 Text(
@@ -100,11 +95,10 @@ fun BotMessage(
 ) {
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
     Column(
-        modifier =
-            modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(8.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(8.dp),
         horizontalAlignment = Alignment.Start,
     ) {
         RichText {
@@ -114,17 +108,14 @@ fun BotMessage(
         Spacer(modifier = Modifier.height(4.dp))
 
         Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .padding(bottom = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .padding(bottom = 4.dp),
         ) {
             IconButton(modifier = Modifier.size(16.dp), onClick = {
                 // Handle copy to clipboard action with annotation string
-                message.getCopyableText().let { content ->
-                    clipboardManager.setText(AnnotatedString(content))
-                }
+                    clipboardManager.setText(AnnotatedString(message.content ?: ""))
             }) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_copy),
@@ -134,8 +125,7 @@ fun BotMessage(
 
             Spacer(modifier = Modifier.width(4.dp))
 
-            IconButton(modifier = Modifier.size(16.dp), onClick = {
-            }) {
+            IconButton(modifier = Modifier.size(16.dp), onClick = {}) {
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.ic_repeat),
                     contentDescription = "Re-generate",
@@ -154,24 +144,21 @@ fun WavingDots(
     animationDuration: Int = 300,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "")
-    val alphaValues =
-        List(dotCount) { index ->
-            infiniteTransition.animateFloat(
-                initialValue = 0.3f,
-                targetValue = 1f,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation =
-                            tween(
-                                durationMillis = animationDuration,
-                                delayMillis = index * animationDuration / dotCount,
-                                easing = LinearEasing,
-                            ),
-                        repeatMode = RepeatMode.Reverse,
-                    ),
-                label = "DotAlpha$index",
-            )
-        }
+    val alphaValues = List(dotCount) { index ->
+        infiniteTransition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = animationDuration,
+                    delayMillis = index * animationDuration / dotCount,
+                    easing = LinearEasing,
+                ),
+                repeatMode = RepeatMode.Reverse,
+            ),
+            label = "DotAlpha$index",
+        )
+    }
 
     Row(
         modifier = modifier,
@@ -180,11 +167,10 @@ fun WavingDots(
     ) {
         repeat(dotCount) { index ->
             Box(
-                modifier =
-                    Modifier
-                        .size(dotSize)
-                        .graphicsLayer(alpha = alphaValues[index].value)
-                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape),
+                modifier = Modifier
+                    .size(dotSize)
+                    .graphicsLayer(alpha = alphaValues[index].value)
+                    .background(MaterialTheme.colorScheme.primary, shape = CircleShape),
             )
         }
     }
@@ -199,13 +185,12 @@ fun WavingDotsPreview() {
 @Composable
 fun GeneratingIndicator(modifier: Modifier = Modifier) {
     Row(
-        modifier =
-            modifier
-                .padding(8.dp)
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(horizontal = 24.dp)
-                .padding(vertical = 8.dp),
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .wrapContentHeight()
+            .padding(horizontal = 24.dp)
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -228,16 +213,4 @@ fun GeneratingIndicator(modifier: Modifier = Modifier) {
 @Composable
 fun GeneratingIndicatorPreview() {
     GeneratingIndicator()
-}
-
-@Preview
-@Composable
-fun BotChatPreview() {
-    BotMessage(message = mockMsg)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun HumanChatPreview() {
-    HumanChatMessage(message = mockMsg)
 }

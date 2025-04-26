@@ -16,9 +16,6 @@ enum class BottomNavItem(@DrawableRes val selectedIcon: Int, @DrawableRes val un
         selectedIcon = R.drawable.ic_calendar_enable,
         unselectedIcon = R.drawable.ic_calendar_disable
     ),
-    AI_CHAT(
-        selectedIcon = R.drawable.ic_ai_enable, unselectedIcon = R.drawable.ic_ai_disable
-    ),
     PROFILE(
         selectedIcon = R.drawable.ic_profile_enable, unselectedIcon = R.drawable.ic_profile_disable
     ), ;
@@ -27,8 +24,7 @@ enum class BottomNavItem(@DrawableRes val selectedIcon: Int, @DrawableRes val un
         return when (this) {
             HOME -> MainScreenDestination.Home
             NOTIFICATION -> MainScreenDestination.Notification
-            AI_CHAT -> MainScreenDestination.AiChat
-            PROFILE -> MainScreenDestination.Profile()
+            PROFILE -> MainScreenDestination.Profile
             CALENDAR -> MainScreenDestination.Calendar
         }
     }
@@ -38,7 +34,6 @@ fun MainScreenDestination.asBottomNavItem(): BottomNavItem {
     return when (this) {
         MainScreenDestination.Home -> BottomNavItem.HOME
         MainScreenDestination.Notification -> BottomNavItem.NOTIFICATION
-        MainScreenDestination.AiChat -> BottomNavItem.AI_CHAT
         is MainScreenDestination.Profile -> BottomNavItem.PROFILE
         MainScreenDestination.Calendar -> BottomNavItem.CALENDAR
         else -> BottomNavItem.HOME

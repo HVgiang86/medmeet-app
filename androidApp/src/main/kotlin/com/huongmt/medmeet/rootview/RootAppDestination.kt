@@ -19,57 +19,6 @@ interface RootAppDestination {
             MainScreenNavigation(onLogout = {
                 navigator.replaceAll(Login)
             })
-
-//            val chatStore: ChatStore by inject()
-//
-//            val scaffoldState = rememberScaffoldState()
-//            val scope = rememberCoroutineScope()
-//
-//            Scaffold(scaffoldState = scaffoldState, snackbarHost = { hostState ->
-//                SnackbarHost(
-//                    hostState = hostState,
-//                    modifier =
-//                    Modifier.padding(
-//                        WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
-//                    ),
-//                )
-//            }) { contentPadding ->
-//                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-//
-//                ModalNavigationDrawer(
-//                    drawerContent = {
-//                        DrawerMenu(onClose = {
-//                            Napier.d { "Close drawer" }
-//                        }, store = chatStore)
-//                    },
-//                    drawerState = drawerState,
-//                ) {
-//                    Box(
-//                        modifier =
-//                        Modifier
-//                            .padding(contentPadding)
-//                            .statusBarsPadding(),
-//                    ) {
-//                        ChatScreen(
-//                            onOpenDrawer = {
-//                                scope.runFlow {
-//                                    drawerState.apply {
-//                                        if (isClosed) {
-//                                            Napier.d { "Open drawer" }
-//                                            open()
-//                                        } else {
-//                                            Napier.d { "Close drawer" }
-//                                            close()
-//                                        }
-//                                    }
-//                                }
-//                            },
-//                            store = chatStore,
-//                        )
-//
-//                    }
-//                }
-//            }
         }
     }
 

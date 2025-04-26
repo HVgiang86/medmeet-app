@@ -2,7 +2,6 @@ package com.huongmt.medmeet.shared.di
 
 import com.huongmt.medmeet.shared.core.createSettings
 import com.huongmt.medmeet.shared.core.datasource.network.APIs
-import com.huongmt.medmeet.shared.core.datasource.network.MockChatApi
 import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorage
 import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorageImpl
 import com.huongmt.medmeet.shared.core.repository.ChatRepository
@@ -35,9 +34,6 @@ private val preferencesSourceModule = module {
 }
 
 private val apiModule = module {
-    single<MockChatApi> {
-        MockChatApi(get())
-    }
     single<APIs> {
         APIs(get())
     }

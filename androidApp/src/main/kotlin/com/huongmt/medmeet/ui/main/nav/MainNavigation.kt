@@ -18,6 +18,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.huongmt.medmeet.shared.app.HomeStore
+import com.huongmt.medmeet.shared.app.ChatStore
+import com.huongmt.medmeet.ui.chat.ChatScreenContent
 import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.ui.home.HomeScreen
 import com.huongmt.medmeet.ui.main.MainScreen
@@ -61,11 +63,15 @@ interface MainScreenDestination {
 
     }
 
-    object AiChat : Screen, TopLevelScreenDestination {
+
+    object ChatScreen : Screen, KoinComponent, MainScreenDestination {
         @Composable
         override fun Content() {
-
-        }
+            val chatStore: ChatStore by inject()
+            val navigator = LocalNavigator.currentOrThrow
+            ChatScreenContent(chatStore, onBack = {
+                navigator.pop()
+            })
     }
 
     class Profile : Screen, TopLevelScreenDestination, KoinComponent, LogoutFromDestination()  {
@@ -112,6 +118,8 @@ fun MainScreenNavigation(onLogout: () -> Unit) {
             navigator.navigate(it)
         }, onNavigateBack = {
             navigator.pop()
+        }, onNavigateTo = {
+            navigator.navigate(it as MainScreenDestination)
         }, onLogout = {
             onLogout()
         }) {

@@ -202,7 +202,7 @@ fun HeaderView(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     PrimaryButton(onClick = {
-                        navigateTo(MainScreenDestination.AiChat)
+
                     }, text = {
                         Text(
                             "A.I Advisor",
