@@ -28,7 +28,7 @@ enum class BottomNavItem(@DrawableRes val selectedIcon: Int, @DrawableRes val un
             HOME -> MainScreenDestination.Home
             NOTIFICATION -> MainScreenDestination.Notification
             AI_CHAT -> MainScreenDestination.AiChat
-            PROFILE -> MainScreenDestination.Profile
+            PROFILE -> MainScreenDestination.Profile()
             CALENDAR -> MainScreenDestination.Calendar
         }
     }
@@ -44,3 +44,4 @@ fun MainScreenDestination.asBottomNavItem(): BottomNavItem {
         else -> BottomNavItem.HOME
     }
 }
+

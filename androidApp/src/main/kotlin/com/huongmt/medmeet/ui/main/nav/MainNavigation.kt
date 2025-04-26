@@ -18,21 +18,21 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.huongmt.medmeet.shared.app.HomeStore
+import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.ui.home.HomeScreen
 import com.huongmt.medmeet.ui.main.MainScreen
+import com.huongmt.medmeet.ui.profile.ProfileScreen
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 
-interface TopLevelScreenDestination : MainScreenDestination, LogoutFromDestination {
+interface TopLevelScreenDestination : MainScreenDestination {
     companion object {
         fun getStartScreen(): TopLevelScreenDestination = MainScreenDestination.Home
     }
 }
 
-interface LogoutFromDestination : MainScreenDestination {
-    fun onLogout()
-}
+abstract class LogoutFromDestination(open var onLogout: (() -> Unit) = {}) : MainScreenDestination
 
 interface MainScreenDestination {
     object Home : Screen, TopLevelScreenDestination, KoinComponent {
@@ -42,15 +42,8 @@ interface MainScreenDestination {
             val navigator = LocalNavigator.currentOrThrow
             HomeScreen(store = store, navigateTo = { destination ->
                 navigator.navigate(destination)
-            }, onLogout = {
-                onLogout()
             })
         }
-
-        override fun onLogout() {
-
-        }
-
     }
 
     object Notification : Screen, TopLevelScreenDestination {
@@ -58,20 +51,11 @@ interface MainScreenDestination {
         override fun Content() {
 
         }
-
-        override fun onLogout() {
-
-        }
-
     }
 
     object Calendar : Screen, TopLevelScreenDestination {
         @Composable
         override fun Content() {
-
-        }
-
-        override fun onLogout() {
 
         }
 
@@ -82,28 +66,25 @@ interface MainScreenDestination {
         override fun Content() {
 
         }
-
-        override fun onLogout() {
-
-        }
-
     }
 
-    object Profile : Screen, TopLevelScreenDestination {
+    class Profile : Screen, TopLevelScreenDestination, KoinComponent, LogoutFromDestination()  {
         @Composable
         override fun Content() {
-
+            val store: ProfileStore by inject()
+            val navigator = LocalNavigator.currentOrThrow
+            ProfileScreen(store = store, navigateTo = {
+                navigator.navigate(it)
+            }, onLogout = {
+                onLogout()
+            })
         }
-
-        override fun onLogout() {
-
-        }
-
     }
 }
 
 fun MainScreenDestination.isTopLevelScreen() = this is TopLevelScreenDestination
 
+fun MainScreenDestination.isLogoutFromScreen() = this is LogoutFromDestination
 
 fun Navigator.navigate(destination: MainScreenDestination) {
     val destinationScreen = destination as Screen

@@ -28,7 +28,7 @@ import com.huongmt.medmeet.theme.Divider_color
 import com.huongmt.medmeet.theme.Grey_500
 import com.huongmt.medmeet.ui.main.nav.LogoutFromDestination
 import com.huongmt.medmeet.ui.main.nav.MainScreenDestination
-import com.huongmt.medmeet.ui.main.nav.MainScreenNavigation
+import com.huongmt.medmeet.ui.main.nav.isLogoutFromScreen
 import com.huongmt.medmeet.ui.main.nav.isTopLevelScreen
 
 @Composable
@@ -44,13 +44,14 @@ fun MainScreen(
         content()
     }, bottomBar = {
         if (currentDestination.isTopLevelScreen()) {
-            BottomNavigation(
-                selectedNavItem = currentDestination.asBottomNavItem(),
+            BottomNavigation(selectedNavItem = currentDestination.asBottomNavItem(),
                 onNavigationItemSelected = {
                     onDestinationChanged(it.asTopLevelDestination())
                 })
+        }
 
-
+        if (currentDestination.isLogoutFromScreen()) {
+            (currentDestination as LogoutFromDestination).onLogout = onLogout
         }
     })
 }
