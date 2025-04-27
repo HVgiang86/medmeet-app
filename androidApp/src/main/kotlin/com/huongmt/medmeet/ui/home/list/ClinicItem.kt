@@ -62,7 +62,7 @@ fun ClinicItem(
                     .align(Alignment.Top),
                 contentScale = ContentScale.Crop,
                 contentDescription = null,
-                error = painterResource(R.drawable.png_clinic_default),
+                error = painterResource(R.drawable.ic_clinic_default),
             )
 
             Column(modifier = Modifier

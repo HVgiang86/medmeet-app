@@ -1,6 +1,7 @@
 package com.huongmt.medmeet.ui.clinicdetail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +27,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +43,7 @@ import coil.compose.AsyncImage
 import com.huongmt.medmeet.R
 import com.huongmt.medmeet.component.ErrorDialog
 import com.huongmt.medmeet.component.ExpandableText
+import com.huongmt.medmeet.component.FullScreenImageDialog
 import com.huongmt.medmeet.component.LoadingDialog
 import com.huongmt.medmeet.component.PrimaryButton
 import com.huongmt.medmeet.shared.app.ClinicDetailAction
@@ -56,6 +61,9 @@ fun ClinicDetailScreen(
 ) {
     val state by store.observeState().collectAsState()
     val effect by store.observeSideEffect().collectAsState(initial = null)
+
+    var showImageDialog by rememberSaveable { mutableStateOf(false) }
+    var selectedImageUrl by rememberSaveable { mutableStateOf<String?>(null) }
 
     LaunchedEffect(clinicId) {
         store.sendAction(ClinicDetailAction.LoadClinic(clinicId))
@@ -91,11 +99,20 @@ fun ClinicDetailScreen(
 
             ClinicDetailContent(state = state,
                 onBackClick = { store.sendAction(ClinicDetailAction.NavigateBack) },
-                onBookAppointmentClick = { store.bookAppointment() })
-
-
+                onBookAppointmentClick = { store.bookAppointment() },
+                onImageClick = {
+                    showImageDialog = true
+                    selectedImageUrl = it
+                })
         }
     }
+
+    // Gọi FullScreenImageDialog
+    FullScreenImageDialog(
+        showDialog = showImageDialog,
+        imageUrl = selectedImageUrl,
+        onDismiss = { showImageDialog = false }
+    )
 }
 
 @Composable
@@ -103,6 +120,7 @@ private fun ClinicDetailContent(
     state: ClinicDetailState,
     onBackClick: () -> Unit,
     onBookAppointmentClick: () -> Unit,
+    onImageClick: (String) -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
 
@@ -119,9 +137,11 @@ private fun ClinicDetailContent(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.3f),
+                        .fillMaxHeight(0.3f).clickable {
+                            onImageClick(state.clinic?.logo ?: "")
+                        },
                     contentScale = ContentScale.Crop,
-                    error = painterResource(id = R.drawable.png_clinic_default)
+                    error = painterResource(id = R.drawable.ic_clinic_default)
                 )
 
                 IconButton(
@@ -224,10 +244,7 @@ private fun ClinicDetailContent(
                     style = MaterialTheme.typography.bodyLarge,
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Book Appointment button
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(80.dp))
             }
         }
 
@@ -236,7 +253,7 @@ private fun ClinicDetailContent(
 
             },
             modifier = Modifier
-                .fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 32.dp)
+                .fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 24.dp)
                 .height(56.dp).align(Alignment.BottomCenter),
             text = {
                 Text(

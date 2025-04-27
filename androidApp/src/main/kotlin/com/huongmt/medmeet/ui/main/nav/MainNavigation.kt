@@ -27,6 +27,7 @@ import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.ui.clinicdetail.ClinicDetailScreen
 import com.huongmt.medmeet.ui.home.HomeScreen
 import com.huongmt.medmeet.ui.main.MainScreen
+import com.huongmt.medmeet.ui.notification.NotificationScreen
 import com.huongmt.medmeet.ui.profile.ProfileScreen
 import com.huongmt.medmeet.ui.schedule.ScheduleScreen
 import org.koin.core.component.KoinComponent
@@ -56,16 +57,11 @@ interface MainScreenDestination {
     object Notification : Screen, TopLevelScreenDestination {
         @Composable
         override fun Content() {
-
+            val navigator = LocalNavigator.currentOrThrow
+            NotificationScreen(navigateBack = {
+                navigator.pop()
+            })
         }
-    }
-
-    object Calendar : Screen, TopLevelScreenDestination {
-        @Composable
-        override fun Content() {
-
-        }
-
     }
 
 
