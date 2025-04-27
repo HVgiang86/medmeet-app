@@ -6,6 +6,7 @@ import com.huongmt.medmeet.shared.app.ClinicDetailStore
 import com.huongmt.medmeet.shared.app.HomeStore
 import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.shared.app.RootStore
+import com.huongmt.medmeet.shared.app.ScheduleStore
 import org.koin.dsl.module
 
 val storeModule = module {
@@ -15,4 +16,5 @@ val storeModule = module {
     single<HomeStore> { HomeStore(get(), get()) }
     single<ProfileStore> { ProfileStore(get(), get()) }
     single<ClinicDetailStore> { ClinicDetailStore(get()) }
+    single<ScheduleStore> { ScheduleStore(get()) }
 }

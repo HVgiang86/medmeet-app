@@ -13,6 +13,7 @@ import com.huongmt.medmeet.shared.core.datasource.network.response.ConversationR
 import com.huongmt.medmeet.shared.core.datasource.network.response.HealthRecordResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.LoginResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.MessageResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.PagingConsultationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ProfileResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.UpdateHealthRecord
 import io.ktor.client.HttpClient
@@ -78,6 +79,13 @@ class APIs(private val httpClient: HttpClient) {
 
     suspend fun getClinicSchedule(clinicId: String): BaseResponse<List<ClinicScheduleResponse>> =
         httpClient.get("${BASE_URL}clinic-schedule/$clinicId").body()
+
+    suspend fun getMedicalHistory(uid: String, page: Int = 1, size: Int = 30): BaseResponse<PagingConsultationResponse> =
+        httpClient.get("${BASE_URL}medical-consultation-history") {
+            parameter("patientId", uid)
+            parameter("_page", page)
+            parameter("_pageSize", size)
+        }.body()
 
 //    Chat APIs
 

@@ -25,7 +25,7 @@ enum class BottomNavItem(@DrawableRes val selectedIcon: Int, @DrawableRes val un
             HOME -> MainScreenDestination.Home
             NOTIFICATION -> MainScreenDestination.Notification
             PROFILE -> MainScreenDestination.Profile()
-            CALENDAR -> MainScreenDestination.Calendar
+            CALENDAR -> MainScreenDestination.Schedule
         }
     }
 }
@@ -35,7 +35,7 @@ fun MainScreenDestination.asBottomNavItem(): BottomNavItem {
         MainScreenDestination.Home -> BottomNavItem.HOME
         MainScreenDestination.Notification -> BottomNavItem.NOTIFICATION
         is MainScreenDestination.Profile -> BottomNavItem.PROFILE
-        MainScreenDestination.Calendar -> BottomNavItem.CALENDAR
+        MainScreenDestination.Schedule -> BottomNavItem.CALENDAR
         else -> BottomNavItem.HOME
     }
 }

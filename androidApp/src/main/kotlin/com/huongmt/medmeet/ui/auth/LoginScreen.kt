@@ -59,7 +59,7 @@ fun LoginScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.colorScheme.background), store: AuthStore) {
-    val email = remember { mutableStateOf("test01@gmail.com") }
+    val email = remember { mutableStateOf("lan@gmail.com") }
     val password = remember { mutableStateOf("123456") }
 
     val state by store.observeState().collectAsState()

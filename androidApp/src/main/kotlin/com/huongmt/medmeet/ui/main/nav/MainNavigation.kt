@@ -20,6 +20,7 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.huongmt.medmeet.shared.app.HomeStore
 import com.huongmt.medmeet.shared.app.ChatStore
 import com.huongmt.medmeet.shared.app.ClinicDetailStore
+import com.huongmt.medmeet.shared.app.ScheduleStore
 import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.ui.chat.ChatScreenContent
 import com.huongmt.medmeet.shared.app.ProfileStore
@@ -27,6 +28,7 @@ import com.huongmt.medmeet.ui.clinicdetail.ClinicDetailScreen
 import com.huongmt.medmeet.ui.home.HomeScreen
 import com.huongmt.medmeet.ui.main.MainScreen
 import com.huongmt.medmeet.ui.profile.ProfileScreen
+import com.huongmt.medmeet.ui.schedule.ScheduleScreen
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -88,6 +90,20 @@ interface MainScreenDestination {
             }, onLogout = {
                 onLogout()
             })
+        }
+    }
+    
+    object Schedule : Screen, TopLevelScreenDestination, KoinComponent {
+        @Composable
+        override fun Content() {
+            val navigator = LocalNavigator.currentOrThrow
+            val store: ScheduleStore by inject()
+            ScheduleScreen(
+                store = store,
+                navigateBack = {
+                    navigator.pop()
+                }
+            )
         }
     }
     

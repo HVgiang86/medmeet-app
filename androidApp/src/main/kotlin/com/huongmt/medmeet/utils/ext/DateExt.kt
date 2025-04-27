@@ -5,12 +5,25 @@ import com.huongmt.medmeet.utils.DateTime
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 fun Long.toLocalDate(): LocalDate {
     val instant = Instant.fromEpochMilliseconds(this)
     return instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+}
+
+fun LocalDateTime.toDMY(): String {
+    return "${this.dayOfMonth}/${this.monthNumber}/${this.year}"
+}
+
+fun LocalDate.toDMY(): String {
+    return "${this.dayOfMonth}/${this.monthNumber}/${this.year}"
+}
+
+fun LocalDateTime.toHMS(): String {
+    return "${this.hour}:${this.minute}:${this.second}"
 }
 
 fun Any.getCurrentDate(): LocalDate {

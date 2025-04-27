@@ -193,6 +193,11 @@ fun ConfirmBottomSheet(
         sheetState = sheetState,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = {
+            if (showHandle) {
+                BottomSheetDefaults.DragHandle()
+            }
+        }
     ) {
         val paddingTop = if (showHandle) 0.dp else 16.dp
 
