@@ -4,6 +4,7 @@ import com.huongmt.medmeet.shared.base.BaseRepository
 import com.huongmt.medmeet.shared.core.datasource.network.APIs
 import com.huongmt.medmeet.shared.core.entity.ActiveStatus
 import com.huongmt.medmeet.shared.core.entity.Clinic
+import com.huongmt.medmeet.shared.core.entity.ClinicSchedule
 import com.huongmt.medmeet.shared.core.maper.toClinic
 import kotlinx.coroutines.flow.Flow
 
@@ -17,6 +18,8 @@ interface ClinicRepository {
     ): Flow<List<Clinic>>
 
     suspend fun getClinicById(id: String): Flow<Clinic>
+
+    suspend fun getClinicScheduleByClinicId(clinicId: String): Flow<List<ClinicSchedule>>
 }
 
 class ClinicRepositoryImpl(
@@ -48,4 +51,15 @@ class ClinicRepositoryImpl(
     }) {
         api.getClinicById(id)
     }
+
+    override suspend fun getClinicScheduleByClinicId(clinicId: String): Flow<List<ClinicSchedule>> =
+        flowContext(mapper = {
+            it.map { clinicScheduleResponse ->
+                clinicScheduleResponse.toClinicSchedule()
+            }
+        }) {
+            api.getClinicSchedule(
+                clinicId = clinicId
+            )
+        }
 }

@@ -1,10 +1,24 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: true
 ---
-
-# Your rule content
-
-- You can @ files here
-- You can use markdown but dont have to
+---
+description: Applies general best practices for Android Jetpack Compose development within the main application code.
+globs: app/src/main/java/com/package/**/*.kt
+---
+- Please refer to use created common component in androidApp/src/main/kotlin/com/huongmt/medmeet/component package
+- Create more component if needed
+- Please using Material3 library for UI code.
+- Refer to create icons in kotlin code.
+- Use remember and derivedStateOf appropriately
+- Implement proper recomposition optimization
+- Use proper Compose modifiers ordering
+- Follow composable function naming conventions
+- Implement proper preview annotations
+- Use proper state management with MutableState
+- Implement proper error handling and loading states
+- Use proper theming with MaterialTheme
+- Follow accessibility guidelines
+- Implement proper animation patterns
+- Generate Icons in kotlin code if possible

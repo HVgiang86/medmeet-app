@@ -2,6 +2,7 @@ package com.huongmt.medmeet.shared.di
 
 import com.huongmt.medmeet.shared.app.AuthStore
 import com.huongmt.medmeet.shared.app.ChatStore
+import com.huongmt.medmeet.shared.app.ClinicDetailStore
 import com.huongmt.medmeet.shared.app.HomeStore
 import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.shared.app.RootStore
@@ -13,4 +14,5 @@ val storeModule = module {
     single<AuthStore> { AuthStore(get(), get()) }
     single<HomeStore> { HomeStore(get(), get()) }
     single<ProfileStore> { ProfileStore(get(), get()) }
+    single<ClinicDetailStore> { ClinicDetailStore(get()) }
 }

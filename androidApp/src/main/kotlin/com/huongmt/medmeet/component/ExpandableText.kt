@@ -28,15 +28,13 @@ fun ExpandableText(
     modifier: Modifier = Modifier,
     textModifier: Modifier = Modifier,
     style: TextStyle = LocalTextStyle.current,
-    fontStyle: FontStyle? = null,
     text: String,
     collapsedMaxLine: Int = DEFAULT_MINIMUM_TEXT_LINE,
     showMoreText: String = "... Xem thêm",
     showMoreStyle: SpanStyle = SpanStyle(fontWeight = FontWeight.W500),
-    showLessText: String = " Ẩn bất",
+    showLessText: String = " Ẩn bớt",
     showLessStyle: SpanStyle = showMoreStyle,
     textAlign: TextAlign? = null,
-    fontSize: TextUnit,
 ) {
     // State variables to track the expanded state, clickable state, and last character index.
     var isExpanded by remember { mutableStateOf(false) }
@@ -78,7 +76,6 @@ fun ExpandableText(
                 },
             // Set max lines based on the expanded state.
             maxLines = if (isExpanded) Int.MAX_VALUE else collapsedMaxLine,
-            fontStyle = fontStyle,
             // Callback to determine visual overflow and enable click ability.
             onTextLayout = { textLayoutResult ->
                 if (!isExpanded && textLayoutResult.hasVisualOverflow) {
@@ -88,7 +85,6 @@ fun ExpandableText(
             },
             style = style,
             textAlign = textAlign,
-            fontSize = fontSize,
         )
     }
 }

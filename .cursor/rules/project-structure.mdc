@@ -17,7 +17,7 @@ Project Structure follow MVI architecture
 androidApp/
     src/
         main/
-            kotlin/com/gianghv/kmachat
+            kotlin/com/huongmt/medmeet
                 component/
                 composeui/
                 constant/
@@ -35,7 +35,7 @@ androidApp/
         xml/
 shared/
     src/
-        commonMain/kotlin/com/gianghv/kmachat
+        commonMain/kotlin/com/huongmt/medmeet
            app/
            base/
            config/

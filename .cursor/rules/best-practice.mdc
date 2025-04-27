@@ -11,7 +11,18 @@ globs: app/src/main/java/com/package/**/*.kt
 - Follow Material Design 3 guidelines and components.
 - Implement MVI architecture with Store (a.k.a ViewModel in module Shared), View is screens in AndroidApp Module, State, Action, Effect implement from interface and abstract in Shared module
 - Use Kotlin coroutines and Flow for asynchronous operations.
-- Implement dependency injection using Hilt.
+- Implement dependency injection using Koin.
 - Follow unidirectional data flow with ViewModel and UI State.
 - Use Compose navigation for screen management.
 - Implement proper state hoisting and composition.
+- If need some ext function or utils, please create it in utils package
+- Please prefer to use kotlilMultiplatform-support Library
+- Please follow MVI architecture with Store, State, Action, Effect in shared module, folder: @src/kotlin/com/huongmt/medmeet/shared/app
+- Please create and using Repository for data layer, follow example repositories in kotlin/com/huongmt/medmeet/shared/core/repository
+Repository should return Flow.
+- Please using api for call data from network: kotlin/com/huongmt/medmeet/shared/core/datasource/network/APIs.kt
+- Please create models data class in /entity package
+- Please create request/response Serializable data class for api and then write mapper to map to entity
+- Please mock API if not yet haven
+- Please ask me for api or model if need
+- Screens must inheritance KoinComponent to use inject Store class

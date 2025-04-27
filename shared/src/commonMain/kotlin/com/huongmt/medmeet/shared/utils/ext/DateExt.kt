@@ -13,6 +13,29 @@ fun nowDate(): LocalDate {
     return instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
 }
 
+fun String.parseTimeToLocalDateTime(date: LocalDate = nowDate()): LocalDateTime? {
+    return try {
+        val parts = this.split(":")
+        if (parts.size < 2) return null
+
+        val hour = parts[0].toInt()
+        val minute = parts[1].toInt()
+        val second = if (parts.size > 2) parts[2].toInt() else 0
+
+        LocalDateTime(
+            year = date.year,
+            monthNumber = date.monthNumber,
+            dayOfMonth = date.dayOfMonth,
+            hour = hour,
+            minute = minute,
+            second = second,
+            nanosecond = 0
+        )
+    } catch (e: Exception) {
+        null
+    }
+}
+
 fun nowDateTime(): LocalDateTime {
     val instant = Clock.System.now()
     return instant.toLocalDateTime(TimeZone.currentSystemDefault())

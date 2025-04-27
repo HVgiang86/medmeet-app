@@ -121,7 +121,7 @@ fun HomeScreen(
                                 .padding(horizontal = 24.dp),
                                 clinic = clinic,
                                 onClick = {
-                                    // Handle clinic item click
+                                    navigateTo(MainScreenDestination.ClinicDetail(it))
                                 })
                         }
 

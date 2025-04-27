@@ -8,6 +8,7 @@ import com.huongmt.medmeet.shared.core.datasource.network.request.SendMessageReq
 import com.huongmt.medmeet.shared.core.datasource.network.request.SignUpRequest
 import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicListResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicScheduleResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ConversationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.HealthRecordResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.LoginResponse
@@ -74,6 +75,11 @@ class APIs(private val httpClient: HttpClient) {
 
     suspend fun getClinicById(id: String): BaseResponse<ClinicResponse> =
         httpClient.get("$BASE_URL$CLINIC_API_ROUTE/$id").body()
+
+    suspend fun getClinicSchedule(clinicId: String): BaseResponse<List<ClinicScheduleResponse>> =
+        httpClient.get("${BASE_URL}clinic-schedule/$clinicId").body()
+
+//    Chat APIs
 
     suspend fun getConversations(
         uid: String,

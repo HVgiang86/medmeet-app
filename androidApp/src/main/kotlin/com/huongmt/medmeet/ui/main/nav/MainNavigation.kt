@@ -19,8 +19,11 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.huongmt.medmeet.shared.app.HomeStore
 import com.huongmt.medmeet.shared.app.ChatStore
+import com.huongmt.medmeet.shared.app.ClinicDetailStore
+import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.ui.chat.ChatScreenContent
 import com.huongmt.medmeet.shared.app.ProfileStore
+import com.huongmt.medmeet.ui.clinicdetail.ClinicDetailScreen
 import com.huongmt.medmeet.ui.home.HomeScreen
 import com.huongmt.medmeet.ui.main.MainScreen
 import com.huongmt.medmeet.ui.profile.ProfileScreen
@@ -85,6 +88,24 @@ interface MainScreenDestination {
             }, onLogout = {
                 onLogout()
             })
+        }
+    }
+    
+    data class ClinicDetail(val clinic: Clinic) : Screen, MainScreenDestination, KoinComponent {
+        @Composable
+        override fun Content() {
+            val navigator = LocalNavigator.currentOrThrow
+            val store: ClinicDetailStore by inject()
+            ClinicDetailScreen(
+                store = store,
+                clinicId = clinic.id,
+                navigateBack = {
+                    navigator.pop()
+                },
+                navigateToBookAppointment = {
+
+                }
+            )
         }
     }
 }

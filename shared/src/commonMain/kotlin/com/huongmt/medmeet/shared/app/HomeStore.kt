@@ -91,4 +91,8 @@ class HomeStore(
             }
         }
     }
+
+    fun navigateToClinicDetail(clinic: Clinic) {
+        setEffect(HomeEffect.NavigateToClinicDetail(clinic))
+    }
 }
