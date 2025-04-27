@@ -13,6 +13,16 @@ fun nowDate(): LocalDate {
     return instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
 }
 
+fun LocalDate.toIso8601String(): String {
+    return "$year-${monthNumber.toString().padStart(2, '0')}-${dayOfMonth.toString().padStart(2, '0')}"
+}
+
+fun LocalDateTime.toIso8601String(): String {
+    val date = "$year-${monthNumber.toString().padStart(2, '0')}-${dayOfMonth.toString().padStart(2, '0')}"
+    val time = "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}"
+    return "${date}T${time}Z"
+}
+
 fun String.parseTimeToLocalDateTime(date: LocalDate = nowDate()): LocalDateTime? {
     return try {
         val parts = this.split(":")

@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 data class MedicalService(
     val id: String,
     val name: String? = "",
-    val currentPrice: Int? = 0,
+    val currentPrice: Long? = 0,
+    val originalPrice: Long? = 0,
     val type: MedicalServiceType = MedicalServiceType.SPECIALITY,
-    val clinicId: String,
-    val logo: String? = ""
+    val clinicId: String
 )

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,8 +17,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,14 +49,14 @@ import com.huongmt.medmeet.shared.app.ClinicDetailAction
 import com.huongmt.medmeet.shared.app.ClinicDetailEffect
 import com.huongmt.medmeet.shared.app.ClinicDetailState
 import com.huongmt.medmeet.shared.app.ClinicDetailStore
-import com.huongmt.medmeet.shared.core.entity.Clinic
+import com.huongmt.medmeet.ui.main.nav.MainScreenDestination
 
 @Composable
 fun ClinicDetailScreen(
     store: ClinicDetailStore,
     clinicId: String,
     navigateBack: () -> Unit,
-    navigateToBookAppointment: () -> Unit,
+    navigateTo: (MainScreenDestination) -> Unit,
 ) {
     val state by store.observeState().collectAsState()
     val effect by store.observeSideEffect().collectAsState(initial = null)
@@ -73,7 +72,12 @@ fun ClinicDetailScreen(
     LaunchedEffect(effect) {
         when (effect) {
             ClinicDetailEffect.NavigateBack -> navigateBack()
-            ClinicDetailEffect.BookAppointment -> navigateToBookAppointment()
+            ClinicDetailEffect.BookAppointment -> {
+                if (state.clinic != null) {
+                    navigateTo(MainScreenDestination.BookingAppointment(state.clinic!!))
+                }
+            }
+
             null -> {}
         }
     }
@@ -108,11 +112,9 @@ fun ClinicDetailScreen(
     }
 
     // Gọi FullScreenImageDialog
-    FullScreenImageDialog(
-        showDialog = showImageDialog,
+    FullScreenImageDialog(showDialog = showImageDialog,
         imageUrl = selectedImageUrl,
-        onDismiss = { showImageDialog = false }
-    )
+        onDismiss = { showImageDialog = false })
 }
 
 @Composable
@@ -124,7 +126,7 @@ private fun ClinicDetailContent(
 ) {
     val scrollState = rememberScrollState()
 
-    Box (modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -137,7 +139,8 @@ private fun ClinicDetailContent(
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .fillMaxHeight(0.3f).clickable {
+                        .fillMaxHeight(0.3f)
+                        .clickable {
                             onImageClick(state.clinic?.logo ?: "")
                         },
                     contentScale = ContentScale.Crop,
@@ -186,60 +189,51 @@ private fun ClinicDetailContent(
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .padding(12.dp)
                 ) {
-                    Column {
-                        // Address
-                        Box(
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.LocationOn,
-                                contentDescription = null,
-                                modifier = Modifier.align(Alignment.TopStart)
-                            )
-
-                            Text(
-                                text = state.clinic?.address ?: "",
-                                style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(start = 28.dp)
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        state.clinicScheduleDisplay.let {
-                            // Working hours
-                            Text(
-                                text = "Working Time",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.SemiBold
-                            )
-
-                            Spacer(modifier = Modifier.height(4.dp))
-
-                            Text(
-                                text = it ?: "No data",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                        }
-
+                    Row(
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.LocationOn,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = state.clinic?.address ?: "Unknown location",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // About section
+                // Working hours
                 Text(
-                    text = "About us",
-                    style = MaterialTheme.typography.titleLarge,
+                    text = "Working Time",
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Description
+                Text(
+                    text = state.clinicScheduleDisplay ?: "Mon-Fri, 9:00 AM - 5:00 PM",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // About
+                Text(
+                    text = "About us",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 ExpandableText(
-                    text = state.clinic?.description
-                        ?: "Some description.",
+                    text = state.clinic?.description ?: "Some description.",
                     collapsedMaxLine = 3,
                     style = MaterialTheme.typography.bodyLarge,
                 )
@@ -248,23 +242,20 @@ private fun ClinicDetailContent(
             }
         }
 
-        PrimaryButton(
-            onClick = {
-
-            },
+        PrimaryButton(onClick = onBookAppointmentClick,
             modifier = Modifier
-                .fillMaxWidth().padding(horizontal = 24.dp).padding(bottom = 24.dp)
-                .height(56.dp).align(Alignment.BottomCenter),
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp)
+                .height(56.dp)
+                .align(Alignment.BottomCenter),
             text = {
                 Text(
                     text = "Book Appointment",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )
-            }
-        )
+            })
     }
-
-
 }
 

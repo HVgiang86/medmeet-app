@@ -3,6 +3,7 @@ package com.huongmt.medmeet.shared.core.datasource.network
 import com.huongmt.medmeet.shared.base.BaseResponse
 import com.huongmt.medmeet.shared.config.BASE_URL
 import com.huongmt.medmeet.shared.core.WholeApp
+import com.huongmt.medmeet.shared.core.datasource.network.request.BookAppointment
 import com.huongmt.medmeet.shared.core.datasource.network.request.CreateConversationRequest
 import com.huongmt.medmeet.shared.core.datasource.network.request.SendMessageRequest
 import com.huongmt.medmeet.shared.core.datasource.network.request.SignUpRequest
@@ -12,8 +13,10 @@ import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicSchedul
 import com.huongmt.medmeet.shared.core.datasource.network.response.ConversationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.HealthRecordResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.LoginResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.MedicalServiceResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.MessageResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.PagingConsultationResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.PagingMedicalServiceResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ProfileResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.UpdateHealthRecord
 import io.ktor.client.HttpClient
@@ -80,11 +83,39 @@ class APIs(private val httpClient: HttpClient) {
     suspend fun getClinicSchedule(clinicId: String): BaseResponse<List<ClinicScheduleResponse>> =
         httpClient.get("${BASE_URL}clinic-schedule/$clinicId").body()
 
-    suspend fun getMedicalHistory(uid: String, page: Int = 1, size: Int = 30): BaseResponse<PagingConsultationResponse> =
+    suspend fun getMedicalHistory(
+        uid: String,
+        page: Int = 1,
+        size: Int = 30
+    ): BaseResponse<PagingConsultationResponse> =
         httpClient.get("${BASE_URL}medical-consultation-history") {
             parameter("patientId", uid)
             parameter("_page", page)
             parameter("_pageSize", size)
+        }.body()
+
+    suspend fun getMedicalServices(
+        clinicId: String,
+        page: Int = 1,
+        size: Int = 30
+    ): BaseResponse<PagingMedicalServiceResponse> =
+        httpClient.get("${BASE_URL}medical-service") {
+            parameter("clinicId", clinicId)
+            parameter("_page", page)
+            parameter("_pageSize", size)
+        }.body()
+
+    suspend fun bookAppointment(request: BookAppointment): BaseResponse<MedicalServiceResponse> =
+        httpClient.post("${BASE_URL}medical-consultation-history") {
+            setBody(request)
+        }.body()
+
+    suspend fun getMedicalServiceSchedule(
+        medicalServiceId: String,
+        date: String
+    ): BaseResponse<List<ClinicScheduleResponse>> =
+        httpClient.get("${BASE_URL}medical-service/$medicalServiceId/schedules") {
+            parameter("date", date)
         }.body()
 
 //    Chat APIs
@@ -127,6 +158,7 @@ class APIs(private val httpClient: HttpClient) {
 
     suspend fun deleteConversation(conversationId: String): BaseResponse<Boolean> =
         httpClient.delete("${WholeApp.CHAT_BASE_URL}/$CONVERSATION_ROUTE/$conversationId").body()
+
     suspend fun getHealthRecord(id: String): BaseResponse<HealthRecordResponse> =
         httpClient.get("$BASE_URL$HEALTH_RECORD_API_ROUTE/$id").body()
 

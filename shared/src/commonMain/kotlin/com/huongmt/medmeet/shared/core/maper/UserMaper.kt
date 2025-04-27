@@ -26,6 +26,7 @@ fun ProfileResponse.toUser(): User {
         province = province,
         district = district,
         address = address,
+        commune = commune,
         code = code
     )
 }

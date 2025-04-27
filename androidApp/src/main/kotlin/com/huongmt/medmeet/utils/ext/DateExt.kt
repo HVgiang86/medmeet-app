@@ -23,7 +23,13 @@ fun LocalDate.toDMY(): String {
 }
 
 fun LocalDateTime.toHMS(): String {
-    return "${this.hour}:${this.minute}:${this.second}"
+    return "${this.hour.toString().padStart(2, '0')}:${
+        this.minute.toString().padStart(2, '0')
+    }:${this.second.toString().padStart(2, '0')}"
+}
+
+fun LocalDateTime.toHM(): String {
+    return "${this.hour.toString().padStart(2, '0')}:${this.minute.toString().padStart(2, '0')}"
 }
 
 fun Any.getCurrentDate(): LocalDate {
@@ -48,6 +54,5 @@ fun String?.toLocalDate(): LocalDate? {
 }
 
 fun LocalDate.format(format: String): String {
-    return DateTime.getFormattedDate(this.toString(), YYYY_MM_DD, format)
-        ?: this.toString()
+    return DateTime.getFormattedDate(this.toString(), YYYY_MM_DD, format) ?: this.toString()
 }

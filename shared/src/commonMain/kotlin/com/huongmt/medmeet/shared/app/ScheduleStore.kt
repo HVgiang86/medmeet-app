@@ -3,7 +3,7 @@ package com.huongmt.medmeet.shared.app
 import com.huongmt.medmeet.shared.base.Store
 import com.huongmt.medmeet.shared.core.entity.MedicalConsultationHistory
 import com.huongmt.medmeet.shared.core.entity.MedicalRecordStatus
-import com.huongmt.medmeet.shared.core.repository.MedicalConsultationRepository
+import com.huongmt.medmeet.shared.core.repository.MedicalRepository
 import io.github.aakira.napier.Napier
 
 data class ScheduleState(
@@ -40,7 +40,7 @@ sealed class ScheduleEffect : Store.Effect {
 }
 
 class ScheduleStore(
-    private val medicalConsultationRepository: MedicalConsultationRepository
+    private val medicalRepository: MedicalRepository
 ) : Store<ScheduleState, ScheduleAction, ScheduleEffect>(
     initialState = ScheduleState()
 ) {
@@ -145,7 +145,7 @@ class ScheduleStore(
                 sendAction(ScheduleAction.NavigateBack)
             }
         ) {
-            medicalConsultationRepository.getMedicalConsultations().collect { appointments ->
+            medicalRepository.getMedicalConsultations().collect { appointments ->
                 Napier.d("Appointments: $appointments")
                 sendAction(ScheduleAction.LoadAppointmentsSuccess(appointments, showTab))
             }

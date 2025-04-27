@@ -14,6 +14,7 @@ data class ProfileResponse(
     val gender: Int = Gender.MALE.value,
     @SerialName("dateOfBirth") val birthday: String? = "",
     val province: String? = "",
+    val commune: String? = "",
     val district: String? = "",
     val address: String? = "",
     val role: Int = 0

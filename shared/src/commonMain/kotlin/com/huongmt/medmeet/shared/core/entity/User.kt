@@ -14,6 +14,7 @@ data class User(
     val birthday: LocalDate? = null,
     val province: String? = "",
     val district: String? = "",
+    val commune: String? = "",
     val address: String? = "",
     val role: Int = 0
 )

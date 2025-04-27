@@ -20,6 +20,7 @@ data class ClinicScheduleResponse(
         val endTimeDate = endTime.parseTimeToLocalDateTime() ?: now
 
         return ClinicSchedule(
+            id = id,
             startTime = startTimeDate,
             endTime = endTimeDate
         )

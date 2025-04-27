@@ -23,6 +23,7 @@ sealed class ClinicDetailAction : Store.Action {
     data class GetClinicScheduleSuccess(val schedule: List<ClinicSchedule>) : ClinicDetailAction()
     data object LoadClinicError : ClinicDetailAction()
     data object NavigateBack : ClinicDetailAction()
+    data object BookAppointment : ClinicDetailAction()
 }
 
 sealed class ClinicDetailEffect : Store.Effect {
@@ -106,6 +107,10 @@ class ClinicDetailStore(
             ClinicDetailAction.NavigateBack -> {
                 setEffect(ClinicDetailEffect.NavigateBack)
             }
+
+            ClinicDetailAction.BookAppointment -> {
+                setEffect(ClinicDetailEffect.BookAppointment)
+            }
         }
     }
 
@@ -137,6 +142,6 @@ class ClinicDetailStore(
     }
 
     fun bookAppointment() {
-        setEffect(ClinicDetailEffect.BookAppointment)
+        sendAction(ClinicDetailAction.BookAppointment)
     }
 }

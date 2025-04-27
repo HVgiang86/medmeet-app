@@ -22,8 +22,11 @@ import com.huongmt.medmeet.shared.app.ChatStore
 import com.huongmt.medmeet.shared.app.ClinicDetailStore
 import com.huongmt.medmeet.shared.app.ScheduleStore
 import com.huongmt.medmeet.shared.core.entity.Clinic
+import com.huongmt.medmeet.ui.booking.SelectServiceScreen
 import com.huongmt.medmeet.ui.chat.ChatScreenContent
 import com.huongmt.medmeet.shared.app.ProfileStore
+import com.huongmt.medmeet.shared.app.booking.BookingStore
+import com.huongmt.medmeet.ui.booking.BookingScreen
 import com.huongmt.medmeet.ui.clinicdetail.ClinicDetailScreen
 import com.huongmt.medmeet.ui.home.HomeScreen
 import com.huongmt.medmeet.ui.main.MainScreen
@@ -114,11 +117,24 @@ interface MainScreenDestination {
                 navigateBack = {
                     navigator.pop()
                 },
-                navigateToBookAppointment = {
-
+                navigateTo = {
+                    navigator.navigate(it)
                 }
             )
         }
+    }
+
+    data class BookingAppointment(val clinic: Clinic) : Screen, MainScreenDestination, KoinComponent {
+        @Composable
+        override fun Content() {
+            val navigator = LocalNavigator.currentOrThrow
+            val store: BookingStore by inject()
+            BookingScreen(
+                store = store,
+                clinic = clinic
+            )
+        }
+
     }
 }
 

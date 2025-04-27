@@ -33,6 +33,7 @@ sonner = "0.3.8"
 compottie = "2.0.0-rc01"
 material3Android = "1.3.1"
 kotlinx-datetime = "0.6.0"
+navigation-compose = "2.7.7"
 
 richtext = "1.0.0-alpha02"
 
@@ -93,6 +94,7 @@ datastore-preferences = { module = "androidx.datastore:datastore-preferences", v
 androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
 richtext = { module = "com.halilibo.compose-richtext:richtext-ui-material3", version.ref = "richtext" }
 markdown = { module = "com.halilibo.compose-richtext:richtext-markdown", version.ref = "richtext" }
 markdown-commonmark = { module = "com.halilibo.compose-richtext:richtext-commonmark", version.ref = "richtext" }

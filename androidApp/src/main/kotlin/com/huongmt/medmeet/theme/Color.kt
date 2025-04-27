@@ -104,3 +104,5 @@ val Alabaster = Color(0xFFF1E9E9)
 
 val Gray = Color(0xFFEAE6E6)
 val Card_Border_Gray = Color(0x8b888888)
+
+val GreenMedMeet = Color(0xFF4AAF57)
