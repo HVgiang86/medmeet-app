@@ -16,17 +16,16 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,8 +42,6 @@ import com.huongmt.medmeet.shared.app.booking.BookingStore
 import com.huongmt.medmeet.shared.core.entity.ClinicSchedule
 import com.huongmt.medmeet.shared.utils.ext.nowDate
 import com.huongmt.medmeet.utils.ext.toHM
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.plus
 
 @Composable
 fun SelectScheduleScreen(
@@ -63,17 +60,9 @@ private fun SelectScheduleContent(
     store: BookingStore,
     state: BookingStep.SelectSchedule,
 ) {
-    // Get current date and next 30 days
-    val currentDate = remember { nowDate() }
-
-    var selectedDate by remember { mutableStateOf(currentDate) }
-    val dates = remember {
-        List(30) { index ->
-            currentDate.plus(index, DateTimeUnit.DAY)
-        }
+    LaunchedEffect(Unit) {
+        store.sendAction(BookingAction.SelectDate(nowDate()))
     }
-
-    var selectedMonth by remember { mutableStateOf("${currentDate.month} ${currentDate.year}") }
 
     Box(
         modifier = Modifier
@@ -124,7 +113,11 @@ private fun SelectScheduleContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             FlowRow(
-                horizontalArrangement = Arrangement.Start, verticalArrangement = Arrangement.Top
+                horizontalArrangement = Arrangement.Start,
+                verticalArrangement = Arrangement.Top,
+                modifier = Modifier.verticalScroll(
+                    rememberScrollState()
+                )
             ) {
 
                 val list = state.availableSchedule
@@ -200,7 +193,7 @@ fun HourCard(
             .clickable {
                 onClick(schedule)
             },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(10.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainer,
@@ -210,11 +203,12 @@ fun HourCard(
         Box(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "${schedule.startTime.toHM()} - ${schedule.endTime.toHM()}",
+//                text = "${schedule.startTime.toHM()} - ${schedule.endTime.toHM()}",
+                text = schedule.startTime.toHM(),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.wrapContentSize()

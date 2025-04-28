@@ -18,5 +18,5 @@ val storeModule = module {
     single<ProfileStore> { ProfileStore(get(), get()) }
     single<ClinicDetailStore> { ClinicDetailStore(get()) }
     single<ScheduleStore> { ScheduleStore(get()) }
-    single<BookingStore> { BookingStore(get(), get()) }
+    single<BookingStore> { BookingStore(get(), get(), get()) }
 }

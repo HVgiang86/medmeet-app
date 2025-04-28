@@ -89,7 +89,10 @@ fun BookingScreen(
                 }
 
                 BookingStepType.CONFIRMATION -> {
-
+                    ConfirmBookingScreen(
+                        store = store,
+                        state = state.confirmationState,
+                    )
                 }
             }
         }

@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDate
 
 data class BookingDetails(
     val patientInfo: PatientInfo?,
-    val clinicId: String?,
+    val clinic: Clinic?,
     val medicalService: MedicalService?,
     val examinationDate: LocalDate?,
     val clinicSchedule: ClinicSchedule?,
