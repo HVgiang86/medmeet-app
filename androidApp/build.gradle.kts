@@ -115,6 +115,9 @@ android {
         implementation(libs.markdown)
         implementation(libs.markdown.commonmark)
         implementation(libs.richtext)
+
+        // Shimmer
+        implementation(libs.compose.shimmer)
     }
 }
 dependencies {

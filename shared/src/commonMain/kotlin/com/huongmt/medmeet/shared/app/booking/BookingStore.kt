@@ -56,7 +56,8 @@ sealed class BookingAction : Store.Action {
         BookingAction()
 
     data class PreviousStep(
-        val currentStep: BookingStepType, val destinationStep: BookingStepType
+        val currentStep: BookingStepType,
+        val destinationStep: BookingStepType
     ) : BookingAction()
 
     data class LoadMedicalServices(val clinicId: String) : BookingAction()
@@ -66,7 +67,8 @@ sealed class BookingAction : Store.Action {
     data class LoadUserProfileSuccess(val user: User) : BookingAction()
 
     data class LoadAvailableSchedule(
-        val medicalServiceId: String, val date: LocalDate
+        val medicalServiceId: String,
+        val date: LocalDate
     ) : BookingAction()
 
     data class LoadAvailableScheduleSuccess(
@@ -87,7 +89,8 @@ sealed class BookingAction : Store.Action {
     data class SelectSchedule(val schedule: ClinicSchedule) : BookingAction()
 
     data class SubmitBooking(
-        val clinicId: String, val clinicName: String
+        val clinicId: String,
+        val clinicName: String
     ) : BookingAction()
 
     data class Init(val clinicId: String) : BookingAction()
@@ -143,7 +146,8 @@ class BookingStore(
             is BookingAction.LoadAvailableSchedule -> {
                 setState(oldState.copy(isLoading = true))
                 loadingAvailableSchedule(
-                    action.medicalServiceId, action.date
+                    action.medicalServiceId,
+                    action.date
                 )
             }
 
@@ -152,7 +156,8 @@ class BookingStore(
                     oldState.copy(
                         selectScheduleState = oldState.selectScheduleState.copy(
                             availableSchedule = action.schedule
-                        ), isLoading = false
+                        ),
+                        isLoading = false
                     )
                 )
             }
@@ -169,7 +174,8 @@ class BookingStore(
                     oldState.copy(
                         selectServiceState = oldState.selectServiceState.copy(
                             listService = action.services
-                        ), isLoading = false
+                        ),
+                        isLoading = false
                     )
                 )
             }
@@ -194,7 +200,8 @@ class BookingStore(
                     oldState.copy(
                         inputPatientInfoState = oldState.inputPatientInfoState.copy(
                             patientInfo = patientInfo
-                        ), isLoading = false
+                        ),
+                        isLoading = false
                     )
                 )
             }
@@ -210,7 +217,8 @@ class BookingStore(
 
                 sendAction(
                     BookingAction.LoadAvailableSchedule(
-                        oldState.selectServiceState.selectedService?.id ?: "", action.date
+                        oldState.selectServiceState.selectedService?.id ?: "",
+                        action.date
                     )
                 )
             }
@@ -277,7 +285,8 @@ class BookingStore(
 
                         sendAction(
                             BookingAction.LoadAvailableSchedule(
-                                oldState.selectServiceState.selectedService?.id ?: "", now
+                                oldState.selectServiceState.selectedService?.id ?: "",
+                                now
                             )
                         )
                     }
@@ -380,7 +389,8 @@ class BookingStore(
     }
 
     private fun loadingAvailableSchedule(
-        medicalServiceId: String, date: LocalDate
+        medicalServiceId: String,
+        date: LocalDate
     ) {
         runFlow {
             bookingRepository.getAvailableTimeSlots(medicalServiceId, date).collect {

@@ -14,7 +14,7 @@ val storeModule = module {
     single<ChatStore> { ChatStore(get()) }
     single<RootStore> { RootStore(get(), get(), get()) }
     single<AuthStore> { AuthStore(get(), get()) }
-    single<HomeStore> { HomeStore(get(), get()) }
+    single<HomeStore> { HomeStore(get(), get(), get()) }
     single<ProfileStore> { ProfileStore(get(), get()) }
     single<ClinicDetailStore> { ClinicDetailStore(get()) }
     single<ScheduleStore> { ScheduleStore(get()) }

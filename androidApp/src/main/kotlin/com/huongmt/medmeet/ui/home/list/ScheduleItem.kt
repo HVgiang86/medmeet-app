@@ -33,13 +33,16 @@ import coil.compose.AsyncImage
 import com.huongmt.medmeet.R
 import com.huongmt.medmeet.component.PrimaryButton
 import com.huongmt.medmeet.component.SecondaryButton
+import com.huongmt.medmeet.shared.core.entity.MedicalConsultationHistory
 import com.huongmt.medmeet.theme.CardShapeDefault
 import com.huongmt.medmeet.theme.Grey_500
+import com.huongmt.medmeet.utils.ext.toHM
 
 @Composable
 fun ScheduleItem(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
+    schedule: MedicalConsultationHistory,
 ) {
     Card(
         modifier = modifier.wrapContentHeight(),
@@ -57,14 +60,14 @@ fun ScheduleItem(
                         .weight(1f)
                 ) {
                     Text(
-                        "#T250209202419KPWDF",
+                        "#${schedule.code}",
                         style = MaterialTheme.typography.bodySmall,
                         color = Grey_500,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        "Bệnh viện đa khoa Hồng Ngọc - Phúc Trường Minh ",
+                        "${schedule.clinic.name}",
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
                         modifier = Modifier.padding(top = 4.dp),
                         maxLines = 3,
@@ -72,7 +75,7 @@ fun ScheduleItem(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        "Khám dịch vụ khu C tầng 3 - Khám BHYT",
+                        "${schedule.medicalServiceName}",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(top = 4.dp),
                         maxLines = 3,
@@ -82,7 +85,7 @@ fun ScheduleItem(
                 }
 
                 AsyncImage(
-                    model = "https://i1.sndcdn.com/avatars-6CkzcHmzyH2x6Sd5-nhcPdg-t1080x1080.jpg",
+                    model = "${schedule.clinic.logo}",
                     modifier = Modifier
                         .size(88.dp)
                         .clip(RoundedCornerShape(16.dp))
@@ -117,7 +120,7 @@ fun ScheduleItem(
                     )
 
                     Text(
-                        "14:00 - 16:00",
+                        "${schedule.clinicSchedule.startTime.toHM()} - ${schedule.clinicSchedule.endTime.toHM()}",
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(8.dp),
                         maxLines = 1,
@@ -145,10 +148,11 @@ fun ScheduleItem(
 
                 }, text = {
                     Text(
-                        text = "Reschedule", maxLines = 1, overflow = TextOverflow.Ellipsis
+                        text = "Edit", maxLines = 1, overflow = TextOverflow.Ellipsis
                     )
                 }, modifier = Modifier.weight(1f), shape = CardShapeDefault)
             }
         }
     }
 }
+

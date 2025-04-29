@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -60,14 +59,17 @@ import com.huongmt.medmeet.data.WholeApp
 import com.huongmt.medmeet.shared.app.HomeAction
 import com.huongmt.medmeet.shared.app.HomeState
 import com.huongmt.medmeet.shared.app.HomeStore
+import com.huongmt.medmeet.shared.utils.ext.nowDate
 import com.huongmt.medmeet.theme.Grey_500
 import com.huongmt.medmeet.ui.home.list.ClinicItem
+import com.huongmt.medmeet.ui.home.list.ClinicItemShimmer
 import com.huongmt.medmeet.ui.home.list.HomeItemType
 import com.huongmt.medmeet.ui.home.list.ScheduleItem
 import com.huongmt.medmeet.ui.home.list.getClinicItemIndex
 import com.huongmt.medmeet.ui.home.list.getItemList
 import com.huongmt.medmeet.ui.main.nav.MainScreenDestination
 import io.github.aakira.napier.Napier
+import kotlinx.datetime.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,6 +86,7 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         store.sendAction(HomeAction.LoadUser)
         store.sendAction(HomeAction.LoadClinics)
+        store.sendAction(HomeAction.LoadAppointments(nowDate()))
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -94,6 +97,7 @@ fun HomeScreen(
             onRefresh = {
                 store.sendAction(HomeAction.LoadUser)
                 store.sendAction(HomeAction.LoadClinics)
+                store.sendAction(HomeAction.LoadAppointments(nowDate()))
             }) {
 
             LazyColumn(
@@ -108,7 +112,7 @@ fun HomeScreen(
                     when (itemList[it]) {
                         HomeItemType.HEADER -> {
                             HeaderView(
-                                state = state, navigateTo = navigateTo
+                                store = store, state = state, navigateTo = navigateTo
                             )
                         }
 
@@ -126,14 +130,18 @@ fun HomeScreen(
                         }
 
                         HomeItemType.NO_CLINICS -> {
-                            NotFoundCard(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
-                                    .wrapContentHeight()
-                                    .padding(horizontal = 24.dp),
-                                text = "No clinic found!"
-                            )
+                            if (state.isClinicLoading) {
+                                ClinicItemShimmer()
+                            } else {
+                                NotFoundCard(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight()
+                                        .wrapContentHeight()
+                                        .padding(horizontal = 24.dp),
+                                    text = "No clinic found!"
+                                )
+                            }
                         }
 
                         HomeItemType.PADDING_BOTTOM -> {
@@ -148,6 +156,7 @@ fun HomeScreen(
 
 @Composable
 fun HeaderView(
+    store: HomeStore,
     state: HomeState,
     navigateTo: (MainScreenDestination) -> Unit = {},
 ) {
@@ -246,15 +255,16 @@ fun HeaderView(
                 shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
             )
     ) {
-        HorizontalScheduleView()
+        HorizontalScheduleView {
+            store.sendAction(HomeAction.ShowAppointmentDay(it))
+        }
 
-        if (true) {
-            ScheduleItem(
-                modifier = Modifier.padding(horizontal = 24.dp)
-            ) {
-                // Handle schedule item click
+        if (state.displayAppointments != null) {
+            ScheduleItem(modifier = Modifier.padding(horizontal = 24.dp),
+                schedule = state.displayAppointments!!,
+                onClick = {
 
-            }
+                })
         } else {
             NotFoundCard(
                 modifier = Modifier
@@ -271,6 +281,7 @@ fun HeaderView(
 
 @Composable
 fun HorizontalScheduleView(
+    onDateSelected: (LocalDate) -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -279,7 +290,7 @@ fun HorizontalScheduleView(
             .padding(top = 16.dp)
     ) {
         ScrollableDatePicker(onDateSelected = {
-
+            onDateSelected(it)
         })
 
         Spacer(modifier = Modifier.height(16.dp))

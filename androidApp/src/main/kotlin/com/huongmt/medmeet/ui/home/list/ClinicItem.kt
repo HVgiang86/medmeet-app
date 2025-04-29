@@ -29,6 +29,7 @@ import coil.compose.AsyncImage
 import com.huongmt.medmeet.R
 import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.theme.CardShapeDefault
+import com.valentinilk.shimmer.shimmer
 
 @Composable
 fun ClinicItem(
@@ -91,6 +92,74 @@ fun ClinicItem(
 
                     Text(
                         text = clinic.address ?: "",
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+            }
+
+        }
+    }
+}
+
+@Composable
+fun ClinicItemShimmer(
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        shape = CardShapeDefault,
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        modifier = modifier.padding(vertical = 8.dp).shimmer(),
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(),
+            verticalAlignment = Alignment.Top
+        ) {
+
+            AsyncImage(
+                model = "",
+                modifier = Modifier
+                    .fillMaxWidth(0.3f)
+                    .widthIn(max = 80.dp)
+                    .aspectRatio(1f)
+                    .clip(RoundedCornerShape(16.dp))
+                    .align(Alignment.Top),
+                contentScale = ContentScale.Crop,
+                contentDescription = null,
+            )
+
+            Column(modifier = Modifier
+                .padding(start = 16.dp)
+                .weight(1f)) {
+                // Clinic name
+                Text(
+                    text = "",
+                    style = MaterialTheme.typography.titleMedium,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.outline,
+                    thickness = 1.dp
+                )
+
+                // Clinic address
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Icon(
+                        imageVector = Icons.Outlined.LocationOn,
+                        contentDescription = null,
+                    )
+
+                    Text(
+                        text = "",
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis
