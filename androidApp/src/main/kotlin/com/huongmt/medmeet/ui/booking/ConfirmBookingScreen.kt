@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,13 +22,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -50,19 +51,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.huongmt.medmeet.shared.app.BookingStep
+import com.huongmt.medmeet.shared.app.BookingStore
 import coil.compose.AsyncImage
 import com.huongmt.medmeet.R
 import com.huongmt.medmeet.component.BaseNoticeDialog
 import com.huongmt.medmeet.component.ButtonType
 import com.huongmt.medmeet.component.DialogType
-import com.huongmt.medmeet.shared.app.booking.BookingAction
-import com.huongmt.medmeet.shared.app.booking.BookingStep
-import com.huongmt.medmeet.shared.app.booking.BookingStore
+import com.huongmt.medmeet.component.PrimaryButton
+import com.huongmt.medmeet.component.SecondaryButton
+import com.huongmt.medmeet.component.SuccessDialog
+import com.huongmt.medmeet.component.formatPrice
+import com.huongmt.medmeet.shared.app.BookingAction
+import com.huongmt.medmeet.shared.app.BookingStepType
 import com.huongmt.medmeet.shared.core.entity.BookingDetails
 import com.huongmt.medmeet.shared.core.entity.PatientInfo
 import com.huongmt.medmeet.shared.core.entity.PaymentMethod
 import com.huongmt.medmeet.theme.Grey_200
 import com.huongmt.medmeet.theme.icons.IC_BANK
+import com.huongmt.medmeet.utils.ext.formatPrice
+import com.huongmt.medmeet.utils.ext.toDMY
 import com.huongmt.medmeet.utils.ext.toHM
 
 @Composable
@@ -78,9 +86,8 @@ fun ConfirmBookingScreen(
 private fun ConfirmBookingContent(
     store: BookingStore, state: BookingStep.Confirmation
 ) {
-    var showSuccessDialog by remember { mutableStateOf(false) }
     var selectedPaymentMethod by remember { mutableStateOf(PaymentMethod.CASH) }
-    
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -100,14 +107,14 @@ private fun ConfirmBookingContent(
                     .wrapContentHeight()
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                text = "Confirm Health Booking",
+                text = "Confirm Booking",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
             )
 
             Spacer(modifier = Modifier.height(24.dp))
-            
+
             // Ticket-style card for booking details
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -124,7 +131,10 @@ private fun ConfirmBookingContent(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                            .background(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                            )
                             .padding(16.dp)
                     ) {
                         Text(
@@ -135,7 +145,7 @@ private fun ConfirmBookingContent(
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                     }
-                    
+
                     // Dashed line separator
                     Row(
                         modifier = Modifier
@@ -159,56 +169,61 @@ private fun ConfirmBookingContent(
                         )
                     }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Grey_200)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        color = Grey_200
+                    )
 
                     state.bookingDetails?.patientInfo?.let { patient ->
                         PatientInfoSection(patient)
                     }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Grey_200)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        color = Grey_200
+                    )
 
                     // Price and payment method selection
-                    PriceSection(
-                        price = state.bookingDetails?.medicalService?.currentPrice ?: 0L, 
+                    PriceSection(price = state.bookingDetails?.medicalService?.currentPrice ?: 0L,
                         selectedPaymentMethod = selectedPaymentMethod,
-                        onPaymentMethodSelected = { selectedPaymentMethod = it }
-                    )
+                        onPaymentMethodSelected = { selectedPaymentMethod = it })
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-                    // Update payment method in booking details
-                    store.dispatch(BookingAction.UpdatePaymentMethod(selectedPaymentMethod))
-                    // Proceed with booking
-                    store.dispatch(BookingAction.ConfirmBooking())
-                    showSuccessDialog = true
-                },
-                modifier = Modifier.fillMaxWidth()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .align(Alignment.CenterHorizontally)
             ) {
-                Text("Confirm Booking")
+                SecondaryButton(modifier = Modifier.weight(1f), onClick = {
+                    store.sendAction(
+                        BookingAction.PreviousStep(
+                            currentStep = BookingStepType.CONFIRMATION,
+                            destinationStep = BookingStepType.SELECT_SCHEDULE
+                        )
+                    )
+                }, text = {
+                    Text(
+                        text = "Back", style = MaterialTheme.typography.labelLarge, color = Color.Black
+                    )
+                })
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                PrimaryButton(modifier = Modifier.weight(1f), onClick = {
+                    store.sendAction(BookingAction.ConfirmBooking)
+                }, text = {
+                    Text(
+                        text = "Confirm", style = MaterialTheme.typography.labelLarge, color = Color.White
+                    )
+                })
             }
         }
     }
-    
-    // Success dialog
-    if (showSuccessDialog) {
-        BaseNoticeDialog(
-            type = DialogType.SUCCESS,
-            title = "Booking Successful",
-            text = "Your appointment has been confirmed. You will receive a confirmation email shortly.",
-            buttonType = ButtonType.PrimaryButtons(
-                text = "Done",
-                onClick = {
-                    showSuccessDialog = false
-                    // Navigate back or to home
-                    // store.dispatch(BookingAction.NavigateToHome)
-                }
-            )
-        )
-    }
+
 }
 
 @Composable
@@ -216,10 +231,9 @@ private fun BookingInfoSection(
     bookingDetails: BookingDetails
 ) {
     val clinic = bookingDetails.clinic
-    
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
@@ -228,15 +242,20 @@ private fun BookingInfoSection(
                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = "MS",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+
+            AsyncImage(
+                model = bookingDetails.clinic?.logo ?: "",
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
             )
         }
-        
+
         Spacer(modifier = Modifier.width(16.dp))
-        
+
         Column {
             Text(
                 text = bookingDetails.medicalService?.name ?: "",
@@ -245,9 +264,9 @@ private fun BookingInfoSection(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
-            
+
             Spacer(modifier = Modifier.height(4.dp))
-            
+
             Text(
                 text = clinic?.name ?: "",
                 style = MaterialTheme.typography.bodyMedium,
@@ -266,7 +285,7 @@ private fun BookingInfoSection(
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary
         )
-        
+
         Spacer(modifier = Modifier.width(8.dp))
 
         Text(
@@ -278,12 +297,15 @@ private fun BookingInfoSection(
     }
 
     Spacer(modifier = Modifier.height(16.dp))
-    
+
     // Time and date in a highlighted section
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f), RoundedCornerShape(8.dp))
+            .background(
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                RoundedCornerShape(8.dp)
+            )
             .padding(12.dp)
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -293,12 +315,12 @@ private fun BookingInfoSection(
                 color = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "${bookingDetails.examinationDate}",
+                text = "${bookingDetails.examinationDate?.toDMY()}",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
         }
-        
+
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "TIME",
@@ -326,72 +348,105 @@ private fun PatientInfoSection(patient: PatientInfo) {
         )
 
         Spacer(modifier = Modifier.height(8.dp))
-        
-        // Patient name and gender
+
+        // Patient name
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.Filled.Person,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary
             )
-            
+
             Spacer(modifier = Modifier.width(8.dp))
-            
-            Column {
-                Text(
-                    text = patient.name ?: "",
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "Gender: ${patient.gender?.text}",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        // Contact information
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Phone,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
+
+
+            Text(
+                text = patient.name ?: "",
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
             )
-            
-            Spacer(modifier = Modifier.width(8.dp))
-            
-            Column {
-                Text(
-                    text = patient.phoneNumber ?: "",
-                    style = MaterialTheme.typography.bodyMedium
+        }
+
+        // Patient birth date
+        if (patient.dateOfBirth != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.DateRange,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
                 )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
                 Text(
-                    text = patient.email ?: "",
-                    style = MaterialTheme.typography.bodyMedium
+                    text = patient.dateOfBirth?.toDMY() ?: "", style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
-        
+
+        // Patient phone number
+
+        if (!patient.phoneNumber.isNullOrEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Contact information
+            Row(
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Call,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Text(
+                    text = patient.phoneNumber ?: "", style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+        // Patient address
+        if (!patient.address.isNullOrEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row (
+                modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Place,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                val address = "${patient.address}, ${patient.commune}, ${patient.district}, ${patient.province}"
+
+                Text(
+                    text = address, style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
         if (!patient.examinationReason.isNullOrEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Text(
                 text = "Reason for visit:",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
-            
+
             Text(
-                text = patient.examinationReason,
-                style = MaterialTheme.typography.bodyMedium
+                text = patient.examinationReason ?: "", style = MaterialTheme.typography.bodyMedium
             )
         }
     }
@@ -421,80 +476,66 @@ private fun PriceSection(
                 text = "Consultation Fee", style = MaterialTheme.typography.bodyLarge
             )
             Text(
-                text = "$price",
+                text = price.toDouble().formatPrice(),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         // Payment method selection
         Text(
             text = "Payment Method",
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Cash option
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onPaymentMethodSelected(PaymentMethod.CASH) }
-                .border(
-                    width = 1.dp,
-                    color = if (selectedPaymentMethod == PaymentMethod.CASH) 
-                        MaterialTheme.colorScheme.primary else Grey_200,
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RadioButton(
-                selected = selectedPaymentMethod == PaymentMethod.CASH,
-                onClick = { onPaymentMethodSelected(PaymentMethod.CASH) }
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onPaymentMethodSelected(PaymentMethod.CASH) }
+            .border(
+                width = 1.dp,
+                color = if (selectedPaymentMethod == PaymentMethod.CASH) MaterialTheme.colorScheme.primary else Grey_200,
+                shape = RoundedCornerShape(8.dp)
             )
-            
+            .padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = selectedPaymentMethod == PaymentMethod.CASH,
+                onClick = { onPaymentMethodSelected(PaymentMethod.CASH) })
+
             Spacer(modifier = Modifier.width(8.dp))
-            
+
             Text(
-                text = "Cash",
-                style = MaterialTheme.typography.bodyLarge
+                text = "Cash", style = MaterialTheme.typography.bodyLarge
             )
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // VNPAY option
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onPaymentMethodSelected(PaymentMethod.VNPAY) }
-                .border(
-                    width = 1.dp,
-                    color = if (selectedPaymentMethod == PaymentMethod.VNPAY) 
-                        MaterialTheme.colorScheme.primary else Grey_200,
-                    shape = RoundedCornerShape(8.dp)
-                )
-                .padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            RadioButton(
-                selected = selectedPaymentMethod == PaymentMethod.VNPAY,
-                onClick = { onPaymentMethodSelected(PaymentMethod.VNPAY) }
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .clickable (enabled = false) { onPaymentMethodSelected(PaymentMethod.VNPAY) }
+            .border(
+                width = 1.dp,
+                color = if (selectedPaymentMethod == PaymentMethod.VNPAY) MaterialTheme.colorScheme.primary else Grey_200,
+                shape = RoundedCornerShape(8.dp)
             )
-            
+            .padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            RadioButton(selected = selectedPaymentMethod == PaymentMethod.VNPAY, enabled = false,
+                onClick = { onPaymentMethodSelected(PaymentMethod.VNPAY) })
+
             Spacer(modifier = Modifier.width(8.dp))
-            
+
             Text(
-                text = "VNPAY",
-                style = MaterialTheme.typography.bodyLarge
+                text = "VNPAY", style = MaterialTheme.typography.bodyLarge
             )
-            
+
             Spacer(modifier = Modifier.width(4.dp))
-            
+
             Icon(
                 imageVector = IC_BANK,
                 contentDescription = null,
@@ -517,7 +558,7 @@ private fun PriceSection(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = "$price",
+                text = price.toDouble().formatPrice(),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary

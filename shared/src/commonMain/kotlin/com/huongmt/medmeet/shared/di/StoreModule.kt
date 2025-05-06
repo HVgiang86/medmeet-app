@@ -7,7 +7,7 @@ import com.huongmt.medmeet.shared.app.HomeStore
 import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.shared.app.RootStore
 import com.huongmt.medmeet.shared.app.ScheduleStore
-import com.huongmt.medmeet.shared.app.booking.BookingStore
+import com.huongmt.medmeet.shared.app.BookingStore
 import org.koin.dsl.module
 
 val storeModule = module {

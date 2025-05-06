@@ -24,10 +24,10 @@ import androidx.compose.ui.unit.dp
 import com.huongmt.medmeet.component.MedicalServiceItem
 import com.huongmt.medmeet.component.PrimaryButton
 import com.huongmt.medmeet.component.SecondaryButton
-import com.huongmt.medmeet.shared.app.booking.BookingAction
-import com.huongmt.medmeet.shared.app.booking.BookingStep
-import com.huongmt.medmeet.shared.app.booking.BookingStepType
-import com.huongmt.medmeet.shared.app.booking.BookingStore
+import com.huongmt.medmeet.shared.app.BookingAction
+import com.huongmt.medmeet.shared.app.BookingStep
+import com.huongmt.medmeet.shared.app.BookingStepType
+import com.huongmt.medmeet.shared.app.BookingStore
 
 @Composable
 fun SelectServiceScreen(

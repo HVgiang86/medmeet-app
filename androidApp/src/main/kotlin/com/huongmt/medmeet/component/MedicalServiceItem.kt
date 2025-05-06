@@ -91,7 +91,7 @@ fun MedicalServiceItem(
     }
 }
 
-private fun formatPrice(price: Double): String {
+fun formatPrice(price: Double): String {
     val formatter = NumberFormat.getNumberInstance(Locale("vi", "VN"))
     return "${formatter.format(price)} VND"
 }

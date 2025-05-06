@@ -3,33 +3,27 @@ package com.huongmt.medmeet.ui.booking
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
+import com.huongmt.medmeet.component.BaseNoticeDialog
+import com.huongmt.medmeet.component.ButtonType
+import com.huongmt.medmeet.component.DialogType
 import com.huongmt.medmeet.component.ErrorDialog
 import com.huongmt.medmeet.component.LoadingDialog
-import com.huongmt.medmeet.shared.app.booking.BookingAction
-import com.huongmt.medmeet.shared.app.booking.BookingEffect
-import com.huongmt.medmeet.shared.app.booking.BookingStep
-import com.huongmt.medmeet.shared.app.booking.BookingStepType
-import com.huongmt.medmeet.shared.app.booking.BookingStore
+import com.huongmt.medmeet.shared.app.BookingAction
+import com.huongmt.medmeet.shared.app.BookingEffect
+import com.huongmt.medmeet.shared.app.BookingStepType
+import com.huongmt.medmeet.shared.app.BookingStore
 import com.huongmt.medmeet.shared.core.entity.Clinic
 import io.github.aakira.napier.Napier
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
 @Composable
 fun BookingScreen(
-    store: BookingStore,
-    clinic: Clinic,
-    onBack: () -> Unit = {}
+    store: BookingStore, clinic: Clinic, onBack: () -> Unit = {}
 ) {
 
     BackHandler {
@@ -44,11 +38,19 @@ fun BookingScreen(
     }
 
     LaunchedEffect(effect) {
-        when(effect) {
+        when (effect) {
             BookingEffect.CancelBooking -> {
                 onBack()
             }
+
             null -> {}
+            BookingEffect.ReturnHome -> {
+                onBack()
+            }
+
+            is BookingEffect.ViewBookingDetails -> {
+
+            }
         }
     }
 
@@ -59,12 +61,34 @@ fun BookingScreen(
         })
     }
 
+    if (state.bookingFailedError != null) {
+        Napier.d("Booking Failed Error: ${state.bookingFailedError}")
+        ErrorDialog(throwable = state.bookingFailedError!!, onDismissRequest = {
+            store.sendAction(BookingAction.ClearBookingFailedError)
+        })
+    }
+
+    if (state.bookingSuccessId != null) {
+        BaseNoticeDialog(
+            type = DialogType.SUCCESS,
+            title = "Booking Success",
+            text = "Your booking has been successfully completed.",
+            buttonType = ButtonType.PairButton(primary = "View Detail",
+                secondary = "Return Home",
+                onPrimaryClick = {
+                    store.sendAction(BookingAction.ViewBookingDetails(state.bookingSuccessId!!))
+                },
+                onSecondaryClick = {
+                    store.sendAction(BookingAction.ReturnHome)
+                }),
+        )
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             when (state.currentStep) {
                 BookingStepType.SELECT_SERVICE -> {

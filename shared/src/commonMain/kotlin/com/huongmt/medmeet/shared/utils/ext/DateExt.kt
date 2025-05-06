@@ -53,7 +53,10 @@ fun nowDateTime(): LocalDateTime {
 
 fun String.toLocalDateFromIso(): LocalDateTime? {
     return try {
-        LocalDateTime.parse(this)
+        // trim 'Z' if present
+        val trimmedString = if (this.endsWith("Z")) this.substring(0, this.length - 1) else this
+
+        LocalDateTime.parse(trimmedString)
     } catch (e: Exception) {
         e.printStackTrace()
         null

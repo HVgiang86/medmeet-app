@@ -22,7 +22,7 @@ import com.huongmt.medmeet.shared.app.ClinicDetailStore
 import com.huongmt.medmeet.shared.app.HomeStore
 import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.shared.app.ScheduleStore
-import com.huongmt.medmeet.shared.app.booking.BookingStore
+import com.huongmt.medmeet.shared.app.BookingStore
 import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.ui.booking.BookingScreen
 import com.huongmt.medmeet.ui.chat.ChatScreenContent

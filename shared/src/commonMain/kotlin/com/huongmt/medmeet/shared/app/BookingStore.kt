@@ -1,6 +1,7 @@
-package com.huongmt.medmeet.shared.app.booking
+package com.huongmt.medmeet.shared.app
 
 import com.huongmt.medmeet.shared.base.Store
+import com.huongmt.medmeet.shared.core.WholeApp
 import com.huongmt.medmeet.shared.core.entity.BookingDetails
 import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.shared.core.entity.ClinicSchedule
@@ -49,7 +50,10 @@ data class BookingState(
     val clinic: Clinic? = null,
 
     val isLoading: Boolean = false,
-    val error: Throwable? = null
+    val error: Throwable? = null,
+
+    val bookingSuccessId: String? = null,
+    val bookingFailedError: Throwable? = null
 ) : Store.State(isLoading)
 
 sealed class BookingAction : Store.Action {
@@ -57,8 +61,7 @@ sealed class BookingAction : Store.Action {
         BookingAction()
 
     data class PreviousStep(
-        val currentStep: BookingStepType,
-        val destinationStep: BookingStepType
+        val currentStep: BookingStepType, val destinationStep: BookingStepType
     ) : BookingAction()
 
     data class LoadMedicalServices(val clinicId: String) : BookingAction()
@@ -68,8 +71,7 @@ sealed class BookingAction : Store.Action {
     data class LoadUserProfileSuccess(val user: User) : BookingAction()
 
     data class LoadAvailableSchedule(
-        val medicalServiceId: String,
-        val date: LocalDate
+        val medicalServiceId: String, val date: LocalDate
     ) : BookingAction()
 
     data class LoadAvailableScheduleSuccess(
@@ -89,11 +91,6 @@ sealed class BookingAction : Store.Action {
     data class SelectDate(val date: LocalDate) : BookingAction()
     data class SelectSchedule(val schedule: ClinicSchedule) : BookingAction()
 
-    data class SubmitBooking(
-        val clinicId: String,
-        val clinicName: String
-    ) : BookingAction()
-
     data class Init(val clinicId: String) : BookingAction()
 
     data object CancelBooking : BookingAction()
@@ -104,11 +101,24 @@ sealed class BookingAction : Store.Action {
     data class UpdatePaymentMethod(val paymentMethod: PaymentMethod) : BookingAction()
 
     data object ConfirmBooking : BookingAction()
-    data object BookingSuccess : BookingAction()
+    data class BookingSuccess(val bookingId: String) : BookingAction()
+    data class BookingFailed(val error: Throwable) : BookingAction()
+
+    data object ClearBookingFailedError : BookingAction()
+
+    data class ViewBookingDetails(
+        val bookingId: String
+    ) : BookingAction()
+
+    data object ReturnHome : BookingAction()
 }
 
 sealed class BookingEffect : Store.Effect {
     data object CancelBooking : BookingEffect()
+    data class ViewBookingDetails(
+        val bookingId: String
+    ) : BookingEffect()
+    data object ReturnHome : BookingEffect()
 }
 
 class BookingStore(
@@ -123,6 +133,8 @@ class BookingStore(
         }
 
     override fun dispatch(oldState: BookingState, action: BookingAction) {
+        println("Booking Info: $oldState")
+
         when (action) {
             BookingAction.ClearError -> {
                 setState(oldState.copy(error = null, isLoading = false))
@@ -152,8 +164,7 @@ class BookingStore(
             is BookingAction.LoadAvailableSchedule -> {
                 setState(oldState.copy(isLoading = true))
                 loadingAvailableSchedule(
-                    action.medicalServiceId,
-                    action.date
+                    action.medicalServiceId, action.date
                 )
             }
 
@@ -162,8 +173,7 @@ class BookingStore(
                     oldState.copy(
                         selectScheduleState = oldState.selectScheduleState.copy(
                             availableSchedule = action.schedule
-                        ),
-                        isLoading = false
+                        ), isLoading = false
                     )
                 )
             }
@@ -180,8 +190,7 @@ class BookingStore(
                     oldState.copy(
                         selectServiceState = oldState.selectServiceState.copy(
                             listService = action.services
-                        ),
-                        isLoading = false
+                        ), isLoading = false
                     )
                 )
             }
@@ -193,6 +202,7 @@ class BookingStore(
 
             is BookingAction.LoadUserProfileSuccess -> {
                 val patientInfo = PatientInfo(
+                    id = action.user.id,
                     name = action.user.name,
                     email = action.user.email,
                     gender = action.user.gender,
@@ -206,8 +216,7 @@ class BookingStore(
                     oldState.copy(
                         inputPatientInfoState = oldState.inputPatientInfoState.copy(
                             patientInfo = patientInfo
-                        ),
-                        isLoading = false
+                        ), isLoading = false
                     )
                 )
             }
@@ -223,8 +232,7 @@ class BookingStore(
 
                 sendAction(
                     BookingAction.LoadAvailableSchedule(
-                        oldState.selectServiceState.selectedService?.id ?: "",
-                        action.date
+                        oldState.selectServiceState.selectedService?.id ?: "", action.date
                     )
                 )
             }
@@ -247,9 +255,6 @@ class BookingStore(
                         )
                     )
                 )
-            }
-
-            is BookingAction.SubmitBooking -> {
             }
 
             is BookingAction.UpdatePatientInfo -> {
@@ -291,8 +296,7 @@ class BookingStore(
 
                         sendAction(
                             BookingAction.LoadAvailableSchedule(
-                                oldState.selectServiceState.selectedService?.id ?: "",
-                                now
+                                oldState.selectServiceState.selectedService?.id ?: "", now
                             )
                         )
                     }
@@ -303,12 +307,11 @@ class BookingStore(
                                 currentStep = BookingStepType.CONFIRMATION,
                                 confirmationState = BookingStep.Confirmation(
                                     bookingDetails = BookingDetails(
-                                        patientInfo = oldState.inputPatientInfoState.patientInfo,
+                                        patientInfo = oldState.inputPatientInfoState.patientInfo?.copy(id = WholeApp.USER_ID),
                                         clinic = oldState.clinic,
                                         medicalService = oldState.selectServiceState.selectedService,
                                         examinationDate = oldState.selectScheduleState.date,
                                         clinicSchedule = oldState.selectScheduleState.clinicSchedule,
-                                        clinicName = "",
                                         paymentMethod = null
                                     )
                                 )
@@ -372,8 +375,70 @@ class BookingStore(
                 )
             }
 
-            BookingAction.BookingSuccess -> TODO()
-            BookingAction.ConfirmBooking -> TODO()
+            is BookingAction.BookingSuccess -> {
+                setState(
+                    oldState.copy(
+                        isLoading = false,
+                        bookingSuccessId = action.bookingId,
+                        bookingFailedError = null
+                    )
+                )
+            }
+
+            BookingAction.ConfirmBooking -> {
+                if (oldState.confirmationState.bookingDetails == null) {
+                    return
+                }
+
+                setState(
+                    oldState.copy(
+                        isLoading = true,
+                        error = null,
+                        bookingSuccessId = null,
+                        bookingFailedError = null
+                    )
+                )
+                doBooking(oldState.confirmationState.bookingDetails)
+            }
+
+            is BookingAction.BookingFailed -> {
+                setState(
+                    oldState.copy(
+                        isLoading = false, bookingFailedError = action.error
+                    )
+                )
+            }
+
+            BookingAction.ClearBookingFailedError -> {
+                setState(
+                    oldState.copy(
+                        bookingFailedError = null
+                    )
+                )
+            }
+
+            BookingAction.ReturnHome -> {
+                setEffect(BookingEffect.ReturnHome)
+            }
+            is BookingAction.ViewBookingDetails -> {
+                setEffect(
+                    BookingEffect.ViewBookingDetails(
+                        bookingId = action.bookingId
+                    )
+                )
+            }
+        }
+    }
+
+    private fun doBooking(bookingDetails: BookingDetails) {
+        runFlow(exception = coroutineExceptionHandler {
+            sendAction(BookingAction.BookingFailed(it))
+        }) {
+            bookingRepository.booking(
+                bookingDetails = bookingDetails
+            ).collect {
+                sendAction(BookingAction.BookingSuccess(it))
+            }
         }
     }
 
@@ -410,8 +475,7 @@ class BookingStore(
     }
 
     private fun loadingAvailableSchedule(
-        medicalServiceId: String,
-        date: LocalDate
+        medicalServiceId: String, date: LocalDate
     ) {
         runFlow {
             bookingRepository.getAvailableTimeSlots(medicalServiceId, date).collect {

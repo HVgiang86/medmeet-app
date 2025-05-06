@@ -41,10 +41,10 @@ import com.huongmt.medmeet.component.ListPickerDialog
 import com.huongmt.medmeet.component.PopupDatePicker
 import com.huongmt.medmeet.component.PrimaryButton
 import com.huongmt.medmeet.component.SecondaryButton
-import com.huongmt.medmeet.shared.app.booking.BookingAction
-import com.huongmt.medmeet.shared.app.booking.BookingStep
-import com.huongmt.medmeet.shared.app.booking.BookingStepType
-import com.huongmt.medmeet.shared.app.booking.BookingStore
+import com.huongmt.medmeet.shared.app.BookingAction
+import com.huongmt.medmeet.shared.app.BookingStep
+import com.huongmt.medmeet.shared.app.BookingStepType
+import com.huongmt.medmeet.shared.app.BookingStore
 import com.huongmt.medmeet.shared.core.entity.Gender
 import com.huongmt.medmeet.shared.core.entity.PatientInfo
 import com.huongmt.medmeet.shared.utils.ext.nowDate

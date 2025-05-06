@@ -141,9 +141,9 @@ class ScheduleStore(
 
     private fun loadAppointments(showTab: ScheduleTab?) {
         runFlow(
-            exception = coroutineExceptionHandler {
-                sendAction(ScheduleAction.NavigateBack)
-            }
+//            exception = coroutineExceptionHandler {
+//                sendAction(ScheduleAction.NavigateBack)
+//            }
         ) {
             medicalRepository.getMedicalConsultations().collect { appointments ->
                 Napier.d("Appointments: $appointments")
