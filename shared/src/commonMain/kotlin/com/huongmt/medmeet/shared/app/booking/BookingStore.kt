@@ -6,6 +6,7 @@ import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.shared.core.entity.ClinicSchedule
 import com.huongmt.medmeet.shared.core.entity.MedicalService
 import com.huongmt.medmeet.shared.core.entity.PatientInfo
+import com.huongmt.medmeet.shared.core.entity.PaymentMethod
 import com.huongmt.medmeet.shared.core.entity.User
 import com.huongmt.medmeet.shared.core.repository.BookingRepository
 import com.huongmt.medmeet.shared.core.repository.ClinicRepository
@@ -99,6 +100,11 @@ sealed class BookingAction : Store.Action {
 
     data class Error(val throwable: Throwable) : BookingAction()
     data object ClearError : BookingAction()
+
+    data class UpdatePaymentMethod(val paymentMethod: PaymentMethod) : BookingAction()
+
+    data object ConfirmBooking : BookingAction()
+    data object BookingSuccess : BookingAction()
 }
 
 sealed class BookingEffect : Store.Effect {
@@ -353,6 +359,21 @@ class BookingStore(
             is BookingAction.LoadClinicInfoSuccess -> {
                 setState(oldState.copy(clinic = action.clinic))
             }
+
+            is BookingAction.UpdatePaymentMethod -> {
+                setState(
+                    oldState.copy(
+                        confirmationState = oldState.confirmationState.copy(
+                            bookingDetails = oldState.confirmationState.bookingDetails?.copy(
+                                paymentMethod = action.paymentMethod
+                            )
+                        )
+                    )
+                )
+            }
+
+            BookingAction.BookingSuccess -> TODO()
+            BookingAction.ConfirmBooking -> TODO()
         }
     }
 

@@ -107,7 +107,6 @@ fun HomeScreen(
                     clinicsAmount = state.clinics.size
                 )
                 items(itemList.size) {
-                    val index = it
                     val listSize = itemList.size
                     when (itemList[it]) {
                         HomeItemType.HEADER -> {
@@ -117,15 +116,15 @@ fun HomeScreen(
                         }
 
                         HomeItemType.CLINIC_ITEM -> {
-                            val itemIndex = getClinicItemIndex(index, listSize)
+                            val itemIndex = getClinicItemIndex(it, listSize)
                             Napier.d { "itemIndex: $itemIndex" }
                             val clinic = state.clinics[itemIndex]
                             ClinicItem(modifier = Modifier
                                 .wrapContentHeight()
                                 .padding(horizontal = 24.dp),
                                 clinic = clinic,
-                                onClick = {
-                                    navigateTo(MainScreenDestination.ClinicDetail(it))
+                                onClick = { clinicNav ->
+                                    navigateTo(MainScreenDestination.ClinicDetail(clinicNav))
                                 })
                         }
 
