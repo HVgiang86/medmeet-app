@@ -9,6 +9,8 @@ import com.huongmt.medmeet.shared.core.repository.ChatRepository
 import com.huongmt.medmeet.shared.core.repository.ChatRepositoryImpl
 import com.huongmt.medmeet.shared.core.repository.ClinicRepository
 import com.huongmt.medmeet.shared.core.repository.ClinicRepositoryImpl
+import com.huongmt.medmeet.shared.core.repository.HealthRecordRepository
+import com.huongmt.medmeet.shared.core.repository.HealthRecordRepositoryImpl
 import com.huongmt.medmeet.shared.core.repository.MedicalRepository
 import com.huongmt.medmeet.shared.core.repository.MedicalRepositoryImpl
 import com.huongmt.medmeet.shared.core.repository.MockBookingRepository
@@ -51,6 +53,7 @@ private val repositoryModule = module {
     single<ClinicRepository> { ClinicRepositoryImpl(get()) }
     single<MedicalRepository> { MedicalRepositoryImpl(get()) }
     single<BookingRepository> { MockBookingRepository(get()) }
+    single<HealthRecordRepository> { HealthRecordRepositoryImpl(get()) }
 }
 
 val dataModule = module {

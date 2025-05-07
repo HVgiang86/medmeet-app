@@ -24,6 +24,7 @@ import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.shared.app.ScheduleStore
 import com.huongmt.medmeet.shared.app.BookingStore
 import com.huongmt.medmeet.shared.app.BookingDetailStore
+import com.huongmt.medmeet.shared.app.HealthRecordStore
 import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.ui.booking.BookingScreen
 import com.huongmt.medmeet.ui.bookingdetail.BookingDetailScreen
@@ -34,6 +35,7 @@ import com.huongmt.medmeet.ui.main.MainScreen
 import com.huongmt.medmeet.ui.notification.NotificationScreen
 import com.huongmt.medmeet.ui.profile.ProfileScreen
 import com.huongmt.medmeet.ui.schedule.ScheduleScreen
+import com.huongmt.medmeet.ui.healthrecord.HealthRecordScreen
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -92,6 +94,21 @@ interface MainScreenDestination {
                 },
                 navigateTo = { destination ->
                     navigator.navigate(destination)
+                }
+            )
+        }
+    }
+
+    object HealthRecord : Screen, MainScreenDestination, KoinComponent {
+        @Composable
+        override fun Content() {
+            val navigator = LocalNavigator.currentOrThrow
+            val store: HealthRecordStore by inject()
+            
+            HealthRecordScreen(
+                store = store,
+                navigateBack = {
+                    navigator.pop()
                 }
             )
         }

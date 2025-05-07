@@ -7,6 +7,7 @@ import com.huongmt.medmeet.shared.core.datasource.network.request.BookAppointmen
 import com.huongmt.medmeet.shared.core.datasource.network.request.CreateConversationRequest
 import com.huongmt.medmeet.shared.core.datasource.network.request.SendMessageRequest
 import com.huongmt.medmeet.shared.core.datasource.network.request.SignUpRequest
+import com.huongmt.medmeet.shared.core.datasource.network.request.UpdateHealthRequest
 import com.huongmt.medmeet.shared.core.datasource.network.response.AppointmentBookingResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicListResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicResponse
@@ -65,6 +66,14 @@ class APIs(private val httpClient: HttpClient) {
 
     suspend fun getProfileById(id: String): BaseResponse<ProfileResponse> =
         httpClient.get(BASE_URL + USER_API_ROUTE + id).body()
+
+    suspend fun getHealthRecordByUserId(userId: String): BaseResponse<HealthRecordResponse> =
+        httpClient.get("$BASE_URL$HEALTH_RECORD_API_ROUTE/$userId").body()
+
+    suspend fun updateHealthRecord(userId: String, request: UpdateHealthRequest): BaseResponse<HealthRecordResponse> =
+        httpClient.put("$BASE_URL$HEALTH_RECORD_API_ROUTE/$userId") {
+            setBody(request)
+        }.body()
 
     suspend fun getClinics(
         name: String? = null,

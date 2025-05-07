@@ -86,7 +86,7 @@ fun ProfileScreen(
             }
 
             ProfileEffect.NavigateHealthRecord -> {
-
+                navigateTo(MainScreenDestination.HealthRecord)
             }
 
             ProfileEffect.NavigateUpdateProfile -> {
@@ -211,7 +211,7 @@ fun ProfileScreen(
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_heart),
                     title = "Health Record",
                     onClick = {
-
+                        store.sendAction(ProfileAction.NavigateHealthRecord)
                     })
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_history),

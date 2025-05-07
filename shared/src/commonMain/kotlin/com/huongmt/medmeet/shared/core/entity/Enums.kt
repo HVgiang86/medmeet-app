@@ -32,6 +32,18 @@ enum class MedicalRecordStatus(val value: Int, val text: String) {
     COMPLETED(3, "Đã hoàn thành");
 }
 
+enum class BloodType(val text: String, val value: String) {
+    A_POS("Nhóm máu A+", "a+"),
+    A_NEG("Nhóm máu A-", "a-"),
+    B_POS("Nhóm máu B+", "b+"),
+    B_NEG("Nhóm máu B-", "b-"),
+    AB_POS("Nhóm máu AB+", "ab+"),
+    AB_NEG("Nhóm máu AB-", "ab-"),
+    O_POS("Nhóm máu O+", "o+"),
+    O_NEG("Nhóm máu O-", "o-"),
+    NA("Chưa xác định", "NA");
+}
+
 object VietnamProvinces {
     val provinces = listOf(
         "An Giang",
