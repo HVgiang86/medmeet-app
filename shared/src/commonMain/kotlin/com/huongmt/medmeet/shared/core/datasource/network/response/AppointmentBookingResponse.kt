@@ -32,5 +32,5 @@ data class AppointmentBookingResponse(
     val patientAddress: String? = null,
     val code: String,
     val createdAt: String? = null,
-    val updatedAt: String? = null,
+    val updatedAt: String? = null
 )

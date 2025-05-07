@@ -102,7 +102,7 @@ interface MainScreenDestination {
         }
     }
 
-    data class ClinicDetail(val clinic: Clinic) : Screen, MainScreenDestination, KoinComponent {
+    class ClinicDetail(private val clinic: Clinic) : Screen, MainScreenDestination, KoinComponent {
         @Composable
         override fun Content() {
             val navigator = LocalNavigator.currentOrThrow
@@ -115,7 +115,7 @@ interface MainScreenDestination {
         }
     }
 
-    data class BookingAppointment(val clinic: Clinic) : Screen, MainScreenDestination,
+    class BookingAppointment(private val clinic: Clinic) : Screen, MainScreenDestination,
         KoinComponent {
         @Composable
         override fun Content() {
@@ -125,7 +125,6 @@ interface MainScreenDestination {
                 navigator.pop()
             })
         }
-
     }
 }
 

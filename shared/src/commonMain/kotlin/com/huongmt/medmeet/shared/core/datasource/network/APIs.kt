@@ -14,7 +14,6 @@ import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicSchedul
 import com.huongmt.medmeet.shared.core.datasource.network.response.ConversationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.HealthRecordResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.LoginResponse
-import com.huongmt.medmeet.shared.core.datasource.network.response.MedicalServiceResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.MessageResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.PagingConsultationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.PagingMedicalServiceResponse
@@ -30,6 +29,8 @@ import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.Parameters
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class APIs(private val httpClient: HttpClient) {
     companion object {
@@ -45,10 +46,14 @@ class APIs(private val httpClient: HttpClient) {
 
     suspend fun login(email: String, password: String): BaseResponse<LoginResponse> =
         httpClient.post(BASE_URL + LOGIN_ROUTE) {
-            setBody(FormDataContent(Parameters.build {
-                append("email", email)
-                append("password", password)
-            }))
+            setBody(
+                FormDataContent(
+                    Parameters.build {
+                        append("email", email)
+                        append("password", password)
+                    }
+                )
+            )
         }.body()
 
     suspend fun signUp(user: SignUpRequest): BaseResponse<ProfileResponse> =
@@ -81,7 +86,9 @@ class APIs(private val httpClient: HttpClient) {
         httpClient.get("${BASE_URL}clinic-schedule/$clinicId").body()
 
     suspend fun getMedicalHistory(
-        uid: String, page: Int = 1, size: Int = 30
+        uid: String,
+        page: Int = 1,
+        size: Int = 30
     ): BaseResponse<PagingConsultationResponse> =
         httpClient.get("${BASE_URL}medical-consultation-history") {
             parameter("patientId", uid)
@@ -90,7 +97,9 @@ class APIs(private val httpClient: HttpClient) {
         }.body()
 
     suspend fun getMedicalServices(
-        clinicId: String, page: Int = 1, size: Int = 30
+        clinicId: String,
+        page: Int = 1,
+        size: Int = 30
     ): BaseResponse<PagingMedicalServiceResponse> = httpClient.get("${BASE_URL}medical-service") {
         parameter("clinicId", clinicId)
         parameter("_page", page)
@@ -99,11 +108,14 @@ class APIs(private val httpClient: HttpClient) {
 
     suspend fun bookAppointment(bookingRequest: BookAppointment): BaseResponse<AppointmentBookingResponse> =
         httpClient.post("${BASE_URL}medical-consultation-history") {
+            val json = Json.encodeToString(bookingRequest)
+            println("[DEBUG] Sending JSON: $json")
             setBody(bookingRequest)
         }.body()
 
     suspend fun getMedicalServiceSchedule(
-        medicalServiceId: String, date: String
+        medicalServiceId: String,
+        date: String
     ): BaseResponse<List<ClinicScheduleResponse>> =
         httpClient.get("${BASE_URL}medical-service/$medicalServiceId/schedules") {
             parameter("date", date)
@@ -112,7 +124,9 @@ class APIs(private val httpClient: HttpClient) {
 //    Chat APIs
 
     suspend fun getConversations(
-        uid: String, skip: Int = 0, limit: Int = 30
+        uid: String,
+        skip: Int = 0,
+        limit: Int = 30
     ): BaseResponse<List<ConversationResponse>> =
         httpClient.get("${WholeApp.CHAT_BASE_URL}/$CONVERSATION_ROUTE") {
             parameter("user_id", uid)
@@ -121,7 +135,9 @@ class APIs(private val httpClient: HttpClient) {
         }.body()
 
     suspend fun getMessagesOfConversation(
-        conversationId: String, skip: Int = 0, limit: Int = 30
+        conversationId: String,
+        skip: Int = 0,
+        limit: Int = 30
     ): BaseResponse<List<MessageResponse>> =
         httpClient.get("${WholeApp.CHAT_BASE_URL}/$MESSAGE_ROUTE/$conversationId") {
             parameter("skip", skip)
@@ -134,7 +150,8 @@ class APIs(private val httpClient: HttpClient) {
         }.body()
 
     suspend fun queryAiMessage(
-        conversationId: String, message: String
+        conversationId: String,
+        message: String
     ): BaseResponse<MessageResponse> =
         httpClient.post("${WholeApp.CHAT_BASE_URL}/api/$conversationId/messages") {
             setBody(
@@ -149,15 +166,23 @@ class APIs(private val httpClient: HttpClient) {
         httpClient.get("$BASE_URL$HEALTH_RECORD_API_ROUTE/$id").body()
 
     suspend fun updateHealthRecord(
-        id: String, bloodType: String, height: Int, weight: Int, healthHistory: String
+        id: String,
+        bloodType: String,
+        height: Int,
+        weight: Int,
+        healthHistory: String
     ): BaseResponse<UpdateHealthRecord> = httpClient.put(
         "$BASE_URL$HEALTH_RECORD_API_ROUTE/$id"
     ) {
-        setBody(FormDataContent(Parameters.build {
-            append("bloodType", bloodType)
-            append("height", height.toString())
-            append("weight", weight.toString())
-            append("healthHistory", healthHistory)
-        }))
+        setBody(
+            FormDataContent(
+                Parameters.build {
+                    append("bloodType", bloodType)
+                    append("height", height.toString())
+                    append("weight", weight.toString())
+                    append("healthHistory", healthHistory)
+                }
+            )
+        )
     }.body()
 }

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -27,8 +26,6 @@ import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Phone
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -46,24 +43,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.huongmt.medmeet.shared.app.BookingStep
-import com.huongmt.medmeet.shared.app.BookingStore
 import coil.compose.AsyncImage
-import com.huongmt.medmeet.R
-import com.huongmt.medmeet.component.BaseNoticeDialog
-import com.huongmt.medmeet.component.ButtonType
-import com.huongmt.medmeet.component.DialogType
 import com.huongmt.medmeet.component.PrimaryButton
 import com.huongmt.medmeet.component.SecondaryButton
-import com.huongmt.medmeet.component.SuccessDialog
-import com.huongmt.medmeet.component.formatPrice
 import com.huongmt.medmeet.shared.app.BookingAction
+import com.huongmt.medmeet.shared.app.BookingStep
 import com.huongmt.medmeet.shared.app.BookingStepType
+import com.huongmt.medmeet.shared.app.BookingStore
 import com.huongmt.medmeet.shared.core.entity.BookingDetails
 import com.huongmt.medmeet.shared.core.entity.PatientInfo
 import com.huongmt.medmeet.shared.core.entity.PaymentMethod
@@ -75,7 +65,7 @@ import com.huongmt.medmeet.utils.ext.toHM
 
 @Composable
 fun ConfirmBookingScreen(
-    store: BookingStore, state: BookingStep.Confirmation
+    store: BookingStore, state: BookingStep.Confirmation,
 ) {
     ConfirmBookingContent(
         store = store, state = state
@@ -84,7 +74,7 @@ fun ConfirmBookingScreen(
 
 @Composable
 private fun ConfirmBookingContent(
-    store: BookingStore, state: BookingStep.Confirmation
+    store: BookingStore, state: BookingStep.Confirmation,
 ) {
     var selectedPaymentMethod by remember { mutableStateOf(PaymentMethod.CASH) }
 
@@ -170,8 +160,7 @@ private fun ConfirmBookingContent(
                     }
 
                     HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        color = Grey_200
+                        modifier = Modifier.padding(vertical = 8.dp), color = Grey_200
                     )
 
                     state.bookingDetails?.patientInfo?.let { patient ->
@@ -179,14 +168,16 @@ private fun ConfirmBookingContent(
                     }
 
                     HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        color = Grey_200
+                        modifier = Modifier.padding(vertical = 8.dp), color = Grey_200
                     )
 
                     // Price and payment method selection
                     PriceSection(price = state.bookingDetails?.medicalService?.currentPrice ?: 0L,
-                        selectedPaymentMethod = selectedPaymentMethod,
-                        onPaymentMethodSelected = { selectedPaymentMethod = it })
+                        selectedPaymentMethod = state.bookingDetails?.paymentMethod
+                            ?: PaymentMethod.CASH,
+                        onPaymentMethodSelected = {
+                            store.sendAction(BookingAction.UpdatePaymentMethod(paymentMethod = it))
+                        })
                 }
             }
 
@@ -207,7 +198,9 @@ private fun ConfirmBookingContent(
                     )
                 }, text = {
                     Text(
-                        text = "Back", style = MaterialTheme.typography.labelLarge, color = Color.Black
+                        text = "Back",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.Black
                     )
                 })
 
@@ -217,7 +210,9 @@ private fun ConfirmBookingContent(
                     store.sendAction(BookingAction.ConfirmBooking)
                 }, text = {
                     Text(
-                        text = "Confirm", style = MaterialTheme.typography.labelLarge, color = Color.White
+                        text = "Confirm",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = Color.White
                     )
                 })
             }
@@ -228,7 +223,7 @@ private fun ConfirmBookingContent(
 
 @Composable
 private fun BookingInfoSection(
-    bookingDetails: BookingDetails
+    bookingDetails: BookingDetails,
 ) {
     val clinic = bookingDetails.clinic
 
@@ -385,7 +380,8 @@ private fun PatientInfoSection(patient: PatientInfo) {
                 Spacer(modifier = Modifier.width(8.dp))
 
                 Text(
-                    text = patient.dateOfBirth?.toDMY() ?: "", style = MaterialTheme.typography.bodyMedium
+                    text = patient.dateOfBirth?.toDMY() ?: "",
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -417,7 +413,7 @@ private fun PatientInfoSection(patient: PatientInfo) {
         if (!patient.address.isNullOrEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
 
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
@@ -428,7 +424,8 @@ private fun PatientInfoSection(patient: PatientInfo) {
 
                 Spacer(modifier = Modifier.width(8.dp))
 
-                val address = "${patient.address}, ${patient.commune}, ${patient.district}, ${patient.province}"
+                val address =
+                    "${patient.address}, ${patient.commune}, ${patient.district}, ${patient.province}"
 
                 Text(
                     text = address, style = MaterialTheme.typography.bodyMedium
@@ -456,7 +453,7 @@ private fun PatientInfoSection(patient: PatientInfo) {
 private fun PriceSection(
     price: Long,
     selectedPaymentMethod: PaymentMethod,
-    onPaymentMethodSelected: (PaymentMethod) -> Unit
+    onPaymentMethodSelected: (PaymentMethod) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -518,14 +515,15 @@ private fun PriceSection(
         // VNPAY option
         Row(modifier = Modifier
             .fillMaxWidth()
-            .clickable (enabled = false) { onPaymentMethodSelected(PaymentMethod.VNPAY) }
+            .clickable(enabled = false) { onPaymentMethodSelected(PaymentMethod.VNPAY) }
             .border(
                 width = 1.dp,
                 color = if (selectedPaymentMethod == PaymentMethod.VNPAY) MaterialTheme.colorScheme.primary else Grey_200,
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = selectedPaymentMethod == PaymentMethod.VNPAY, enabled = false,
+            RadioButton(selected = selectedPaymentMethod == PaymentMethod.VNPAY,
+                enabled = false,
                 onClick = { onPaymentMethodSelected(PaymentMethod.VNPAY) })
 
             Spacer(modifier = Modifier.width(8.dp))

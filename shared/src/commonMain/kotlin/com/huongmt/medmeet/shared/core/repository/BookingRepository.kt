@@ -53,5 +53,4 @@ class MockBookingRepository(private val api: APIs) : BookingRepository, BaseRepo
             val request = bookingDetails.toBookingRequest()
             api.bookAppointment(request)
         }
-
 }
