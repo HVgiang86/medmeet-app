@@ -17,5 +17,9 @@ data class ProfileResponse(
     val commune: String? = "",
     val district: String? = "",
     val address: String? = "",
+    val phoneNumber: String? = "",
+    val specialty: String? = "",
+    val description: String? = "",
+    val qualification: String? = "",
     val role: Int = 0
 )

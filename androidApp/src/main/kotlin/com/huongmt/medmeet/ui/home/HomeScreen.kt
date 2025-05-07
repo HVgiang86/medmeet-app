@@ -262,7 +262,7 @@ fun HeaderView(
             ScheduleItem(modifier = Modifier.padding(horizontal = 24.dp),
                 schedule = state.displayAppointments!!,
                 onClick = {
-
+                    navigateTo(MainScreenDestination.BookingDetail(state.displayAppointments!!.id))
                 })
         } else {
             NotFoundCard(

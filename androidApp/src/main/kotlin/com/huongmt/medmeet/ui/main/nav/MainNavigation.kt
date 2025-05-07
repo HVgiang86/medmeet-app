@@ -23,8 +23,10 @@ import com.huongmt.medmeet.shared.app.HomeStore
 import com.huongmt.medmeet.shared.app.ProfileStore
 import com.huongmt.medmeet.shared.app.ScheduleStore
 import com.huongmt.medmeet.shared.app.BookingStore
+import com.huongmt.medmeet.shared.app.BookingDetailStore
 import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.ui.booking.BookingScreen
+import com.huongmt.medmeet.ui.bookingdetail.BookingDetailScreen
 import com.huongmt.medmeet.ui.chat.ChatScreenContent
 import com.huongmt.medmeet.ui.clinicdetail.ClinicDetailScreen
 import com.huongmt.medmeet.ui.home.HomeScreen
@@ -78,6 +80,23 @@ interface MainScreenDestination {
         }
     }
 
+    object Schedule : Screen, TopLevelScreenDestination, KoinComponent {
+        @Composable
+        override fun Content() {
+            val navigator = LocalNavigator.currentOrThrow
+            val store: ScheduleStore by inject()
+            ScheduleScreen(
+                store = store,
+                navigateBack = {
+                    navigator.pop()
+                },
+                navigateTo = { destination ->
+                    navigator.navigate(destination)
+                }
+            )
+        }
+    }
+
     class Profile : Screen, TopLevelScreenDestination, KoinComponent, LogoutFromDestination() {
         @Composable
         override fun Content() {
@@ -87,17 +106,6 @@ interface MainScreenDestination {
                 navigator.navigate(it)
             }, onLogout = {
                 onLogout()
-            })
-        }
-    }
-
-    object Schedule : Screen, TopLevelScreenDestination, KoinComponent {
-        @Composable
-        override fun Content() {
-            val navigator = LocalNavigator.currentOrThrow
-            val store: ScheduleStore by inject()
-            ScheduleScreen(store = store, navigateBack = {
-                navigator.pop()
             })
         }
     }
@@ -124,6 +132,14 @@ interface MainScreenDestination {
             BookingScreen(store = store, clinic = clinic, onBack = {
                 navigator.pop()
             })
+        }
+    }
+
+    class BookingDetail(private val bookingId: String) : Screen, MainScreenDestination, KoinComponent {
+        @Composable
+        override fun Content() {
+            val navigator = LocalNavigator.currentOrThrow
+            BookingDetailScreen(bookingId = bookingId).Content()
         }
     }
 }

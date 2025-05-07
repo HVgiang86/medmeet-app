@@ -27,6 +27,10 @@ fun ProfileResponse.toUser(): User {
         district = district,
         address = address,
         commune = commune,
-        code = code
+        code = code,
+        phoneNumber = phoneNumber,
+        specialty = specialty,
+        description = description,
+        qualification = qualification
     )
 }

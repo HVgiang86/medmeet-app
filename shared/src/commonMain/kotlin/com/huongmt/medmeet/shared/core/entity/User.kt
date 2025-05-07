@@ -12,9 +12,13 @@ data class User(
     val avatar: String? = "",
     val gender: Gender = Gender.MALE,
     val birthday: LocalDate? = null,
+    val phoneNumber: String? = "",
     val province: String? = "",
     val district: String? = "",
     val commune: String? = "",
     val address: String? = "",
+    val specialty: String? = "",
+    val description: String? = "",
+    val qualification: String? = "",
     val role: Int = 0
 )

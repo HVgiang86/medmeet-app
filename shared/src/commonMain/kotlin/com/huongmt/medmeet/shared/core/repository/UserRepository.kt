@@ -16,6 +16,7 @@ interface UserRepository {
     suspend fun login(email: String, password: String): Flow<LoginResponse>
     suspend fun signUp(user: SignUpRequest): Flow<Boolean>
     suspend fun getMyProfile(): Flow<User>
+    suspend fun getProfileById(id: String): Flow<User>
     suspend fun saveLocalUserId(userId: String)
     suspend fun getLocalUserId(): Flow<String>
     suspend fun clearLocalUserId()
@@ -38,8 +39,14 @@ class UserRepositoryImpl(private val api: APIs, private val prefs: PrefsStorage)
     override suspend fun getMyProfile(): Flow<User> = flowContext(mapper = {
         it.toUser()
     }, block = {
-            api.getMyProfile()
-        })
+        api.getMyProfile()
+    })
+
+    override suspend fun getProfileById(id: String) = flowContext(mapper = {
+        it.toUser()
+    }, block = {
+        api.getProfileById(id)
+    })
 
     override suspend fun saveLocalUserId(userId: String) {
         prefs.putString(KEY_USER_ID, userId)

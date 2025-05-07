@@ -118,6 +118,9 @@ android {
 
         // Shimmer
         implementation(libs.compose.shimmer)
+
+        // Barcode
+        implementation(libs.composed.barcodes)
     }
 }
 dependencies {

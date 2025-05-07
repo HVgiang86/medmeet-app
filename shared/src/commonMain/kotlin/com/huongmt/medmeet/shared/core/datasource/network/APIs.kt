@@ -14,6 +14,7 @@ import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicSchedul
 import com.huongmt.medmeet.shared.core.datasource.network.response.ConversationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.HealthRecordResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.LoginResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.MedicalConsultationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.MessageResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.PagingConsultationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.PagingMedicalServiceResponse
@@ -64,6 +65,9 @@ class APIs(private val httpClient: HttpClient) {
     suspend fun getMyProfile(): BaseResponse<ProfileResponse> =
         httpClient.get(BASE_URL + USER_API_ROUTE + "me").body()
 
+    suspend fun getProfileById(id: String): BaseResponse<ProfileResponse> =
+        httpClient.get(BASE_URL + USER_API_ROUTE + id).body()
+
     suspend fun getClinics(
         name: String? = null,
         address: String? = null,
@@ -95,6 +99,11 @@ class APIs(private val httpClient: HttpClient) {
             parameter("_page", page)
             parameter("_pageSize", size)
         }.body()
+
+    suspend fun getMedicalHistoryDetail(
+        appointmentId: String
+    ): BaseResponse<MedicalConsultationResponse> =
+        httpClient.get("${BASE_URL}medical-consultation-history/$appointmentId").body()
 
     suspend fun getMedicalServices(
         clinicId: String,

@@ -1,6 +1,7 @@
 package com.huongmt.medmeet.ui.schedule
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +56,7 @@ import com.huongmt.medmeet.shared.core.entity.MedicalRecordStatus
 import com.huongmt.medmeet.theme.CardShapeDefault
 import com.huongmt.medmeet.theme.Grey_200
 import com.huongmt.medmeet.theme.Grey_600
+import com.huongmt.medmeet.ui.main.nav.MainScreenDestination
 import com.huongmt.medmeet.utils.ext.toDMY
 import com.huongmt.medmeet.utils.ext.toHMS
 
@@ -63,6 +65,7 @@ import com.huongmt.medmeet.utils.ext.toHMS
 fun ScheduleScreen(
     store: ScheduleStore,
     navigateBack: () -> Unit,
+    navigateTo: ((MainScreenDestination) -> Unit)? = null
 ) {
     val state by store.observeState().collectAsState()
     val effect by store.observeSideEffect().collectAsState(initial = null)
@@ -119,7 +122,11 @@ fun ScheduleScreen(
                 appointments = state.displayAppointments,
                 onDownloadClick = { appointmentId ->
 
-                })
+                },
+                onAppointmentClick = { appointmentId ->
+                    navigateTo?.invoke(MainScreenDestination.BookingDetail(appointmentId))
+                }
+            )
         }
     }
 }
@@ -186,6 +193,7 @@ private fun ScheduleTabs(
 private fun AppointmentsList(
     appointments: List<MedicalConsultationHistory>,
     onDownloadClick: (String) -> Unit,
+    onAppointmentClick: (String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -196,7 +204,9 @@ private fun AppointmentsList(
         items(appointments) { appointment ->
             AppointmentCard(
                 appointment = appointment,
-                onDownloadClick = { onDownloadClick(appointment.id) })
+                onDownloadClick = { onDownloadClick(appointment.id) },
+                onClick = { onAppointmentClick(appointment.id) }
+            )
         }
     }
 }
@@ -205,11 +215,13 @@ private fun AppointmentsList(
 private fun AppointmentCard(
     appointment: MedicalConsultationHistory,
     onDownloadClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 16.dp),
+            .padding(top = 16.dp)
+            .clickable(onClick = onClick),
         shape = CardShapeDefault,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
