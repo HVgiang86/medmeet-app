@@ -155,7 +155,10 @@ class BookingStore(
                         clinic = null,
                         selectScheduleState = BookingStep.SelectSchedule(),
                         inputPatientInfoState = BookingStep.InputPatientInfo(),
-                        selectServiceState = BookingStep.SelectService()
+                        selectServiceState = BookingStep.SelectService(),
+                        confirmationState = BookingStep.Confirmation(),
+                        bookingSuccessId = null,
+                        bookingFailedError = null
                     )
                 )
 

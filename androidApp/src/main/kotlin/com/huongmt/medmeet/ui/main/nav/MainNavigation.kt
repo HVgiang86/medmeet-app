@@ -131,6 +131,10 @@ interface MainScreenDestination {
             val store: BookingStore by inject()
             BookingScreen(store = store, clinic = clinic, onBack = {
                 navigator.pop()
+            }, goHome = {
+                navigator.replaceAll(Home)
+            }, goToDetail = { bookingId ->
+                navigator.replace(BookingDetail(bookingId))
             })
         }
     }

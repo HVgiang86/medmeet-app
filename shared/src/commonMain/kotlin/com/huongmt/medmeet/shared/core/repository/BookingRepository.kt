@@ -57,7 +57,7 @@ class MockBookingRepository(private val api: APIs) : BookingRepository, BaseRepo
             api.bookAppointment(request)
         }
 
-    override suspend fun getBookingDetail(bookingId: String): Flow<MedicalConsultationHistory> = flowContext (mapper = {
+    override suspend fun getBookingDetail(bookingId: String): Flow<MedicalConsultationHistory> = flowContext(mapper = {
         it.toMedicalHistory()
     }) {
         api.getMedicalHistoryDetail(bookingId)

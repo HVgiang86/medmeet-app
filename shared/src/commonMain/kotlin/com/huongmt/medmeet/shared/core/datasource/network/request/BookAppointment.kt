@@ -1,15 +1,13 @@
 package com.huongmt.medmeet.shared.core.datasource.network.request
 
 import com.huongmt.medmeet.shared.core.entity.Gender
-import kotlinx.serialization.SerialName
+import com.huongmt.medmeet.shared.core.entity.PaymentMethod
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class BookAppointment(
     val patientId: String? = null,
-    @SerialName("paymentMethod")
-    val payMethod: Long? = 1,
-    val thanhToan: Int = 1,
+
     val clinicId: String? = null,
     val examinationDate: String? = null,
     val clinicScheduleId: String? = null,
@@ -24,5 +22,7 @@ data class BookAppointment(
     val patientProvince: String? = null,
     val patientDistrict: String? = null,
     val patientCommune: String? = null,
-    val patientAddress: String? = null
+    val patientAddress: String? = null,
+    @kotlinx.serialization.Required
+    val paymentMethod: Long? = PaymentMethod.CASH.value.toLong()
 )

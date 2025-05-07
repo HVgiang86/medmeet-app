@@ -23,7 +23,7 @@ import io.github.aakira.napier.Napier
 
 @Composable
 fun BookingScreen(
-    store: BookingStore, clinic: Clinic, onBack: () -> Unit = {}
+    store: BookingStore, clinic: Clinic, onBack: () -> Unit = {}, goHome: () -> Unit = {}, goToDetail: (String) -> Unit = {}
 ) {
 
     BackHandler {
@@ -45,11 +45,12 @@ fun BookingScreen(
 
             null -> {}
             BookingEffect.ReturnHome -> {
-                onBack()
+                goHome()
             }
 
             is BookingEffect.ViewBookingDetails -> {
-
+                val bookingId = (effect as BookingEffect.ViewBookingDetails).bookingId
+                goToDetail(bookingId)
             }
         }
     }

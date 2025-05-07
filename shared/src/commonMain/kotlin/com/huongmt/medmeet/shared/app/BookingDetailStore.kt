@@ -34,7 +34,8 @@ data class BookingDetailState(
 ) : Store.State(isLoading)
 
 class BookingDetailStore(
-    private val bookingRepository: BookingRepository, private val userRepository: UserRepository
+    private val bookingRepository: BookingRepository,
+    private val userRepository: UserRepository
 ) : Store<BookingDetailState, BookingDetailAction, BookingDetailEffect>(BookingDetailState()),
     KoinComponent {
 
@@ -52,7 +53,8 @@ class BookingDetailStore(
                 if (!oldState.isLoading) {
                     setState(
                         oldState.copy(
-                            isLoading = true, error = null
+                            isLoading = true,
+                            error = null
                         )
                     )
                 }
@@ -62,7 +64,8 @@ class BookingDetailStore(
             is BookingDetailAction.LoadBookingDetailSuccess -> {
                 setState(
                     oldState.copy(
-                        isLoading = false, detail = action.bookingDetail
+                        isLoading = false,
+                        detail = action.bookingDetail
                     )
                 )
 
@@ -78,7 +81,8 @@ class BookingDetailStore(
             is BookingDetailAction.ShowError -> {
                 setState(
                     oldState.copy(
-                        error = action.error, isLoading = false
+                        error = action.error,
+                        isLoading = false
                     )
                 )
             }
@@ -94,18 +98,20 @@ class BookingDetailStore(
             is BookingDetailAction.LoadDoctorDetailSuccess -> {
                 setState(
                     oldState.copy(
-                        isLoading = false, doctor = action.doctor
+                        isLoading = false,
+                        doctor = action.doctor
                     )
                 )
             }
         }
     }
 
-
     private fun loadBookingDetail(bookingId: String) {
-        runFlow(exception = coroutineExceptionHandler {
-            sendAction((BookingDetailAction.GoBack))
-        }) {
+        runFlow(
+            exception = coroutineExceptionHandler {
+                sendAction((BookingDetailAction.GoBack))
+            }
+        ) {
             bookingRepository.getBookingDetail(bookingId).collect { result ->
                 sendAction(BookingDetailAction.LoadBookingDetailSuccess(result))
             }
@@ -113,9 +119,10 @@ class BookingDetailStore(
     }
 
     private fun loadDoctorDetail(doctorId: String) {
-        runFlow(exception = coroutineExceptionHandler {
-
-        }) {
+        runFlow(
+            exception = coroutineExceptionHandler {
+            }
+        ) {
             userRepository.getProfileById(doctorId).collect { result ->
                 sendAction(BookingDetailAction.LoadDoctorDetailSuccess(result))
             }

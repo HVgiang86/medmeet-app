@@ -201,7 +201,16 @@ private fun AppointmentsList(
             .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        items(appointments) { appointment ->
+        items(appointments.size + 1) { index ->
+            val appointment = if (index < appointments.size) {
+                appointments[index]
+            } else {
+                null
+            }
+            if (appointment == null) {
+                Spacer(modifier = Modifier.height(60.dp))
+                return@items
+            }
             AppointmentCard(
                 appointment = appointment,
                 onDownloadClick = { onDownloadClick(appointment.id) },

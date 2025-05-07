@@ -20,7 +20,7 @@ data class BookingDetails(
             examinationReason = patientInfo?.examinationReason,
             medicalFee = medicalService?.currentPrice,
             medicalServiceName = medicalService?.name,
-            payMethod = paymentMethod?.value?.toLong() ?: PaymentMethod.CASH.value.toLong(),
+            paymentMethod = paymentMethod?.value?.toLong() ?: PaymentMethod.CASH.value.toLong(),
             patientName = patientInfo?.name,
             patientGender = patientInfo?.gender?.value?.toLong(),
             patientPhoneNumber = patientInfo?.phoneNumber,

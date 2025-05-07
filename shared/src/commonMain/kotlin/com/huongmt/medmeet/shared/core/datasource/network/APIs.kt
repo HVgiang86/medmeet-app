@@ -30,8 +30,6 @@ import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.Parameters
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 class APIs(private val httpClient: HttpClient) {
     companion object {
@@ -117,8 +115,6 @@ class APIs(private val httpClient: HttpClient) {
 
     suspend fun bookAppointment(bookingRequest: BookAppointment): BaseResponse<AppointmentBookingResponse> =
         httpClient.post("${BASE_URL}medical-consultation-history") {
-            val json = Json.encodeToString(bookingRequest)
-            println("[DEBUG] Sending JSON: $json")
             setBody(bookingRequest)
         }.body()
 
