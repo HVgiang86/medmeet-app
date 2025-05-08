@@ -56,7 +56,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun EditHealthRecordBottomSheet(
     healthRecord: HealthRecord? = null,
-    onSave: (HealthRecord) -> Unit,
+    onSave: (height: Int?, weight: Int?, bloodType: BloodType?, healthHistory: String?) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
@@ -115,8 +115,12 @@ fun EditHealthRecordBottomSheet(
                 description = "Height",
                 onTextChanged = {
                     // Only accept numbers
-                    if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                    if (it.isNotEmpty() && it.all { char -> char.isDigit() }) {
                         height = it.toInt()
+                    } else if (it.isEmpty()) {
+                        height = 0
+                    } else {
+                        height = 0
                     }
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
@@ -146,8 +150,12 @@ fun EditHealthRecordBottomSheet(
                 description = "Weight",
                 onTextChanged = {
                     // Only accept numbers
-                    if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                    if (it.isNotEmpty() && it.all { char -> char.isDigit() }) {
                         weight = it.toInt()
+                    } else if (it.isEmpty()) {
+                        weight = 0
+                    } else {
+                        weight = 0
                     }
                 },
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done, keyboardType = KeyboardType.Number),
@@ -218,13 +226,10 @@ fun EditHealthRecordBottomSheet(
 
                 PrimaryButton(onClick = {
                     onSave(
-                        HealthRecord(
-                            id = healthRecord?.id ?: "",
-                            bloodType = bloodType?.text,
-                            height = height,
-                            weight = weight,
-                            healthHistory = healthHistory
-                        )
+                        height,
+                        weight,
+                        bloodType,
+                        healthHistory
                     )
                     scope.launch { sheetState.hide() }
                 }, modifier = Modifier.weight(1f), text = {

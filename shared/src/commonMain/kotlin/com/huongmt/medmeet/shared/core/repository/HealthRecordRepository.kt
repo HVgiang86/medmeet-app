@@ -43,10 +43,12 @@ class HealthRecordRepositoryImpl(
         weight: Int?,
         healthHistory: String?
     ): Flow<HealthRecord> {
-        val bloodTypeParam = bloodType?.value ?: ""
+        val bloodTypeParam = bloodType?.text ?: ""
         val heightParam = height ?: 0
         val weightParam = weight ?: 0
         val healthHistoryParam = healthHistory ?: ""
+
+        println("REPO: bloodType: $bloodTypeParam height: $heightParam weight: $weightParam healthHistory: $healthHistoryParam")
 
         return flowContext(mapper = { response ->
             HealthRecord(

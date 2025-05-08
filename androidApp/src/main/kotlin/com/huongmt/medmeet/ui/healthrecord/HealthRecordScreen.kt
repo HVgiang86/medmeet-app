@@ -132,7 +132,7 @@ fun HealthRecordScreen(
     }) { paddingValues ->
         Box(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxSize().padding(top = 52.dp)
                 .systemBarsPadding()
         ) {
             Column(
@@ -387,16 +387,13 @@ fun HealthRecordScreen(
     }
 
     if (state.isEditMode) {
-        EditHealthRecordBottomSheet(healthRecord = state.healthRecord, onSave = {
-            val height = heightText.toIntOrNull()
-            val weight = weightText.toIntOrNull()
-
+        EditHealthRecordBottomSheet(healthRecord = state.healthRecord, onSave = { height, weight, bloodType, healthHistory ->
             store.sendAction(
                 HealthRecordAction.UpdateHealthRecord(
-                    bloodType = selectedBloodType,
+                    bloodType = bloodType,
                     height = height,
                     weight = weight,
-                    healthHistory = healthHistoryText
+                    healthHistory = healthHistory
                 )
             )
         }, onDismiss = {

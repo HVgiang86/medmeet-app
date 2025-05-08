@@ -214,11 +214,11 @@ fun ProfileScreen(
                         store.sendAction(ProfileAction.NavigateHealthRecord)
                     })
 
-                SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_history),
-                    title = "Medical Consultant History",
-                    onClick = {
-
-                    })
+//                SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_history),
+//                    title = "Medical Consultant History",
+//                    onClick = {
+//
+//                    })
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_setting),
                     title = "Settings",
@@ -231,17 +231,11 @@ fun ProfileScreen(
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_help),
                     title = "Help & support",
                     onClick = {
-                        scope.launch {
-                            bottomSheetState.animateTo(FullyExpanded)
-                        }
                     })
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_term),
                     title = "Terms & Privacy",
                     onClick = {
-                        scope.launch {
-                            bottomSheetState.animateTo(FullyExpanded)
-                        }
                     })
 
                 SettingItem(

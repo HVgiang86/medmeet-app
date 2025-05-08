@@ -5,7 +5,6 @@ import com.huongmt.medmeet.shared.core.WholeApp
 import com.huongmt.medmeet.shared.core.entity.BloodType
 import com.huongmt.medmeet.shared.core.entity.HealthRecord
 import com.huongmt.medmeet.shared.core.repository.HealthRecordRepository
-import kotlinx.coroutines.launch
 
 data class HealthRecordState(
     val isLoading: Boolean = false,
@@ -22,10 +21,7 @@ sealed interface HealthRecordAction : Store.Action {
     data class Error(val error: Throwable) : HealthRecordAction
     data object ToggleEditMode : HealthRecordAction
     data class UpdateHealthRecord(
-        val bloodType: BloodType?,
-        val height: Int?,
-        val weight: Int?,
-        val healthHistory: String?
+        val bloodType: BloodType?, val height: Int?, val weight: Int?, val healthHistory: String?
     ) : HealthRecordAction
 
     data class UpdateHealthRecordSuccess(val healthRecord: HealthRecord) : HealthRecordAction
@@ -58,8 +54,7 @@ class HealthRecordStore(
 
             is HealthRecordAction.GetHealthRecordSuccess -> {
                 val bmi = calculateBMI(
-                    action.healthRecord.height,
-                    action.healthRecord.weight
+                    action.healthRecord.height, action.healthRecord.weight
                 )
                 setState(
                     oldState.copy(
@@ -83,22 +78,24 @@ class HealthRecordStore(
             }
 
             is HealthRecordAction.UpdateHealthRecord -> {
-                setState(oldState.copy(isLoading = true))
+                setState(oldState.copy(isLoading = true, isEditMode = false))
+                println("Update health record: ${action.bloodType}, ${action.height}, ${action.weight}, ${action.healthHistory}")
                 updateHealthRecord(
-                    action.bloodType,
-                    action.height,
-                    action.weight,
-                    action.healthHistory
+                    action.bloodType, action.height, action.weight, action.healthHistory
                 )
             }
 
             is HealthRecordAction.UpdateHealthRecordSuccess -> {
+                val bmi = calculateBMI(
+                    action.healthRecord.height, action.healthRecord.weight
+                )
                 setState(
                     oldState.copy(
                         healthRecord = action.healthRecord,
                         isLoading = false,
                         error = null,
-                        isEditMode = false
+                        isEditMode = false,
+                        bmi = bmi
                     )
                 )
             }
@@ -115,8 +112,7 @@ class HealthRecordStore(
     }
 
     private fun calculateBMI(
-        height: Int?,
-        weight: Int?
+        height: Int?, weight: Int?
     ): Double {
         if (height == null || weight == null) return 0.0
         val heightInMeters = height / 100.0
@@ -124,25 +120,18 @@ class HealthRecordStore(
     }
 
     private fun updateHealthRecord(
-        bloodType: BloodType?,
-        height: Int?,
-        weight: Int?,
-        healthHistory: String?
+        bloodType: BloodType?, height: Int?, weight: Int?, healthHistory: String?
     ) {
-        launch {
-            try {
-                val userId = WholeApp.USER?.id ?: return@launch
-                healthRecordRepository.updateHealthRecord(
-                    userId = userId,
-                    bloodType = bloodType,
-                    height = height,
-                    weight = weight,
-                    healthHistory = healthHistory
-                ).collect {
-                    sendAction(HealthRecordAction.UpdateHealthRecordSuccess(it))
-                }
-            } catch (e: Exception) {
-                sendAction(HealthRecordAction.Error(e))
+        runFlow {
+            val userId = WholeApp.USER?.id ?: ""
+            healthRecordRepository.updateHealthRecord(
+                userId = userId,
+                bloodType = bloodType,
+                height = height,
+                weight = weight,
+                healthHistory = healthHistory
+            ).collect {
+                sendAction(HealthRecordAction.UpdateHealthRecordSuccess(it))
             }
         }
     }
