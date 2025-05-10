@@ -1,6 +1,7 @@
 package com.huongmt.medmeet.shared.core.entity
 
 import com.huongmt.medmeet.shared.core.datasource.network.request.BookAppointment
+import com.huongmt.medmeet.shared.utils.ext.toIso8601StringWithTime
 import kotlinx.datetime.LocalDate
 
 data class BookingDetails(
@@ -15,7 +16,7 @@ data class BookingDetails(
         return BookAppointment(
             patientId = patientInfo?.id,
             clinicId = clinic?.id,
-            examinationDate = examinationDate.toString(),
+            examinationDate = examinationDate?.toIso8601StringWithTime(),
             clinicScheduleId = clinicSchedule?.id,
             examinationReason = patientInfo?.examinationReason,
             medicalFee = medicalService?.currentPrice,

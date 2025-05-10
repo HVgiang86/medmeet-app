@@ -54,7 +54,9 @@ class BookingDetailStore(
                     setState(
                         oldState.copy(
                             isLoading = true,
-                            error = null
+                            error = null,
+                            detail = null,
+                            doctor = null
                         )
                     )
                 }
@@ -68,6 +70,8 @@ class BookingDetailStore(
                         detail = action.bookingDetail
                     )
                 )
+
+                println("HEHEH -> dcotor: ${action.bookingDetail.doctorId}")
 
                 if (!action.bookingDetail.doctorId.isNullOrEmpty()) {
                     sendAction(
@@ -92,6 +96,13 @@ class BookingDetailStore(
             }
 
             is BookingDetailAction.LoadDoctorDetail -> {
+                setState(
+                    oldState.copy(
+                        isLoading = true,
+                        error = null,
+                        doctor = null
+                    )
+                )
                 loadDoctorDetail(action.doctorId)
             }
 

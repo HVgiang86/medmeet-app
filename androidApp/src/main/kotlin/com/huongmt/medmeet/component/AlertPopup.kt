@@ -179,6 +179,11 @@ fun ErrorDialog(
                     title = "Unknown error"
                     message = error.throwable.message ?: "Unknown error!"
                 }
+
+                is BaseError.ValidationException -> {
+                    title = "Thông báo"
+                    message = error.message
+                }
             }
         }
 

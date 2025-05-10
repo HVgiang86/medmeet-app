@@ -62,6 +62,7 @@ import com.huongmt.medmeet.utils.ext.toDMY
 import com.huongmt.medmeet.utils.ext.toHM
 import com.simonsickle.compose.barcodes.Barcode
 import com.simonsickle.compose.barcodes.BarcodeType
+import io.github.aakira.napier.Napier
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -349,7 +350,10 @@ fun BarcodeSection(code: String) {
 
 @Composable
 fun DoctorInfoSection(doctor: User?) {
-    if (doctor == null) return
+    if (doctor == null) {
+        Napier.e("Doctor info is null")
+        return
+    }
 
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -378,7 +382,6 @@ fun DoctorInfoSection(doctor: User?) {
             )
 
             Spacer(modifier = Modifier.width(12.dp))
-
 
             Column {
                 val titleName = StringBuilder()

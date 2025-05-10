@@ -18,9 +18,17 @@ sealed class BaseError {
     ) : BaseError()
 
     data object JsonConvertException : BaseError()
+
+    data class ValidationException(
+        val message: String
+    ) : BaseError()
 }
 
 // Define a custom exception class to carry the BaseError information
 class ErrorException(
     val error: BaseError
 ) : Exception(error.toString())
+
+fun String.toValidationException(): ErrorException {
+    return ErrorException(BaseError.ValidationException(this))
+}

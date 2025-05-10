@@ -278,9 +278,10 @@ fun BoxScope.BaseTextField(
             KeyboardActions {
                 if (textFieldValue.text.isNotBlank()) {
                     onImeAction(textFieldValue.text)
-                    keyboardController?.hide()
-                    focusManager.clearFocus()
                 }
+
+                keyboardController?.hide()
+                focusManager.clearFocus()
             },
         readOnly = readOnly,
         singleLine = singleLine,

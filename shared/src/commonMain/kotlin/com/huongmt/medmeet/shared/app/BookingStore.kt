@@ -1,6 +1,7 @@
 package com.huongmt.medmeet.shared.app
 
 import com.huongmt.medmeet.shared.base.Store
+import com.huongmt.medmeet.shared.base.toValidationException
 import com.huongmt.medmeet.shared.core.WholeApp
 import com.huongmt.medmeet.shared.core.entity.BookingDetails
 import com.huongmt.medmeet.shared.core.entity.Clinic
@@ -51,6 +52,8 @@ data class BookingState(
 
     val isLoading: Boolean = false,
     val error: Throwable? = null,
+
+    val validateError: Throwable? = null,
 
     val bookingSuccessId: String? = null,
     val bookingFailedError: Throwable? = null
@@ -113,6 +116,12 @@ sealed class BookingAction : Store.Action {
     ) : BookingAction()
 
     data object ReturnHome : BookingAction()
+
+    data class ValidateError(
+        val error: Throwable
+    ) : BookingAction()
+
+    data object ClearValidateError : BookingAction()
 }
 
 sealed class BookingEffect : Store.Effect {
@@ -218,7 +227,8 @@ class BookingStore(
                     province = action.user.province,
                     district = action.user.district,
                     commune = action.user.commune,
-                    address = action.user.address
+                    address = action.user.address,
+                    phoneNumber = action.user.phoneNumber
                 )
                 setState(
                     oldState.copy(
@@ -294,6 +304,15 @@ class BookingStore(
                     }
 
                     BookingStepType.SELECT_SCHEDULE -> {
+                        if (oldState.inputPatientInfoState.patientInfo == null) {
+                            sendAction(BookingAction.ValidateError(Throwable("Vui lòng nhập thông tin bệnh nhân")))
+                            return
+                        }
+
+                        if (!validatePatientInfo(oldState.inputPatientInfoState.patientInfo!!)) {
+                            return
+                        }
+
                         setState(
                             oldState.copy(
                                 currentStep = BookingStepType.SELECT_SCHEDULE,
@@ -313,6 +332,11 @@ class BookingStore(
                     }
 
                     BookingStepType.CONFIRMATION -> {
+                        if (oldState.selectScheduleState.clinicSchedule == null) {
+                            sendAction(BookingAction.ValidateError("Vui lòng chọn lịch khám".toValidationException()))
+                            return
+                        }
+
                         setState(
                             oldState.copy(
                                 currentStep = BookingStepType.CONFIRMATION,
@@ -441,6 +465,76 @@ class BookingStore(
                     )
                 )
             }
+
+            BookingAction.ClearValidateError -> {
+                setState(
+                    oldState.copy(
+                        validateError = null
+                    )
+                )
+            }
+            is BookingAction.ValidateError -> {
+                setState(
+                    oldState.copy(
+                        validateError = action.error
+                    )
+                )
+            }
+        }
+    }
+
+    private fun validatePatientInfo(
+        patientInfo: PatientInfo
+    ): Boolean {
+        return when {
+            patientInfo.name.isNullOrEmpty() -> {
+                sendAction(BookingAction.ValidateError("Họ tên không được để trống".toValidationException()))
+                false
+            }
+
+            patientInfo.dateOfBirth == null -> {
+                sendAction(BookingAction.ValidateError("Ngày sinh không được để trống".toValidationException()))
+                false
+            }
+
+            patientInfo
+                .province.isNullOrEmpty() -> {
+                sendAction(BookingAction.ValidateError("Tỉnh/Thành phố không được để trống".toValidationException()))
+                false
+            }
+            patientInfo
+                .district.isNullOrEmpty() -> {
+                sendAction(BookingAction.ValidateError("Quận/Huyện không được để trống".toValidationException()))
+                false
+            }
+            patientInfo
+                .commune.isNullOrEmpty() -> {
+                sendAction(BookingAction.ValidateError("Xã/Phường không được để trống".toValidationException()))
+
+                false
+            }
+            patientInfo
+                .address.isNullOrEmpty() -> {
+                sendAction(BookingAction.ValidateError("Địa chỉ không được để trống".toValidationException()))
+                false
+            }
+
+            patientInfo.phoneNumber.isNullOrEmpty() -> {
+                sendAction(BookingAction.ValidateError("Số điện thoại không được để trống".toValidationException()))
+                false
+            }
+
+            patientInfo.phoneNumber.length < 10 -> {
+                sendAction(BookingAction.ValidateError("Số điện thoại không hợp lệ".toValidationException()))
+                false
+            }
+
+            patientInfo.examinationReason.isNullOrEmpty() -> {
+                sendAction(BookingAction.ValidateError("Lý do thăm khám không được để trống".toValidationException()))
+                false
+            }
+
+            else -> true
         }
     }
 

@@ -21,7 +21,10 @@ sealed interface HealthRecordAction : Store.Action {
     data class Error(val error: Throwable) : HealthRecordAction
     data object ToggleEditMode : HealthRecordAction
     data class UpdateHealthRecord(
-        val bloodType: BloodType?, val height: Int?, val weight: Int?, val healthHistory: String?
+        val bloodType: BloodType?,
+        val height: Int?,
+        val weight: Int?,
+        val healthHistory: String?
     ) : HealthRecordAction
 
     data class UpdateHealthRecordSuccess(val healthRecord: HealthRecord) : HealthRecordAction
@@ -54,7 +57,8 @@ class HealthRecordStore(
 
             is HealthRecordAction.GetHealthRecordSuccess -> {
                 val bmi = calculateBMI(
-                    action.healthRecord.height, action.healthRecord.weight
+                    action.healthRecord.height,
+                    action.healthRecord.weight
                 )
                 setState(
                     oldState.copy(
@@ -81,13 +85,17 @@ class HealthRecordStore(
                 setState(oldState.copy(isLoading = true, isEditMode = false))
                 println("Update health record: ${action.bloodType}, ${action.height}, ${action.weight}, ${action.healthHistory}")
                 updateHealthRecord(
-                    action.bloodType, action.height, action.weight, action.healthHistory
+                    action.bloodType,
+                    action.height,
+                    action.weight,
+                    action.healthHistory
                 )
             }
 
             is HealthRecordAction.UpdateHealthRecordSuccess -> {
                 val bmi = calculateBMI(
-                    action.healthRecord.height, action.healthRecord.weight
+                    action.healthRecord.height,
+                    action.healthRecord.weight
                 )
                 setState(
                     oldState.copy(
@@ -112,7 +120,8 @@ class HealthRecordStore(
     }
 
     private fun calculateBMI(
-        height: Int?, weight: Int?
+        height: Int?,
+        weight: Int?
     ): Double {
         if (height == null || weight == null) return 0.0
         val heightInMeters = height / 100.0
@@ -120,7 +129,10 @@ class HealthRecordStore(
     }
 
     private fun updateHealthRecord(
-        bloodType: BloodType?, height: Int?, weight: Int?, healthHistory: String?
+        bloodType: BloodType?,
+        height: Int?,
+        weight: Int?,
+        healthHistory: String?
     ) {
         runFlow {
             val userId = WholeApp.USER?.id ?: ""

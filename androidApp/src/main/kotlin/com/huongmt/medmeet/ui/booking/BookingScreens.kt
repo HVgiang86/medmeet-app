@@ -3,6 +3,7 @@ package com.huongmt.medmeet.ui.booking
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,6 +68,14 @@ fun BookingScreen(
         ErrorDialog(throwable = state.bookingFailedError!!, onDismissRequest = {
             store.sendAction(BookingAction.ClearBookingFailedError)
         })
+    }
+
+    if (state.validateError != null) {
+        Napier.d("Validate Error: ${state.validateError}")
+        ErrorDialog(throwable = state.validateError!!, onDismissRequest = {
+            store.sendAction(BookingAction.ClearValidateError)
+        })
+
     }
 
     if (state.bookingSuccessId != null) {

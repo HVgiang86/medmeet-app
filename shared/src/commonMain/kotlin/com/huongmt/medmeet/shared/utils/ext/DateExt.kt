@@ -23,6 +23,21 @@ fun LocalDateTime.toIso8601String(): String {
     return "${date}T${time}Z"
 }
 
+fun LocalDate.toIso8601StringWithTime(): String {
+    val dateString = "$year-${monthNumber.toString().padStart(2, '0')}-${dayOfMonth.toString().padStart(2, '0')}"
+    return "${dateString}T00:00:00Z"
+}
+
+/**
+ * Converts a LocalDate to ISO-8601 formatted string with specified time components
+ * Format: yyyy-MM-ddTHH:mm:ssZ
+ */
+fun LocalDate.toIso8601StringWithTime(hour: Int = 0, minute: Int = 0, second: Int = 0): String {
+    val dateString = "$year-${monthNumber.toString().padStart(2, '0')}-${dayOfMonth.toString().padStart(2, '0')}"
+    val timeString = "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}"
+    return "${dateString}T${timeString}Z"
+}
+
 fun String.parseTimeToLocalDateTime(date: LocalDate = nowDate()): LocalDateTime? {
     return try {
         val parts = this.split(":")

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
@@ -147,7 +148,7 @@ private fun PatientInfoContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 24.dp)
-                .padding(bottom = 60.dp)
+                .padding(bottom = 60.dp).imePadding()
                 .verticalScroll(rememberScrollState())
         ) {
             Spacer(modifier = Modifier.height(16.dp))
@@ -166,6 +167,27 @@ private fun PatientInfoContent(
             // Name
             Spacer(modifier = Modifier.height(16.dp))
 
+            Text(
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .fillMaxWidth()
+                    .align(Alignment.CenterHorizontally),
+                text = "Please fill in the information below",
+                style = MaterialTheme.typography.labelMedium,
+                color = Color.Black,
+                textAlign = TextAlign.Center,
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Name",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
             ), hint = "name", description = "Name", textFieldState = name, validator = {
@@ -180,6 +202,14 @@ private fun PatientInfoContent(
             // Email
             Spacer(modifier = Modifier.height(16.dp))
 
+            Text(
+                text = "Email",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Email
             ), hint = "email", textFieldState = email, description = "Email", validator = {
@@ -193,6 +223,14 @@ private fun PatientInfoContent(
 
             // Phone number
             Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Phone number",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             BaseInputText(modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(
@@ -213,6 +251,14 @@ private fun PatientInfoContent(
 
             // DOB
             Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "Date of birth",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             val showDobPicker = remember { mutableStateOf(false) }
 
@@ -253,6 +299,14 @@ private fun PatientInfoContent(
             // Gender
             Spacer(modifier = Modifier.height(16.dp))
 
+            Text(
+                text = "Gender",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             val showGenderPicker = remember { mutableStateOf(false) }
             BaseInputText(modifier = Modifier.fillMaxWidth(),
                 textFieldState = genderTextField,
@@ -291,6 +345,14 @@ private fun PatientInfoContent(
 
             Spacer(Modifier.height(24.dp))
 
+            Text(
+                text = "Province",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
             ), hint = "Province", description = "Province", validator = {
@@ -299,6 +361,13 @@ private fun PatientInfoContent(
             )
 
             Spacer(Modifier.height(24.dp))
+
+            Text(
+                text = "District",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
 
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
@@ -309,6 +378,14 @@ private fun PatientInfoContent(
 
             Spacer(Modifier.height(24.dp))
 
+            Text(
+                text = "Commune",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
             ), hint = "Commune", description = "Commune", validator = {
@@ -317,6 +394,14 @@ private fun PatientInfoContent(
             )
 
             Spacer(Modifier.height(24.dp))
+
+            Text(
+                text = "Address",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             BaseInputText(
                 modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
@@ -328,12 +413,20 @@ private fun PatientInfoContent(
 
             Spacer(Modifier.height(24.dp))
 
+            Text(
+                text = "Examination Reason",
+                style = MaterialTheme.typography.titleMedium,
+                color = Color.Black,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             BaseInputText(
                 modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
                 ), hint = "Examination Reason", description = "Examination Reason", validator = {
                     validateNotEmpty(it)
-                }, textFieldState = examinationReason, maxLines = 3
+                }, textFieldState = examinationReason, maxLines = 3, minLines = 3
             )
 
             Spacer(Modifier.height(60.dp))
