@@ -22,6 +22,10 @@ fun LocalDate.toDMY(): String {
     return "${this.dayOfMonth}/${this.monthNumber}/${this.year}"
 }
 
+fun LocalDate.toDMY2(): String {
+    return "${this.dayOfMonth}-${this.monthNumber}-${this.year}"
+}
+
 fun LocalDateTime.toHMS(): String {
     return "${this.hour.toString().padStart(2, '0')}:${
         this.minute.toString().padStart(2, '0')
@@ -30,6 +34,12 @@ fun LocalDateTime.toHMS(): String {
 
 fun LocalDateTime.toHM(): String {
     return "${this.hour.toString().padStart(2, '0')}:${this.minute.toString().padStart(2, '0')}"
+}
+
+fun LocalDateTime.toHMSDMY(): String {
+    return "${this.hour.toString().padStart(2, '0')}:${
+        this.minute.toString().padStart(2, '0')
+    }\n${this.dayOfMonth}/${this.monthNumber}"
 }
 
 fun Any.getCurrentDate(): LocalDate {

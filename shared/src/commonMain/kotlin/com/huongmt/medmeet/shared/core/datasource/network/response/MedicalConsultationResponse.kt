@@ -7,7 +7,9 @@ import com.huongmt.medmeet.shared.core.entity.PaymentMethod
 import com.huongmt.medmeet.shared.core.entity.PaymentStatus
 import com.huongmt.medmeet.shared.core.maper.toClinic
 import com.huongmt.medmeet.shared.utils.ext.nowDateTime
+import com.huongmt.medmeet.shared.utils.ext.plusDate
 import com.huongmt.medmeet.shared.utils.ext.toLocalDateFromIso
+import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -57,7 +59,8 @@ data class MedicalConsultationResponse(
         val createdAtDate = createdAt?.toLocalDateFromIso() ?: now
         val updatedAtDate = updatedAt?.toLocalDateFromIso() ?: now
         val patientDOB = patientDateOfBirth?.toLocalDateFromIso() ?: now
-        val examinationDateTime = examinationDate?.toLocalDateFromIso()?.date ?: now.date
+
+        val examinationDateTime = examinationDate?.toLocalDateFromIso()?.plusDate(1)?.date ?: now.date
 
         val genderValue: Gender = when (patientGender) {
             Gender.MALE.value -> Gender.MALE

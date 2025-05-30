@@ -12,6 +12,7 @@ data class BookAppointment(
     val examinationDate: String? = null,
     val clinicScheduleId: String? = null,
     val examinationReason: String? = null,
+    val medicalServiceId: String? = null,
     val medicalFee: Long? = null,
     val medicalServiceName: String? = null,
     val patientName: String? = null,

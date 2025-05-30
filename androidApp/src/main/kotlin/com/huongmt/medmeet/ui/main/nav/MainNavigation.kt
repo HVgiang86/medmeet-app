@@ -17,6 +17,7 @@ import cafe.adriel.voyager.core.stack.StackEvent
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.huongmt.medmeet.component.FailDialog
 import com.huongmt.medmeet.shared.app.ChatStore
 import com.huongmt.medmeet.shared.app.ClinicDetailStore
 import com.huongmt.medmeet.shared.app.HomeStore
@@ -36,6 +37,8 @@ import com.huongmt.medmeet.ui.notification.NotificationScreen
 import com.huongmt.medmeet.ui.profile.ProfileScreen
 import com.huongmt.medmeet.ui.schedule.ScheduleScreen
 import com.huongmt.medmeet.ui.healthrecord.HealthRecordScreen
+import com.huongmt.medmeet.ui.profiledetail.ProfileDetailScreen
+//import com.huongmt.medmeet.ui.profiledetail.ProfileDetailScreen
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -60,13 +63,15 @@ interface MainScreenDestination {
         }
     }
 
-    object Notification : Screen, TopLevelScreenDestination {
+    object Notification : Screen, TopLevelScreenDestination, KoinComponent {
         @Composable
         override fun Content() {
             val navigator = LocalNavigator.currentOrThrow
             NotificationScreen(navigateBack = {
                 navigator.pop()
-            })
+            }, navigateTo = {
+                navigator.navigate(it)
+            }).Content()
         }
     }
 
@@ -124,6 +129,26 @@ interface MainScreenDestination {
             }, onLogout = {
                 onLogout()
             })
+        }
+    }
+
+    class ProfileDetail : Screen, MainScreenDestination, KoinComponent {
+        @Composable
+        override fun Content() {
+            val navigator = LocalNavigator.currentOrThrow
+//            ProfileDetailScreen().Content()
+            FailDialog(
+                title = "Error",
+                content = "Trang này đang tạm khoá!",
+                cancelable = true,
+                onCanceled = {
+                    navigator.pop()
+                },
+                onBtnClick = {
+                    navigator.pop()
+                },
+                btnText = "OK"
+            )
         }
     }
 
@@ -224,7 +249,7 @@ private fun AnimatedTransition(navigator: Navigator) {
         )
 
         enterTransition togetherWith exitTransition
-    }) { currentScreen ->
+    }, label = "") { currentScreen ->
         navigator.saveableState("transition", currentScreen) {
             currentScreen.Content()
         }

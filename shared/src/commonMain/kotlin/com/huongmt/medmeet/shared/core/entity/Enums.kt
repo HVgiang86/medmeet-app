@@ -44,70 +44,54 @@ enum class BloodType(val text: String, val value: String) {
     NA("Chưa xác định", "NA");
 }
 
-object VietnamProvinces {
-    val provinces = listOf(
-        "An Giang",
-        "Bà Rịa - Vũng Tàu",
-        "Bắc Giang",
-        "Bắc Kạn",
-        "Bạc Liêu",
-        "Bắc Ninh",
-        "Bến Tre",
-        "Bình Định",
-        "Bình Dương",
-        "Bình Phước",
-        "Bình Thuận",
-        "Cà Mau",
-        "Cần Thơ",
-        "Cao Bằng",
-        "Đà Nẵng",
-        "Đắk Lắk",
-        "Đắk Nông",
-        "Điện Biên",
-        "Đồng Nai",
-        "Đồng Tháp",
-        "Gia Lai",
-        "Hà Giang",
-        "Hà Nam",
-        "Hà Nội",
-        "Hà Tĩnh",
-        "Hải Dương",
-        "Hải Phòng",
-        "Hậu Giang",
-        "Hòa Bình",
-        "Hưng Yên",
-        "Khánh Hòa",
-        "Kiên Giang",
-        "Kon Tum",
-        "Lai Châu",
-        "Lâm Đồng",
-        "Lạng Sơn",
-        "Lào Cai",
-        "Long An",
-        "Nam Định",
-        "Nghệ An",
-        "Ninh Bình",
-        "Ninh Thuận",
-        "Phú Thọ",
-        "Phú Yên",
-        "Quảng Bình",
-        "Quảng Nam",
-        "Quảng Ngãi",
-        "Quảng Ninh",
-        "Quảng Trị",
-        "Sóc Trăng",
-        "Sơn La",
-        "Tây Ninh",
-        "Thái Bình",
-        "Thái Nguyên",
-        "Thanh Hóa",
-        "Thừa Thiên Huế",
-        "Tiền Giang",
-        "TP. Hồ Chí Minh",
-        "Trà Vinh",
-        "Tuyên Quang",
-        "Vĩnh Long",
-        "Vĩnh Phúc",
-        "Yên Bái"
-    )
+enum class NotificationType(val route: String) {
+    USER("user"),
+    HEALTH_RECORD("health_record"),
+    MEDICAL_CONSULTATION_HISTORY("medical-consultation-history"),
+    OTHER("other"),
+}
+
+enum class NotificationAction(val action: String) {
+    CREATE("CREATE"),
+    UPDATE("UPDATE"),
+    DELETE("DELETE"),
+}
+
+enum class NotificationDetailRoute{
+    GoToUserProfile,
+    GoToHealthRecord,
+    GoToBookingDetail,
+    NoAction,
+}
+
+fun getNotificationDetailRoute(type: NotificationType? = null, action: NotificationAction? = null): NotificationDetailRoute {
+    return when (type) {
+        NotificationType.USER -> {
+            when (action) {
+                NotificationAction.CREATE -> NotificationDetailRoute.GoToUserProfile
+                NotificationAction.UPDATE -> NotificationDetailRoute.GoToUserProfile
+                NotificationAction.DELETE -> NotificationDetailRoute.NoAction
+                null -> NotificationDetailRoute.NoAction
+            }
+        }
+        NotificationType.HEALTH_RECORD -> {
+            when (action) {
+                NotificationAction.CREATE -> NotificationDetailRoute.GoToHealthRecord
+                NotificationAction.UPDATE -> NotificationDetailRoute.GoToHealthRecord
+                NotificationAction.DELETE -> NotificationDetailRoute.NoAction
+                null -> NotificationDetailRoute.NoAction
+            }
+        }
+        NotificationType.MEDICAL_CONSULTATION_HISTORY -> {
+            when (action) {
+                NotificationAction.CREATE -> NotificationDetailRoute.GoToBookingDetail
+                NotificationAction.UPDATE -> NotificationDetailRoute.GoToBookingDetail
+                NotificationAction.DELETE -> NotificationDetailRoute.NoAction
+                null -> NotificationDetailRoute.NoAction
+            }
+        }
+
+        NotificationType.OTHER -> NotificationDetailRoute.NoAction
+        null -> NotificationDetailRoute.NoAction
+    }
 }

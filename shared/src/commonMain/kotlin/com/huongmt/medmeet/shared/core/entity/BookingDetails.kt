@@ -30,7 +30,8 @@ data class BookingDetails(
             patientProvince = patientInfo?.province,
             patientDistrict = patientInfo?.district,
             patientCommune = patientInfo?.commune,
-            patientAddress = patientInfo?.address
+            patientAddress = patientInfo?.address,
+            medicalServiceId = medicalService?.id
         )
     }
 }

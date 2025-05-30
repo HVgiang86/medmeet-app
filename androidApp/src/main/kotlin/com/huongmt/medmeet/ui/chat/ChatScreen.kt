@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
@@ -56,6 +57,7 @@ import com.huongmt.medmeet.component.DrawerMenu
 import com.huongmt.medmeet.component.ErrorDialog
 import com.huongmt.medmeet.component.HumanChatMessage
 import com.huongmt.medmeet.component.LoadingDialog
+import com.huongmt.medmeet.component.RecommendedQueriesOverlay
 import com.huongmt.medmeet.component.WavingDots
 import com.huongmt.medmeet.data.WholeApp
 import com.huongmt.medmeet.shared.app.ChatAction
@@ -123,7 +125,7 @@ fun ChatScreenContentT(
     onBack: () -> Unit = {},
 ) {
     val state by store.observeState().collectAsState()
-    val errorEffect by store.observeSideEffect().collectAsState(null)
+    val effect by store.observeSideEffect().collectAsState(null)
 
     val context = LocalContext.current
     var spokenText by remember { mutableStateOf("Press the button and start speaking") }
@@ -133,7 +135,6 @@ fun ChatScreenContentT(
         mutableStateOf(TextFieldValue(""))
     }
 
-    var inputEnableState by remember { mutableStateOf(true) }
 
     val listState = rememberLazyListState()
 
@@ -166,6 +167,26 @@ fun ChatScreenContentT(
         }
     }
 
+    LaunchedEffect(effect) {
+        when (effect) {
+            is ChatEffect.ShowToast -> {
+                val message = (effect as ChatEffect.ShowToast).message
+                Napier.d { "Show toast: $message" }
+                // Show toast using Android's Toast or any other method
+                // Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+            is ChatEffect.ScrollToBottom -> {
+                // Scroll to bottom when this effect is triggered
+                if (state.messages.isNotEmpty()) {
+                    listState.animateScrollToItem(state.messages.size - 1)
+                }
+            }
+            else -> {
+                // Handle other effects if needed
+            }
+        }
+    }
+
     if (state.isLoading) {
         LoadingDialog()
     }
@@ -174,12 +195,6 @@ fun ChatScreenContentT(
         ErrorDialog(throwable = state.error, onDismissRequest = {
             store.sendAction(ChatAction.ClearError)
         })
-    }
-
-    if (state.isGenerating) {
-        inputEnableState = false
-    } else {
-        inputEnableState = true
     }
 
     val speechRecognitionLauncher = rememberLauncherForActivityResult(
@@ -311,8 +326,19 @@ fun ChatScreenContentT(
                 }
             }
 
+            // Recommended queries overlay
+            RecommendedQueriesOverlay(
+                queries = state.recommendedQueries,
+                visible = state.isGenQueriesEnabled && inputState.value.text.isEmpty(),
+                onQueryClick = { query ->
+                    inputState.value = TextFieldValue(query)
+                },
+                modifier = Modifier
+                    .wrapContentHeight().padding(bottom = 16.dp).padding(horizontal = 16.dp)
+            )
+
             ChatInputSection(
-                enable = inputEnableState,
+                enable = state.isGenQueriesEnabled,
                 textState = inputState,
                 modifier = Modifier.fillMaxWidth(),
                 onMessageSent = { text ->
@@ -321,6 +347,10 @@ fun ChatScreenContentT(
                 },
                 onExpandRequest = {
                     onOpenDrawer()
+                },
+                onGenQueriesEnable = { enabled ->
+                    store.sendAction(ChatAction.ToggleGenQueries(enabled))
+                    Napier.d { "Toggle Gen Queries: $enabled" }
                 },
                 onMicrophoneClick = {
                     // Check for permission before launching
@@ -354,5 +384,7 @@ fun ChatScreenContentT(
                     }
                 })
         }
+
+
     }
 }

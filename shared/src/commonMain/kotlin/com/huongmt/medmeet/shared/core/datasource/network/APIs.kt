@@ -8,6 +8,8 @@ import com.huongmt.medmeet.shared.core.datasource.network.request.CreateConversa
 import com.huongmt.medmeet.shared.core.datasource.network.request.SendMessageRequest
 import com.huongmt.medmeet.shared.core.datasource.network.request.SignUpRequest
 import com.huongmt.medmeet.shared.core.datasource.network.request.UpdateHealthRequest
+import com.huongmt.medmeet.shared.core.datasource.network.request.UpdateProfileRequest
+import com.huongmt.medmeet.shared.core.datasource.network.response.AppNotificationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.AppointmentBookingResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicListResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ClinicResponse
@@ -20,6 +22,8 @@ import com.huongmt.medmeet.shared.core.datasource.network.response.MessageRespon
 import com.huongmt.medmeet.shared.core.datasource.network.response.PagingConsultationResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.PagingMedicalServiceResponse
 import com.huongmt.medmeet.shared.core.datasource.network.response.ProfileResponse
+import com.huongmt.medmeet.shared.core.datasource.network.response.RecommendAiQuery
+import com.huongmt.medmeet.shared.core.datasource.network.response.RecommendService
 import com.huongmt.medmeet.shared.core.datasource.network.response.UpdateHealthRecord
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -67,12 +71,25 @@ class APIs(private val httpClient: HttpClient) {
     suspend fun getProfileById(id: String): BaseResponse<ProfileResponse> =
         httpClient.get(BASE_URL + USER_API_ROUTE + id).body()
 
+    suspend fun updateProfile(id: String, request: UpdateProfileRequest): BaseResponse<ProfileResponse> =
+        httpClient.put("$BASE_URL$USER_API_ROUTE$id/update") {
+            setBody(request)
+        }.body()
+
+    suspend fun getAppNotification(userId: String): BaseResponse<List<AppNotificationResponse>> =
+        httpClient.get(BASE_URL + "notification/${userId}").body()
+
     suspend fun getHealthRecordByUserId(userId: String): BaseResponse<HealthRecordResponse> =
         httpClient.get("$BASE_URL$HEALTH_RECORD_API_ROUTE/$userId").body()
 
     suspend fun updateHealthRecord(userId: String, request: UpdateHealthRequest): BaseResponse<HealthRecordResponse> =
         httpClient.put("$BASE_URL$HEALTH_RECORD_API_ROUTE/$userId") {
             setBody(request)
+        }.body()
+
+    suspend fun updateProfile(updateProfileRequest: UpdateProfileRequest) : BaseResponse<ProfileResponse> =
+        httpClient.put(BASE_URL + USER_API_ROUTE + WholeApp.USER_ID + "/update") {
+            setBody(updateProfileRequest)
         }.body()
 
     suspend fun getClinics(
@@ -199,4 +216,10 @@ class APIs(private val httpClient: HttpClient) {
             )
         )
     }.body()
+
+    suspend fun getRecommendQuery(conversationId: String): BaseResponse<RecommendAiQuery> =
+        httpClient.post("${WholeApp.CHAT_BASE_URL}/api/conversations/$conversationId/recommend").body()
+
+    suspend fun getRecommendHealthService(conversationId: String): BaseResponse<RecommendService> =
+        httpClient.post("${WholeApp.CHAT_BASE_URL}/api/conversations/$conversationId/service-recommendations").body()
 }

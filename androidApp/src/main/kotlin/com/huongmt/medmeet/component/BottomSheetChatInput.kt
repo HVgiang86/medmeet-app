@@ -40,6 +40,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -60,8 +61,8 @@ fun ChatInputSection(
     textState: MutableState<TextFieldValue>? = null,
     onTextChange: (TextFieldValue) -> Unit = {},
     onMicrophoneClick: () -> Unit = {},
-    onReasonEnable: (Boolean) -> Unit = {},
-    onSearchEnable: (Boolean) -> Unit = {},
+    onGenQueriesEnable: (Boolean) -> Unit = {},
+    onRecommendEnable: (Boolean) -> Unit = {},
     enable: Boolean = true,
 ) {
     val temp = rememberSaveable(stateSaver = TextFieldValue.Saver) {
@@ -200,24 +201,13 @@ fun ChatInputSection(
                     ChatActionItem(
                         enable = enable,
                         actionIcon = ImageVector.vectorResource(R.drawable.ic_global_search),
-                        actionText = "Search",
+                        actionText = "Suggest",
                         onActionClick = {
-                            onSearchEnable(it)
+                            onGenQueriesEnable(it)
                         },
                         isToggleItem = true,
                     )
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    ChatActionItem(
-                        enable = enable,
-                        actionIcon = ImageVector.vectorResource(R.drawable.ic_lamp_on),
-                        actionText = "Reason",
-                        onActionClick = {
-                            onReasonEnable(it)
-                        },
-                        isToggleItem = true,
-                    )
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -228,11 +218,12 @@ fun ChatInputSection(
                         .align(Alignment.CenterVertically),
                 ) {
                     ChatActionItem(
-                        enable = enable,
+                        enable = true,
                         actionIcon = ImageVector.vectorResource(R.drawable.ic_microphone),
                         onActionClick = {
                             onMicrophoneClick()
                         },
+                        isToggleTrue =enable
                     )
 
                     if (inputState.value.text.isNotBlank()) {
@@ -277,8 +268,10 @@ fun RowScope.ChatActionItem(
     onActionClick: (Boolean) -> Unit = {},
     isToggleItem: Boolean = false,
     enable: Boolean = true,
+    isToggleTrue: Boolean = false,
 ) {
     val toggleState = rememberSaveable { mutableStateOf(false) }
+    toggleState.value = isToggleTrue
 
     val contentTintColor = if (isToggleItem) {
         if (toggleState.value) {
@@ -350,3 +343,4 @@ fun RowScope.ChatActionItem(
         }
     }
 }
+

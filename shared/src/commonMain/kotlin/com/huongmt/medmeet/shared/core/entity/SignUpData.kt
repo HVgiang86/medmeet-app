@@ -16,3 +16,14 @@ data class SignUpData(
     val commune: String,
     val address: String
 )
+
+data class UpdateProfileData(
+    val name: String,
+    val dob: LocalDate,
+    val gender: Gender,
+    val province: String,
+    val district: String,
+    val commune: String,
+    val address: String,
+    val phoneNumber: String
+)

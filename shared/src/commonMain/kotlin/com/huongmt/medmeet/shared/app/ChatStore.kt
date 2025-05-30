@@ -12,7 +12,10 @@ data class ChatState(
     val currentConversationId: String? = null,
     val isGenerating: Boolean = false,
     val isLoading: Boolean = false,
-    val error: Throwable? = null
+    val error: Throwable? = null,
+    val isGenQueriesEnabled: Boolean = true,
+    val recommendedQueries: List<String> = emptyList(),
+    val isLoadingQueries: Boolean = true
 ) : Store.State(loading = isLoading)
 
 sealed interface ChatAction : Store.Action {
@@ -67,6 +70,12 @@ sealed interface ChatAction : Store.Action {
     ) : ChatAction
 
     data object ClearError : ChatAction
+
+    data class ToggleGenQueries(val enabled: Boolean) : ChatAction
+
+    data class GetRecommendedQueries(val conversationId: String) : ChatAction
+
+    data class GetRecommendedQueriesSuccess(val queries: List<String>) : ChatAction
 }
 
 sealed interface ChatEffect : Store.Effect {
@@ -83,7 +92,10 @@ class ChatStore(
     ChatState(
         isGenerating = false,
         messages = emptyList(),
-        isLoading = false
+        isLoading = false,
+        isGenQueriesEnabled = true,
+        recommendedQueries = emptyList(),
+        isLoadingQueries = true
     )
 ) {
     override val onException: (Throwable) -> Unit
@@ -136,6 +148,11 @@ class ChatStore(
                         currentConversationId = action.conversationId
                     )
                 )
+                setEffect(ChatEffect.ScrollToBottom)
+
+                if (action.messages.isNotEmpty() && oldState.isGenQueriesEnabled) {
+                    sendAction(ChatAction.GetRecommendedQueries(action.conversationId))
+                }
             }
 
             is ChatAction.SendMessageSuccess -> {
@@ -148,6 +165,12 @@ class ChatStore(
                         isGenerating = false
                     )
                 )
+
+                oldState.currentConversationId?.let { conversationId ->
+                    if (oldState.isGenQueriesEnabled) {
+                        sendAction(ChatAction.GetRecommendedQueries(conversationId))
+                    }
+                }
             }
 
             is ChatAction.Error -> {
@@ -232,6 +255,24 @@ class ChatStore(
                     )
                 )
             }
+
+            is ChatAction.ToggleGenQueries -> {
+                setState(oldState.copy(isGenQueriesEnabled = action.enabled))
+                if (action.enabled && oldState.currentConversationId != null) {
+                    sendAction(ChatAction.GetRecommendedQueries(
+                        conversationId = oldState.currentConversationId
+                    ))
+                }
+            }
+
+            is ChatAction.GetRecommendedQueries -> {
+                getRecommendedQueries(conversationId = action.conversationId)
+            }
+
+            is ChatAction.GetRecommendedQueriesSuccess -> {
+                setState(oldState.copy(recommendedQueries = action.queries))
+                setEffect(ChatEffect.ScrollToBottom)
+            }
         }
     }
 
@@ -305,6 +346,16 @@ class ChatStore(
                 .collect { message ->
                     sendAction(ChatAction.SendMessageSuccess(message, conversationId))
                 }
+        }
+    }
+
+    private fun getRecommendedQueries(conversationId: String) {
+        runFlow (exception = coroutineExceptionHandler {
+
+        }) {
+            chatRepository.getRecommendAiQuery(conversationId).collect{
+                sendAction(ChatAction.GetRecommendedQueriesSuccess(it))
+            }
         }
     }
 }

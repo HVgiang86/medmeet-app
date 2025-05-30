@@ -23,6 +23,10 @@ interface ChatRepository {
     suspend fun createConversation(): Flow<Conversation>
 
     suspend fun deleteConversation(conversationId: String): Flow<Boolean>
+
+    suspend fun getRecommendAiQuery(conversationId: String): Flow<List<String>>
+
+    suspend fun getRecommendService(conversationId: String): Flow<List<String>>
 }
 
 class ChatRepositoryImpl(
@@ -68,4 +72,17 @@ class ChatRepositoryImpl(
         returnIfSuccess {
             api.deleteConversation(conversationId = conversationId)
         }
+
+    override suspend fun getRecommendAiQuery(conversationId: String): Flow<List<String>> =
+        flowContext(mapper = {
+            it.queries
+        }) {
+            api.getRecommendQuery(conversationId = conversationId)
+        }
+
+    override suspend fun getRecommendService(conversationId: String): Flow<List<String>> = flowContext(mapper = {
+        it.services
+    }) {
+        api.getRecommendHealthService(conversationId = conversationId)
+    }
 }

@@ -90,7 +90,7 @@ fun ProfileScreen(
             }
 
             ProfileEffect.NavigateUpdateProfile -> {
-
+                navigateTo(MainScreenDestination.ProfileDetail())
             }
 
             null -> {
@@ -205,7 +205,7 @@ fun ProfileScreen(
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_edit_profile),
                     title = "Edit Profile",
                     onClick = {
-
+                        store.sendAction(ProfileAction.NavigateUpdateProfile)
                     })
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_heart),

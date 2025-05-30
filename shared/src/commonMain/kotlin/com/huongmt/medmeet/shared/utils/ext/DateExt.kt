@@ -2,10 +2,13 @@ package com.huongmt.medmeet.shared.utils.ext
 
 import com.huongmt.medmeet.shared.config.YYYY_MM_DD
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 
 fun nowDate(): LocalDate {
@@ -26,6 +29,12 @@ fun LocalDateTime.toIso8601String(): String {
 fun LocalDate.toIso8601StringWithTime(): String {
     val dateString = "$year-${monthNumber.toString().padStart(2, '0')}-${dayOfMonth.toString().padStart(2, '0')}"
     return "${dateString}T00:00:00Z"
+}
+
+fun LocalDateTime.plusDate(date: Int): LocalDateTime {
+    val timeZone = TimeZone.of("UTC")
+
+    return this.toInstant(timeZone).plus(date, DateTimeUnit.DAY, timeZone).toLocalDateTime(timeZone)
 }
 
 /**
@@ -76,6 +85,30 @@ fun String.toLocalDateFromIso(): LocalDateTime? {
         e.printStackTrace()
         null
     }
+}
+
+fun LocalDateTime.toDMY(): String {
+    return "${this.dayOfMonth}/${this.monthNumber}/${this.year}"
+}
+
+fun LocalDate.toDMY(): String {
+    return "${this.dayOfMonth}/${this.monthNumber}/${this.year}"
+}
+
+fun LocalDateTime.toHMS(): String {
+    return "${this.hour.toString().padStart(2, '0')}:${
+        this.minute.toString().padStart(2, '0')
+    }:${this.second.toString().padStart(2, '0')}"
+}
+
+fun LocalDateTime.toHM(): String {
+    return "${this.hour.toString().padStart(2, '0')}:${this.minute.toString().padStart(2, '0')}"
+}
+
+fun LocalDateTime.toHMSDMY(): String {
+    return "${this.hour.toString().padStart(2, '0')}:${
+        this.minute.toString().padStart(2, '0')
+    }\n${this.dayOfMonth}/${this.monthNumber}"
 }
 
 fun Long.toLocalDate(): LocalDate {
