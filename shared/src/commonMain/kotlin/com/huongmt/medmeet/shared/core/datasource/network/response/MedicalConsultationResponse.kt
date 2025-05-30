@@ -9,7 +9,6 @@ import com.huongmt.medmeet.shared.core.maper.toClinic
 import com.huongmt.medmeet.shared.utils.ext.nowDateTime
 import com.huongmt.medmeet.shared.utils.ext.plusDate
 import com.huongmt.medmeet.shared.utils.ext.toLocalDateFromIso
-import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

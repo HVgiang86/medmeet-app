@@ -79,7 +79,8 @@ fun RecommendedQueriesOverlay(
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        itemsIndexed(queries) { index, query ->
+                        val data = queries.take(4)
+                        itemsIndexed(data) { index, query ->
                             Text(
                                 text = query,
                                 style = MaterialTheme.typography.bodyMedium,
@@ -91,7 +92,7 @@ fun RecommendedQueriesOverlay(
                             )
 
                             // Add divider between items except for the last one
-                            if (index < queries.size - 1) {
+                            if (index < data.size - 1) {
                                 HorizontalDivider(
                                     modifier = Modifier.padding(vertical = 4.dp),
                                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)

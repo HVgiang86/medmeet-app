@@ -1,13 +1,11 @@
 package com.huongmt.medmeet.shared.app
 
 import com.huongmt.medmeet.shared.base.Store
-import com.huongmt.medmeet.shared.core.entity.User
-import com.huongmt.medmeet.shared.core.datasource.network.request.UpdateProfileRequest
 import com.huongmt.medmeet.shared.core.entity.UpdateProfileData
+import com.huongmt.medmeet.shared.core.entity.User
 import com.huongmt.medmeet.shared.core.repository.UserRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
 
 data class ProfileDetailState(
     val isLoading: Boolean = false,
@@ -15,7 +13,7 @@ data class ProfileDetailState(
     val originalUser: User? = null,
     val avatarChanged: Boolean = false,
     val newAvatarUri: String? = null,
-    val enableSaveBtn: Boolean = false,
+    val enableSaveBtn: Boolean = false
 ) : Store.State(isLoading)
 
 sealed interface ProfileDetailAction : Store.Action {
@@ -58,11 +56,13 @@ class ProfileDetailStore(private val userRepository: UserRepository) :
 
             is ProfileDetailAction.GetUserSuccess -> {
                 Napier.d { "Get user success: ${action.user}" }
-                setState(oldState.copy(
-                    originalUser = action.user,
-                    isLoading = false,
-                    error = null
-                ))
+                setState(
+                    oldState.copy(
+                        originalUser = action.user,
+                        isLoading = false,
+                        error = null
+                    )
+                )
             }
 
             ProfileDetailAction.DismissError -> {
@@ -110,15 +110,15 @@ class ProfileDetailStore(private val userRepository: UserRepository) :
 
     private fun updateUserProfile(newProfile: UpdateProfileData) {
         runFlow {
-            userRepository.updateProfile(newProfile).collect{
+            userRepository.updateProfile(newProfile).collect {
                 sendAction(ProfileDetailAction.UpdateProfileSuccess)
             }
         }
     }
-    
+
     private fun updateAvatar(avatarUri: String) {
 //        setState(currentState.copy(isLoading = true))
-        
+
         // Mock implementation for now
         launch {
             try {

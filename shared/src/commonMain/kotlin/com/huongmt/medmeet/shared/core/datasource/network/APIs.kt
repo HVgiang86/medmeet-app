@@ -77,7 +77,7 @@ class APIs(private val httpClient: HttpClient) {
         }.body()
 
     suspend fun getAppNotification(userId: String): BaseResponse<List<AppNotificationResponse>> =
-        httpClient.get(BASE_URL + "notification/${userId}").body()
+        httpClient.get(BASE_URL + "notification/$userId").body()
 
     suspend fun getHealthRecordByUserId(userId: String): BaseResponse<HealthRecordResponse> =
         httpClient.get("$BASE_URL$HEALTH_RECORD_API_ROUTE/$userId").body()
@@ -87,7 +87,7 @@ class APIs(private val httpClient: HttpClient) {
             setBody(request)
         }.body()
 
-    suspend fun updateProfile(updateProfileRequest: UpdateProfileRequest) : BaseResponse<ProfileResponse> =
+    suspend fun updateProfile(updateProfileRequest: UpdateProfileRequest): BaseResponse<ProfileResponse> =
         httpClient.put(BASE_URL + USER_API_ROUTE + WholeApp.USER_ID + "/update") {
             setBody(updateProfileRequest)
         }.body()

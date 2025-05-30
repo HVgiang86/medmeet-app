@@ -5,6 +5,7 @@ import com.huongmt.medmeet.shared.core.entity.Conversation
 import com.huongmt.medmeet.shared.core.entity.Message
 import com.huongmt.medmeet.shared.core.repository.ChatRepository
 import com.huongmt.medmeet.shared.utils.ext.nowDateTime
+import io.github.aakira.napier.Napier
 
 data class ChatState(
     val messages: List<Message> = emptyList(),
@@ -257,11 +258,14 @@ class ChatStore(
             }
 
             is ChatAction.ToggleGenQueries -> {
+                Napier.d { "ToggleGenQueries: ${action.enabled}" }
                 setState(oldState.copy(isGenQueriesEnabled = action.enabled))
                 if (action.enabled && oldState.currentConversationId != null) {
-                    sendAction(ChatAction.GetRecommendedQueries(
-                        conversationId = oldState.currentConversationId
-                    ))
+                    sendAction(
+                        ChatAction.GetRecommendedQueries(
+                            conversationId = oldState.currentConversationId
+                        )
+                    )
                 }
             }
 
@@ -350,10 +354,11 @@ class ChatStore(
     }
 
     private fun getRecommendedQueries(conversationId: String) {
-        runFlow (exception = coroutineExceptionHandler {
-
-        }) {
-            chatRepository.getRecommendAiQuery(conversationId).collect{
+        runFlow(
+            exception = coroutineExceptionHandler {
+            }
+        ) {
+            chatRepository.getRecommendAiQuery(conversationId).collect {
                 sendAction(ChatAction.GetRecommendedQueriesSuccess(it))
             }
         }

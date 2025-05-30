@@ -22,18 +22,18 @@ data class AppNotificationResponse(
     val entityId: String? = null,
     val user: ProfileResponse? = null,
     val updatedByUser: ProfileResponse? = null,
-    val createdAt: String? = null,
+    val createdAt: String? = null
 ) {
     fun toAppNotification(): AppNotification {
-        val action = when(action?.lowercase()) {
+        val action = when (action?.lowercase()) {
             NotificationAction.CREATE.action.lowercase() -> NotificationAction.CREATE
             NotificationAction.UPDATE.action.lowercase() -> NotificationAction.UPDATE
             NotificationAction.DELETE.action.lowercase() -> NotificationAction.DELETE
             else -> null
         }
 
-        val entity = when(entity?.lowercase()) {
-            NotificationType.USER.route.lowercase()-> NotificationType.USER
+        val entity = when (entity?.lowercase()) {
+            NotificationType.USER.route.lowercase() -> NotificationType.USER
             NotificationType.HEALTH_RECORD.route.lowercase() -> NotificationType.HEALTH_RECORD
             NotificationType.OTHER.route.lowercase() -> NotificationType.OTHER
             NotificationType.MEDICAL_CONSULTATION_HISTORY.route.lowercase() -> NotificationType.MEDICAL_CONSULTATION_HISTORY
@@ -50,7 +50,7 @@ data class AppNotificationResponse(
             type = entity,
             entityId = entityId,
             updatedByUser = updatedByUser?.toUser(),
-            createdAt = createdTime,
+            createdAt = createdTime
         )
     }
 }

@@ -44,14 +44,14 @@ class UserRepositoryImpl(private val api: APIs, private val prefs: PrefsStorage)
     override suspend fun getMyProfile(): Flow<User> = flowContext(mapper = {
         it.toUser()
     }, block = {
-        api.getMyProfile()
-    })
+            api.getMyProfile()
+        })
 
     override suspend fun getProfileById(id: String) = flowContext(mapper = {
         it.toUser()
     }, block = {
-        api.getProfileById(id)
-    })
+            api.getProfileById(id)
+        })
 
     override suspend fun saveLocalUserId(userId: String) {
         prefs.putString(KEY_USER_ID, userId)

@@ -48,20 +48,20 @@ enum class NotificationType(val route: String) {
     USER("user"),
     HEALTH_RECORD("health_record"),
     MEDICAL_CONSULTATION_HISTORY("medical-consultation-history"),
-    OTHER("other"),
+    OTHER("other")
 }
 
 enum class NotificationAction(val action: String) {
     CREATE("CREATE"),
     UPDATE("UPDATE"),
-    DELETE("DELETE"),
+    DELETE("DELETE")
 }
 
-enum class NotificationDetailRoute{
+enum class NotificationDetailRoute {
     GoToUserProfile,
     GoToHealthRecord,
     GoToBookingDetail,
-    NoAction,
+    NoAction
 }
 
 fun getNotificationDetailRoute(type: NotificationType? = null, action: NotificationAction? = null): NotificationDetailRoute {

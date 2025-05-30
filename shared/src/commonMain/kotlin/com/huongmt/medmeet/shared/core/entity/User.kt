@@ -25,24 +25,24 @@ data class User(
 ) {
     fun compareTo(other: User): Boolean {
         val isSameDate = this.birthday?.year == other.birthday?.year &&
-                this.birthday?.monthNumber == other.birthday?.monthNumber &&
-                this.birthday?.dayOfMonth == other.birthday?.dayOfMonth
+            this.birthday?.monthNumber == other.birthday?.monthNumber &&
+            this.birthday?.dayOfMonth == other.birthday?.dayOfMonth
 
         return this.name == other.name &&
-                this.avatar == other.avatar &&
-                this.code == other.code &&
-                this.id == other.id &&
-                this.email == other.email &&
-                this.gender.value == other.gender.value &&
-                isSameDate &&
-                this.phoneNumber == other.phoneNumber &&
-                this.province == other.province &&
-                this.district == other.district &&
-                this.commune == other.commune &&
-                this.address == other.address &&
-                this.specialty == other.specialty &&
-                this.description == other.description &&
-                this.qualification == other.qualification
+            this.avatar == other.avatar &&
+            this.code == other.code &&
+            this.id == other.id &&
+            this.email == other.email &&
+            this.gender.value == other.gender.value &&
+            isSameDate &&
+            this.phoneNumber == other.phoneNumber &&
+            this.province == other.province &&
+            this.district == other.district &&
+            this.commune == other.commune &&
+            this.address == other.address &&
+            this.specialty == other.specialty &&
+            this.description == other.description &&
+            this.qualification == other.qualification
     }
 
     fun toDateUpdate(): UpdateProfileData {
@@ -54,8 +54,7 @@ data class User(
             district = district ?: "",
             commune = commune ?: "",
             address = address ?: "",
-            phoneNumber = phoneNumber ?: "",
+            phoneNumber = phoneNumber ?: ""
         )
-
     }
 }

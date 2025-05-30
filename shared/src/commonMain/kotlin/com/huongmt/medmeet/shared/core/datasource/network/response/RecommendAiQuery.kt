@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RecommendAiQuery(
     @SerialName("content")
-    val queries: List<String>,
+    val queries: List<String>
 )

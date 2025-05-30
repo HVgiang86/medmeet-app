@@ -97,7 +97,7 @@ fun LocalDate.toDMY(): String {
 
 fun LocalDateTime.toHMS(): String {
     return "${this.hour.toString().padStart(2, '0')}:${
-        this.minute.toString().padStart(2, '0')
+    this.minute.toString().padStart(2, '0')
     }:${this.second.toString().padStart(2, '0')}"
 }
 
@@ -107,7 +107,7 @@ fun LocalDateTime.toHM(): String {
 
 fun LocalDateTime.toHMSDMY(): String {
     return "${this.hour.toString().padStart(2, '0')}:${
-        this.minute.toString().padStart(2, '0')
+    this.minute.toString().padStart(2, '0')
     }\n${this.dayOfMonth}/${this.monthNumber}"
 }
 

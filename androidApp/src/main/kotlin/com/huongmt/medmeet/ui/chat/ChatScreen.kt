@@ -329,7 +329,7 @@ fun ChatScreenContentT(
             // Recommended queries overlay
             RecommendedQueriesOverlay(
                 queries = state.recommendedQueries,
-                visible = state.isGenQueriesEnabled && inputState.value.text.isEmpty(),
+                visible = state.isGenQueriesEnabled && inputState.value.text.isEmpty() && !state.isGenerating,
                 onQueryClick = { query ->
                     inputState.value = TextFieldValue(query)
                 },
@@ -338,16 +338,16 @@ fun ChatScreenContentT(
             )
 
             ChatInputSection(
-                enable = state.isGenQueriesEnabled,
+                genQueriesEnable = state.isGenQueriesEnabled,
                 textState = inputState,
                 modifier = Modifier.fillMaxWidth(),
                 onMessageSent = { text ->
                     Napier.d("Send message: $text")
                     store.sendAction(ChatAction.SendMessage(text, state.currentConversationId))
                 },
-                onExpandRequest = {
-                    onOpenDrawer()
-                },
+//                onExpandRequest = {
+//                    onOpenDrawer()
+//                },
                 onGenQueriesEnable = { enabled ->
                     store.sendAction(ChatAction.ToggleGenQueries(enabled))
                     Napier.d { "Toggle Gen Queries: $enabled" }

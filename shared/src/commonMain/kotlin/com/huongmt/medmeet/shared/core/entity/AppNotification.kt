@@ -11,5 +11,5 @@ data class AppNotification(
     val entityId: String? = null,
     val updatedByUser: User? = null,
     val createdAt: LocalDateTime? = null,
-    val content: String? = null,
+    val content: String? = null
 )

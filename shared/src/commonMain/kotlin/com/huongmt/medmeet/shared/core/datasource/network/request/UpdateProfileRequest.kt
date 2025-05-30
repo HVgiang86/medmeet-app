@@ -12,5 +12,5 @@ data class UpdateProfileRequest(
     val district: String? = null,
     val commune: String? = null,
     val address: String? = null,
-    val phoneNumber: String? = null,
+    val phoneNumber: String? = null
 )

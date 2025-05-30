@@ -99,17 +99,18 @@ class NotificationStore(
     }
 
     private fun getNotificationContent(notifications: List<AppNotification>) {
-        runFlow (exception = coroutineExceptionHandler {
-
-        }) {
+        runFlow(
+            exception = coroutineExceptionHandler {
+            }
+        ) {
             notifications.forEach { notification ->
                 val content = notification.content
                 if (content == null) {
                     when (notification.type) {
                         NotificationType.MEDICAL_CONSULTATION_HISTORY -> {
                             if (notification.entityId != null) {
-                                bookingRepository.getBookingDetail(notification.entityId).collect{ booking ->
-                                    when(notification.action) {
+                                bookingRepository.getBookingDetail(notification.entityId).collect { booking ->
+                                    when (notification.action) {
                                         NotificationAction.CREATE -> {
                                             val contentStr = "Booking ${booking.medicalServiceName} at ${booking.clinicSchedule.startTime.toHM()}"
                                             sendAction(NotificationUiAction.GetNotificationContentSuccess(notification.id, contentStr))

@@ -6,6 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RecommendService(
     @SerialName("recommended_service_ids")
-    val services: List<String>,
+    val services: List<String>
 )
-

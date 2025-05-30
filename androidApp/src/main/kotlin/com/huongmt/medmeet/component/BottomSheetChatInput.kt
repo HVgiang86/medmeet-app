@@ -56,14 +56,13 @@ import io.github.aakira.napier.Napier
 fun ChatInputSection(
     modifier: Modifier = Modifier,
     onMessageSent: (String) -> Unit = {},
-    onExpandRequest: (String) -> Unit = {},
     resetScroll: () -> Unit = {},
     textState: MutableState<TextFieldValue>? = null,
     onTextChange: (TextFieldValue) -> Unit = {},
     onMicrophoneClick: () -> Unit = {},
     onGenQueriesEnable: (Boolean) -> Unit = {},
-    onRecommendEnable: (Boolean) -> Unit = {},
     enable: Boolean = true,
+    genQueriesEnable: Boolean = true,
 ) {
     val temp = rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(""))
@@ -191,23 +190,23 @@ fun ChatInputSection(
                         .wrapContentSize()
                         .align(Alignment.CenterVertically),
                 ) {
-                    ChatActionItem(
-                        enable = enable,
-                        actionIcon = Icons.Default.Add,
-                        onActionClick = {})
+//                    ChatActionItem(
+//                        enable = enable,
+//                        actionIcon = Icons.Default.Add,
+//                        onActionClick = {})
+//
+//                    Spacer(modifier = Modifier.width(8.dp))
 
-                    Spacer(modifier = Modifier.width(8.dp))
-
                     ChatActionItem(
-                        enable = enable,
+                        enable = true,
                         actionIcon = ImageVector.vectorResource(R.drawable.ic_global_search),
                         actionText = "Suggest",
                         onActionClick = {
                             onGenQueriesEnable(it)
                         },
-                        isToggleItem = true,
+                        isToggleTrue = genQueriesEnable,
+                        isToggleItem = true
                     )
-
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
@@ -270,11 +269,12 @@ fun RowScope.ChatActionItem(
     enable: Boolean = true,
     isToggleTrue: Boolean = false,
 ) {
-    val toggleState = rememberSaveable { mutableStateOf(false) }
-    toggleState.value = isToggleTrue
+//    val toggleState = rememberSaveable { mutableStateOf(false) }
+//    toggleState.value = isToggleTrue
+    Napier.d { "ChatActionItem: isToggleTrue = $isToggleTrue" }
 
     val contentTintColor = if (isToggleItem) {
-        if (toggleState.value) {
+        if (isToggleTrue) {
             MaterialTheme.colorScheme.primary
         } else {
             LocalContentColor.current
@@ -285,7 +285,7 @@ fun RowScope.ChatActionItem(
 
     val containerColor = if (isToggleItem) {
         Light_Teal
-        if (toggleState.value) {
+        if (isToggleTrue) {
             Light_Teal
         } else {
             Color.White
@@ -307,10 +307,11 @@ fun RowScope.ChatActionItem(
             )
             .align(Alignment.CenterVertically)
             .clickable(enabled = enable) {
-                if (isToggleItem) {
-                    toggleState.value = !toggleState.value
-                }
-                onActionClick(toggleState.value)
+//                if (isToggleItem) {
+//                    toggleState.value = !toggleState.value
+//                }
+
+                onActionClick(!isToggleTrue)
             },
     ) {
         Box(
