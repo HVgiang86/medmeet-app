@@ -97,7 +97,7 @@ private fun ConfirmBookingContent(
                     .wrapContentHeight()
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                text = "Confirm Booking",
+                text = "Xác nhận đặt lịch khám",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -128,7 +128,7 @@ private fun ConfirmBookingContent(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "APPOINTMENT TICKET",
+                            text = "Phiếu khám",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.align(Alignment.Center),
@@ -198,7 +198,7 @@ private fun ConfirmBookingContent(
                     )
                 }, text = {
                     Text(
-                        text = "Back",
+                        text = "Quay lại",
                         style = MaterialTheme.typography.labelLarge,
                         color = Color.Black
                     )
@@ -210,7 +210,7 @@ private fun ConfirmBookingContent(
                     store.sendAction(BookingAction.ConfirmBooking)
                 }, text = {
                     Text(
-                        text = "Confirm",
+                        text = "Xác nhận",
                         style = MaterialTheme.typography.labelLarge,
                         color = Color.White
                     )
@@ -305,7 +305,7 @@ private fun BookingInfoSection(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "DATE",
+                text = "Ngày",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -318,7 +318,7 @@ private fun BookingInfoSection(
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = "TIME",
+                text = "Giờ",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -337,7 +337,7 @@ private fun PatientInfoSection(patient: PatientInfo) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Patient Information",
+            text = "Thông tin bênh nhân",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -437,7 +437,7 @@ private fun PatientInfoSection(patient: PatientInfo) {
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Reason for visit:",
+                text = "Lý do khám:",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium
             )
@@ -459,7 +459,7 @@ private fun PriceSection(
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Payment",
+            text = "Thanh toán",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -470,7 +470,7 @@ private fun PriceSection(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Consultation Fee", style = MaterialTheme.typography.bodyLarge
+                text = "Chi phí khám", style = MaterialTheme.typography.bodyLarge
             )
             Text(
                 text = price.toDouble().formatPrice(),
@@ -483,7 +483,7 @@ private fun PriceSection(
 
         // Payment method selection
         Text(
-            text = "Payment Method",
+            text = "Phương thức thanh toán",
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Medium
         )
@@ -506,41 +506,41 @@ private fun PriceSection(
             Spacer(modifier = Modifier.width(8.dp))
 
             Text(
-                text = "Cash", style = MaterialTheme.typography.bodyLarge
+                text = "Tiền mặt", style = MaterialTheme.typography.bodyLarge
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // VNPAY option
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = false) { onPaymentMethodSelected(PaymentMethod.VNPAY) }
-            .border(
-                width = 1.dp,
-                color = if (selectedPaymentMethod == PaymentMethod.VNPAY) MaterialTheme.colorScheme.primary else Grey_200,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-            RadioButton(selected = selectedPaymentMethod == PaymentMethod.VNPAY,
-                enabled = false,
-                onClick = { onPaymentMethodSelected(PaymentMethod.VNPAY) })
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = "VNPAY", style = MaterialTheme.typography.bodyLarge
-            )
-
-            Spacer(modifier = Modifier.width(4.dp))
-
-            Icon(
-                imageVector = IC_BANK,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
-            )
-        }
+//        Spacer(modifier = Modifier.height(8.dp))
+//
+//        // VNPAY option
+//        Row(modifier = Modifier
+//            .fillMaxWidth()
+//            .clickable(enabled = false) { onPaymentMethodSelected(PaymentMethod.VNPAY) }
+//            .border(
+//                width = 1.dp,
+//                color = if (selectedPaymentMethod == PaymentMethod.VNPAY) MaterialTheme.colorScheme.primary else Grey_200,
+//                shape = RoundedCornerShape(8.dp)
+//            )
+//            .padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
+//            RadioButton(selected = selectedPaymentMethod == PaymentMethod.VNPAY,
+//                enabled = false,
+//                onClick = { onPaymentMethodSelected(PaymentMethod.VNPAY) })
+//
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            Text(
+//                text = "VNPAY", style = MaterialTheme.typography.bodyLarge
+//            )
+//
+//            Spacer(modifier = Modifier.width(4.dp))
+//
+//            Icon(
+//                imageVector = IC_BANK,
+//                contentDescription = null,
+//                tint = MaterialTheme.colorScheme.primary,
+//                modifier = Modifier.size(20.dp)
+//            )
+//        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -551,7 +551,7 @@ private fun PriceSection(
                 .padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "Total",
+                text = "Tổng",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold
             )

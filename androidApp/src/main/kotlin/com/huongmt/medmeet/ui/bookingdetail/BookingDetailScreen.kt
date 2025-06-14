@@ -134,7 +134,7 @@ fun BookingDetailContent(
                 }
 
                 Text(
-                    text = "Appointment Detail",
+                    text = "Thông tin chi tiết cuộc hẹn",
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -359,7 +359,7 @@ fun DoctorInfoSection(doctor: User?) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Appointment details",
+            text = "Thông tin chi tiết cuộc hẹn",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -494,7 +494,7 @@ fun AppointmentDetailsSection(booking: MedicalConsultationHistory) {
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
-            }, label = "Date:", value = booking.examinationDate?.toDMY() ?: "-"
+            }, label = "ngày:", value = booking.examinationDate?.toDMY() ?: "-"
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -508,7 +508,7 @@ fun AppointmentDetailsSection(booking: MedicalConsultationHistory) {
                     tint = MaterialTheme.colorScheme.primary
                 )
             },
-            label = "Time:",
+            label = "Giờ:",
             value = "${booking.clinicSchedule.startTime.toHM()} - ${booking.clinicSchedule.endTime.toHM()}"
         )
 
@@ -516,7 +516,7 @@ fun AppointmentDetailsSection(booking: MedicalConsultationHistory) {
 
         // Visit Reason
         Text(
-            text = "Visit Reason",
+            text = "Lý do khám",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -537,7 +537,7 @@ fun ExaminationResultsSection(booking: MedicalConsultationHistory) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Examination Results",
+            text = "Kết quả khám",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )
@@ -603,7 +603,7 @@ fun ReExaminationCalendarSection(booking: MedicalConsultationHistory) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Text(
-            text = "Re-Examination Calendar",
+            text = "Lịch tái khám",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold
         )

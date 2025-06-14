@@ -96,7 +96,7 @@ class NotificationScreen(
                         .wrapContentHeight()
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally),
-                    text = "Notification",
+                    text = "Thông báo",
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.Black,
                     textAlign = TextAlign.Center,
@@ -107,7 +107,7 @@ class NotificationScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(32.dp),
-                        text = "No notifications found"
+                        text = "Không tìm thấy thông báo nào"
                     )
                 } else {
                     LazyColumn(
@@ -198,7 +198,7 @@ fun NotificationItem(notification: AppNotification, onClick: () -> Unit) {
                 if (!isMe && notification.updatedByUser != null) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "by $updatedByName",
+                        text = "bởi $updatedByName",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -222,25 +222,25 @@ fun getNotificationTitle(notification: AppNotification): String {
     return when (notification.type) {
         NotificationType.USER -> when (notification.action) {
             null -> "User Notification"
-            else -> "Updated user profile"
+            else -> "Cập nhật hồ sơ"
         }
         NotificationType.HEALTH_RECORD -> "Health Record Update"
         NotificationType.MEDICAL_CONSULTATION_HISTORY -> {
             when (notification.action) {
                 NotificationAction.CREATE -> {
-                    "Booking appointment successfully"
+                    "Đặt khám thành công"
                 }
                 NotificationAction.UPDATE -> {
-                    "Booking appointment updated"
+                    "Đã cập nhật lịch khám"
                 }
                 NotificationAction.DELETE -> {
-                    "Booking appointment deleted"
+                    "Đã hủy lịch khám"
                 }
                 null -> {
-                    "Booking appointment notification"
+                    "Thông báo"
                 }
             }
         }
-        NotificationType.OTHER, null -> "Notification"
+        NotificationType.OTHER, null -> "Thông báo"
     }
 }

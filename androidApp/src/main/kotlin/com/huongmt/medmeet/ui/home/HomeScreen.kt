@@ -138,7 +138,7 @@ fun HomeScreen(
                                         .wrapContentHeight()
                                         .wrapContentHeight()
                                         .padding(horizontal = 24.dp),
-                                    text = "No clinic found!"
+                                    text = "Không tìm thấy phòng khám!"
                                 )
                             }
                         }
@@ -198,7 +198,7 @@ fun HeaderView(
                     Spacer(modifier = Modifier.height(4.dp))
 
                     Text(
-                        text = "Have a nice day 😘",
+                        text = "Chúc bạn một ngày tốt lành 😘",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Grey_500,
                         maxLines = 2
@@ -217,7 +217,7 @@ fun HeaderView(
                         openConfirmChatBotSheet.value = true
                     }, text = {
                         Text(
-                            "A.I Advisor",
+                            "Trợ lý A.I",
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.White
                         )
@@ -270,7 +270,7 @@ fun HeaderView(
                     .fillMaxWidth()
                     .wrapContentHeight()
                     .padding(horizontal = 24.dp),
-                text = "No schedule found!"
+                text = "Không có lịch trình nào!"
             )
         }
 
@@ -294,7 +294,7 @@ fun HorizontalScheduleView(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Schedule", style = MaterialTheme.typography.titleMedium)
+        Text("Lịch khám", style = MaterialTheme.typography.titleMedium)
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -316,13 +316,13 @@ fun ClinicListLabel(modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Clinic", style = MaterialTheme.typography.titleMedium)
-            Text("See all",
-                style = MaterialTheme.typography.titleMedium,
-                color = Grey_500,
-                modifier = Modifier.clickable {
-
-                })
+            Text("Tìm phòng khám", style = MaterialTheme.typography.titleMedium)
+//            Text("Xem thêm",
+//                style = MaterialTheme.typography.titleMedium,
+//                color = Grey_500,
+//                modifier = Modifier.clickable {
+//
+//                })
         }
     }
 }
@@ -395,15 +395,15 @@ fun HeaderRow(title: String, onShowMoreClicked: () -> Unit = {}) {
             style = MaterialTheme.typography.titleMedium,
             color = Color.Black
         )
-        Text(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .clickable {
-                    onShowMoreClicked()
-                },
-            text = "Xem thêm",
-            style = MaterialTheme.typography.titleSmall,
-            color = Color.Gray
-        )
+//        Text(
+//            modifier = Modifier
+//                .align(Alignment.CenterEnd)
+//                .clickable {
+//                    onShowMoreClicked()
+//                },
+//            text = "Xem thêm",
+//            style = MaterialTheme.typography.titleSmall,
+//            color = Color.Gray
+//        )
     }
 }

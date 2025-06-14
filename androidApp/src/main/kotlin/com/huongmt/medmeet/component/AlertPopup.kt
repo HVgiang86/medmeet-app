@@ -17,7 +17,7 @@ import com.huongmt.medmeet.shared.base.ErrorException
 
 @Composable
 fun SuccessDialog(
-    title: String = "Success",
+    title: String = "Thành công",
     content: String,
     state: MutableState<Boolean>,
     cancelable: Boolean = false,
@@ -45,7 +45,7 @@ fun SuccessDialog(
 
 @Composable
 fun SuccessDialog(
-    title: String = "Success",
+    title: String = "Thành công",
     content: String,
     cancelable: Boolean = false,
     onCanceled: (() -> Unit) = {},
@@ -68,7 +68,7 @@ fun SuccessDialog(
 
 @Composable
 fun FailDialog(
-    title: String = "Fail",
+    title: String = "Thất bại",
     content: String,
     state: MutableState<Boolean>,
     cancelable: Boolean = true,
@@ -96,7 +96,7 @@ fun FailDialog(
 
 @Composable
 fun FailDialog(
-    title: String = "Fail",
+    title: String = "Thất bại",
     content: String,
     cancelable: Boolean = true,
     onCanceled: (() -> Unit) = {},
@@ -147,7 +147,7 @@ fun ErrorDialog(
             when (val error = throwable.error) {
                 BaseError.ConnectionTimeout -> {
                     title = "Không thành công"
-                    message = "Connection time out!"
+                    message = "Không thể kết nối!"
                 }
 
                 is BaseError.HttpError -> {
@@ -162,7 +162,7 @@ fun ErrorDialog(
 
                 BaseError.NetworkError -> {
                     title = "Không thành công"
-                    message = "Network error!"
+                    message = "Lỗi mạng!"
                 }
 
                 BaseError.ServerError -> {

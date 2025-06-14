@@ -69,7 +69,7 @@ fun RecommendedQueriesOverlay(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Suggested Questions",
+                        text = "Câu hỏi được đề xuất",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,

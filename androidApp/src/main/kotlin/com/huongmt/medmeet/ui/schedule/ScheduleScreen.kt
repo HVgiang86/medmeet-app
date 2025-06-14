@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -77,6 +78,10 @@ fun ScheduleScreen(
     LaunchedEffect(effect) {
         when (effect) {
             ScheduleEffect.NavigateBack -> navigateBack()
+            is ScheduleEffect.ShowCancelSuccess -> {
+                // You can show a toast or snackbar here
+                // For now, just dismiss the effect
+            }
             null -> {}
         }
     }
@@ -106,7 +111,7 @@ fun ScheduleScreen(
                     .wrapContentHeight()
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                text = "My Bookings",
+                text = "Lịch khám của tôi",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -125,7 +130,11 @@ fun ScheduleScreen(
                 },
                 onAppointmentClick = { appointmentId ->
                     navigateTo?.invoke(MainScreenDestination.BookingDetail(appointmentId))
-                }
+                },
+                onCancelClick = { appointmentId ->
+                    store.sendAction(ScheduleAction.CancelAppointment(appointmentId))
+                },
+                isCanceling = state.isCanceling
             )
         }
     }
@@ -159,8 +168,14 @@ private fun ScheduleTabs(
                         ScheduleTab.CANCELED -> state.numberOfCanceled
                     }
 
+                    val nameDisplay = when (tab) {
+                        ScheduleTab.UPCOMING -> "Đang chờ"
+                        ScheduleTab.COMPLETED -> "Đã khám"
+                        ScheduleTab.CANCELED -> "Đã hủy"
+                    }
+
                     Text(
-                        text = tab.name.lowercase().replaceFirstChar { it.uppercase() },
+                        text = nameDisplay,
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = if (selectedTab == tab) FontWeight.SemiBold else FontWeight.Normal
                         )
@@ -193,7 +208,9 @@ private fun ScheduleTabs(
 private fun AppointmentsList(
     appointments: List<MedicalConsultationHistory>,
     onDownloadClick: (String) -> Unit,
-    onAppointmentClick: (String) -> Unit
+    onAppointmentClick: (String) -> Unit,
+    onCancelClick: (String) -> Unit,
+    isCanceling: Boolean
 ) {
     LazyColumn(
         modifier = Modifier
@@ -214,7 +231,9 @@ private fun AppointmentsList(
             AppointmentCard(
                 appointment = appointment,
                 onDownloadClick = { onDownloadClick(appointment.id) },
-                onClick = { onAppointmentClick(appointment.id) }
+                onClick = { onAppointmentClick(appointment.id) },
+                onCancelClick = { onCancelClick(appointment.id) },
+                isCanceling = isCanceling
             )
         }
     }
@@ -224,7 +243,9 @@ private fun AppointmentsList(
 private fun AppointmentCard(
     appointment: MedicalConsultationHistory,
     onDownloadClick: () -> Unit,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    isCanceling: Boolean
 ) {
     Card(
         modifier = Modifier
@@ -348,17 +369,31 @@ private fun AppointmentCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                // Download button only for completed appointments
-                if (appointment.status == MedicalRecordStatus.COMPLETED) {
+                // Cancel button for pending appointments
+                if (appointment.status == MedicalRecordStatus.PENDING) {
                     PrimaryButton(
-                        onClick = onDownloadClick,
+                        onClick = onCancelClick,
                         modifier = Modifier.wrapContentSize(),
                         text = {
-                            Text(
-                                text = "Tái khám", style = MaterialTheme.typography.bodyMedium
-                            )
-                        })
+                                Text(
+                                    text = "Hủy lịch",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                        }
+                    )
                 }
+
+//                // Download button only for completed appointments
+//                if (appointment.status == MedicalRecordStatus.COMPLETED) {
+//                    PrimaryButton(
+//                        onClick = onDownloadClick,
+//                        modifier = Modifier.wrapContentSize(),
+//                        text = {
+//                            Text(
+//                                text = "Tái khám", style = MaterialTheme.typography.bodyMedium
+//                            )
+//                        })
+//                }
             }
         }
     }

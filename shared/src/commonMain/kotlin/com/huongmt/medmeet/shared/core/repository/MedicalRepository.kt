@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface MedicalRepository {
     suspend fun getMedicalConsultations(): Flow<List<MedicalConsultationHistory>>
     suspend fun getMedicalServices(clinicId: String): Flow<List<MedicalService>>
+    suspend fun cancelAppointment(appointmentId: String): Flow<String>
 }
 
 class MedicalRepositoryImpl(
@@ -32,5 +33,12 @@ class MedicalRepositoryImpl(
             } ?: emptyList()
         }) {
             api.getMedicalServices(clinicId)
+        }
+
+    override suspend fun cancelAppointment(appointmentId: String): Flow<String> =
+        flowContext(mapper = {
+            it.id
+        }) {
+            api.cancelAppointment(appointmentId)
         }
 }

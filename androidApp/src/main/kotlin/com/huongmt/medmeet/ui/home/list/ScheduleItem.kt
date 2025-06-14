@@ -142,15 +142,15 @@ fun ScheduleItem(
                     )
                 }, modifier = Modifier.weight(1f), shape = CardShapeDefault)
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                PrimaryButton(onClick = {
-
-                }, text = {
-                    Text(
-                        text = "Edit", maxLines = 1, overflow = TextOverflow.Ellipsis
-                    )
-                }, modifier = Modifier.weight(1f), shape = CardShapeDefault)
+//                Spacer(modifier = Modifier.width(16.dp))
+//
+//                PrimaryButton(onClick = {
+//
+//                }, text = {
+//                    Text(
+//                        text = "Edit", maxLines = 1, overflow = TextOverflow.Ellipsis
+//                    )
+//                }, modifier = Modifier.weight(1f), shape = CardShapeDefault)
             }
         }
     }

@@ -13,6 +13,7 @@ interface PrefsStorage {
         const val KEY_CHAT_URL = "CHAT_URL"
         const val KEY_BACKEND_URL = "BACKEND_URL"
         const val KEY_ORDER_INFO = "KEY_ORDER_INFO"
+        const val KEY_LANGUAGE = "KEY_LANGUAGE"
     }
 
     suspend fun getString(

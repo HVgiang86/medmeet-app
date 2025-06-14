@@ -26,6 +26,8 @@ import com.huongmt.medmeet.shared.app.ScheduleStore
 import com.huongmt.medmeet.shared.app.BookingStore
 import com.huongmt.medmeet.shared.app.BookingDetailStore
 import com.huongmt.medmeet.shared.app.HealthRecordStore
+import com.huongmt.medmeet.shared.app.LanguageStore
+import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorage
 import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.ui.booking.BookingScreen
 import com.huongmt.medmeet.ui.bookingdetail.BookingDetailScreen
@@ -65,6 +67,7 @@ interface MainScreenDestination {
 
     object Notification : Screen, TopLevelScreenDestination, KoinComponent {
         @Composable
+
         override fun Content() {
             val navigator = LocalNavigator.currentOrThrow
             NotificationScreen(navigateBack = {
@@ -92,15 +95,11 @@ interface MainScreenDestination {
         override fun Content() {
             val navigator = LocalNavigator.currentOrThrow
             val store: ScheduleStore by inject()
-            ScheduleScreen(
-                store = store,
-                navigateBack = {
-                    navigator.pop()
-                },
-                navigateTo = { destination ->
-                    navigator.navigate(destination)
-                }
-            )
+            ScheduleScreen(store = store, navigateBack = {
+                navigator.pop()
+            }, navigateTo = { destination ->
+                navigator.navigate(destination)
+            })
         }
     }
 
@@ -109,13 +108,10 @@ interface MainScreenDestination {
         override fun Content() {
             val navigator = LocalNavigator.currentOrThrow
             val store: HealthRecordStore by inject()
-            
-            HealthRecordScreen(
-                store = store,
-                navigateBack = {
-                    navigator.pop()
-                }
-            )
+
+            HealthRecordScreen(store = store, navigateBack = {
+                navigator.pop()
+            })
         }
     }
 
@@ -123,12 +119,19 @@ interface MainScreenDestination {
         @Composable
         override fun Content() {
             val store: ProfileStore by inject()
+            val languageStore: LanguageStore by inject()
+            val prefsStorage: PrefsStorage by inject()
             val navigator = LocalNavigator.currentOrThrow
-            ProfileScreen(store = store, navigateTo = {
-                navigator.navigate(it)
-            }, onLogout = {
-                onLogout()
-            })
+            ProfileScreen(
+                store = store,
+                languageStore = languageStore,
+                prefsStorage = prefsStorage,
+                navigateTo = {
+                    navigator.navigate(it)
+                },
+                onLogout = {
+                    onLogout()
+                })
         }
     }
 
@@ -136,19 +139,19 @@ interface MainScreenDestination {
         @Composable
         override fun Content() {
             val navigator = LocalNavigator.currentOrThrow
-//            ProfileDetailScreen().Content()
-            FailDialog(
-                title = "Error",
-                content = "Trang này đang tạm khoá!",
-                cancelable = true,
-                onCanceled = {
-                    navigator.pop()
-                },
-                onBtnClick = {
-                    navigator.pop()
-                },
-                btnText = "OK"
-            )
+            ProfileDetailScreen().Content()
+//            FailDialog(
+//                title = "Error",
+//                content = "Trang này đang tạm khoá!",
+//                cancelable = true,
+//                onCanceled = {
+//                    navigator.pop()
+//                },
+//                onBtnClick = {
+//                    navigator.pop()
+//                },
+//                btnText = "Đồng ý"
+//            )
         }
     }
 
@@ -181,7 +184,8 @@ interface MainScreenDestination {
         }
     }
 
-    class BookingDetail(private val bookingId: String) : Screen, MainScreenDestination, KoinComponent {
+    class BookingDetail(private val bookingId: String) : Screen, MainScreenDestination,
+        KoinComponent {
         @Composable
         override fun Content() {
             val navigator = LocalNavigator.currentOrThrow

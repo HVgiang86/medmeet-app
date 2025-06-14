@@ -158,7 +158,7 @@ private fun PatientInfoContent(
                     .wrapContentHeight()
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                text = "Patient Information",
+                text = "Thông tin bệnh nhân",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -172,7 +172,7 @@ private fun PatientInfoContent(
                     .wrapContentHeight()
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                text = "Please fill in the information below",
+                text = "Vui lòng điền thông tin bên dưới",
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -181,7 +181,7 @@ private fun PatientInfoContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Name",
+                text = "Tên",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -225,7 +225,7 @@ private fun PatientInfoContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Phone number",
+                text = "Số điện thoại",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -253,7 +253,7 @@ private fun PatientInfoContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Date of birth",
+                text = "Ngày sinh",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -300,7 +300,7 @@ private fun PatientInfoContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Gender",
+                text = "Giới tính",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -346,7 +346,7 @@ private fun PatientInfoContent(
             Spacer(Modifier.height(24.dp))
 
             Text(
-                text = "Province",
+                text = "Tỉnh/Thành phố",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -363,7 +363,7 @@ private fun PatientInfoContent(
             Spacer(Modifier.height(24.dp))
 
             Text(
-                text = "District",
+                text = "Quận/Huyện",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -379,7 +379,7 @@ private fun PatientInfoContent(
             Spacer(Modifier.height(24.dp))
 
             Text(
-                text = "Commune",
+                text = "Phường/Xã",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -396,7 +396,7 @@ private fun PatientInfoContent(
             Spacer(Modifier.height(24.dp))
 
             Text(
-                text = "Address",
+                text = "Địa chỉ",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -414,7 +414,7 @@ private fun PatientInfoContent(
             Spacer(Modifier.height(24.dp))
 
             Text(
-                text = "Examination Reason",
+                text = "Lý do khám",
                 style = MaterialTheme.typography.titleMedium,
                 color = Color.Black,
             )
@@ -448,7 +448,7 @@ private fun PatientInfoContent(
                 )
             }, text = {
                 Text(
-                    text = "Back", style = MaterialTheme.typography.labelLarge, color = Color.Black
+                    text = "Quay lại", style = MaterialTheme.typography.labelLarge, color = Color.Black
                 )
             })
 
@@ -478,7 +478,7 @@ private fun PatientInfoContent(
                 )
             }, text = {
                 Text(
-                    text = "Next", style = MaterialTheme.typography.labelLarge, color = Color.White
+                    text = "Tiếp theo", style = MaterialTheme.typography.labelLarge, color = Color.White
                 )
             })
         }

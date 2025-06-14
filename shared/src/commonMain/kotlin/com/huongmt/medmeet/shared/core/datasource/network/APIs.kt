@@ -29,11 +29,16 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.forms.FormDataContent
+import io.ktor.client.request.forms.formData
+import io.ktor.client.request.forms.submitFormWithBinaryData
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
+import io.ktor.http.Headers
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.http.Parameters
 
 class APIs(private val httpClient: HttpClient) {
@@ -92,6 +97,19 @@ class APIs(private val httpClient: HttpClient) {
             setBody(updateProfileRequest)
         }.body()
 
+    suspend fun updateAvatar(userId: String, fileData: ByteArray, fileName: String, mimeType: String = "image/jpeg"): BaseResponse<ProfileResponse> =
+        httpClient.submitFormWithBinaryData(
+            url = "$BASE_URL$USER_API_ROUTE$userId/update-avatar",
+            formData = formData {
+                append("file", fileData, Headers.build {
+                    append(HttpHeaders.ContentType, mimeType)
+                    append(HttpHeaders.ContentDisposition, "filename=\"$fileName\"")
+                })
+            }
+        ) {
+            method = HttpMethod.Put
+        }.body()
+
     suspend fun getClinics(
         name: String? = null,
         address: String? = null,
@@ -143,6 +161,9 @@ class APIs(private val httpClient: HttpClient) {
         httpClient.post("${BASE_URL}medical-consultation-history") {
             setBody(bookingRequest)
         }.body()
+
+    suspend fun cancelAppointment(appointmentId: String): BaseResponse<AppointmentBookingResponse> =
+        httpClient.put("${BASE_URL}medical-consultation-history/$appointmentId/cancel").body()
 
     suspend fun getMedicalServiceSchedule(
         medicalServiceId: String,

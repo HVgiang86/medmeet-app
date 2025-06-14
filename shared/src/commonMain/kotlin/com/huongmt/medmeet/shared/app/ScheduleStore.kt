@@ -14,7 +14,8 @@ data class ScheduleState(
     val selectedTab: ScheduleTab = ScheduleTab.UPCOMING,
     val numberOfPending: Int = 0,
     val numberOfCompleted: Int = 0,
-    val numberOfCanceled: Int = 0
+    val numberOfCanceled: Int = 0,
+    val isCanceling: Boolean = false
 ) : Store.State(loading = isLoading)
 
 enum class ScheduleTab {
@@ -33,10 +34,14 @@ sealed class ScheduleAction : Store.Action {
 
     data class SelectTab(val tab: ScheduleTab) : ScheduleAction()
     data object NavigateBack : ScheduleAction()
+    
+    data class CancelAppointment(val appointmentId: String) : ScheduleAction()
+    data class CancelAppointmentSuccess(val appointmentId: String) : ScheduleAction()
 }
 
 sealed class ScheduleEffect : Store.Effect {
     data object NavigateBack : ScheduleEffect()
+    data class ShowCancelSuccess(val message: String) : ScheduleEffect()
 }
 
 class ScheduleStore(
@@ -123,6 +128,26 @@ class ScheduleStore(
             is ScheduleAction.NavigateBack -> {
                 setEffect(ScheduleEffect.NavigateBack)
             }
+
+            is ScheduleAction.CancelAppointment -> {
+                setState(
+                    oldState.copy(
+                        isLoading = true
+                    )
+                )
+                cancelAppointment(action.appointmentId)
+            }
+
+            is ScheduleAction.CancelAppointmentSuccess -> {
+                setState(
+                    oldState.copy(
+                        isLoading = false
+                    )
+                )
+                setEffect(ScheduleEffect.ShowCancelSuccess("Hủy lịch khám thành công"))
+                // Reload appointments to update the list
+                loadAppointments(oldState.selectedTab)
+            }
         }
     }
 
@@ -148,6 +173,19 @@ class ScheduleStore(
             medicalRepository.getMedicalConsultations().collect { appointments ->
                 Napier.d("Appointments: $appointments")
                 sendAction(ScheduleAction.LoadAppointmentsSuccess(appointments, showTab))
+            }
+        }
+    }
+
+    private fun cancelAppointment(appointmentId: String) {
+        runFlow(
+//            exception = coroutineExceptionHandler {
+//                sendAction(ScheduleAction.ShowError(it))
+//            }
+        ) {
+            medicalRepository.cancelAppointment(appointmentId).collect { canceledId ->
+                Napier.d("Appointment canceled: $canceledId")
+                sendAction(ScheduleAction.CancelAppointmentSuccess(canceledId))
             }
         }
     }

@@ -29,6 +29,7 @@ interface UserRepository {
     suspend fun setBackendUrl(url: String)
     suspend fun getAppNotification(userId: String): Flow<List<AppNotification>>
     suspend fun updateProfile(updateProfileData: UpdateProfileData): Flow<User>
+    suspend fun updateAvatar(userId: String, fileData: ByteArray, fileName: String, mimeType: String): Flow<User>
 }
 
 class UserRepositoryImpl(private val api: APIs, private val prefs: PrefsStorage) : UserRepository,
@@ -107,6 +108,14 @@ class UserRepositoryImpl(private val api: APIs, private val prefs: PrefsStorage)
                 phoneNumber = updateProfileData.phoneNumber
             )
             api.updateProfile(request)
+        }
+    }
+
+    override suspend fun updateAvatar(userId: String, fileData: ByteArray, fileName: String, mimeType: String): Flow<User> {
+        return flowContext(mapper = {
+            it.toUser()
+        }) {
+            api.updateAvatar(userId, fileData, fileName, mimeType)
         }
     }
 }

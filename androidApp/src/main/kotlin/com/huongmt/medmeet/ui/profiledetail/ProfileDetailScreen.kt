@@ -2,6 +2,7 @@ package com.huongmt.medmeet.ui.profiledetail
 
 import android.Manifest
 import android.content.Intent
+import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,6 +30,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
@@ -92,6 +94,9 @@ import com.huongmt.medmeet.shared.core.entity.User
 import com.huongmt.medmeet.shared.utils.ext.nowDate
 import com.huongmt.medmeet.shared.utils.validate.Validator
 import com.huongmt.medmeet.shared.utils.validate.Validator.validateNotEmpty
+import com.huongmt.medmeet.utils.ext.getFileName
+import com.huongmt.medmeet.utils.ext.getMimeType
+import com.huongmt.medmeet.utils.ext.readBytes
 import com.huongmt.medmeet.utils.ext.toDMY
 import com.huongmt.medmeet.utils.ext.toDMY2
 import io.github.aakira.napier.Napier
@@ -101,6 +106,32 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+
+data class AvatarUploadData(
+    val fileData: ByteArray,
+    val fileName: String,
+    val mimeType: String
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as AvatarUploadData
+
+        if (!fileData.contentEquals(other.fileData)) return false
+        if (fileName != other.fileName) return false
+        if (mimeType != other.mimeType) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = fileData.contentHashCode()
+        result = 31 * result + fileName.hashCode()
+        result = 31 * result + mimeType.hashCode()
+        return result
+    }
+}
 
 class ProfileDetailScreen : Screen, KoinComponent {
     private val store: ProfileDetailStore by inject()
@@ -123,7 +154,6 @@ class ProfileDetailScreen : Screen, KoinComponent {
                 is ProfileDetailEffect.ShowMessage -> {
                     toasterState.show((effect as ProfileDetailEffect.ShowMessage).message)
                 }
-
                 null -> {}
             }
         }
@@ -138,17 +168,44 @@ class ProfileDetailScreen : Screen, KoinComponent {
             })
         }
 
+        if (state.validateError != null) {
+            ErrorDialog(throwable = state.validateError, onDismissRequest = {
+                store.sendAction(ProfileDetailAction.DismissError)
+            })
+        }
+
         Scaffold(topBar = {
-            TopAppBar(title = { Text("Profile Details") }, navigationIcon = {
-                IconButton(onClick = { store.sendAction(ProfileDetailAction.NavigateBack) }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back"
-                    )
-                }
-            }, colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = MaterialTheme.colorScheme.background
-            )
+            TopAppBar(
+                title = { Text("Profile Details") }, 
+                navigationIcon = {
+                    IconButton(onClick = { 
+                        if (state.isEditMode) {
+                            store.sendAction(ProfileDetailAction.CancelEdit)
+                        } else {
+                            store.sendAction(ProfileDetailAction.NavigateBack)
+                        }
+                    }) {
+                        Icon(
+                            imageVector = if (state.isEditMode) Icons.Filled.Close else Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = if (state.isEditMode) "Cancel" else "Back"
+                        )
+                    }
+                },
+                actions = {
+                    if (!state.isEditMode && state.originalUser != null) {
+                        IconButton(onClick = { 
+                            store.sendAction(ProfileDetailAction.ToggleEditMode)
+                        }) {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Edit Profile"
+                            )
+                        }
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
         }) { paddingValues ->
             Box(
@@ -158,25 +215,72 @@ class ProfileDetailScreen : Screen, KoinComponent {
                     .systemBarsPadding()
             ) {
                 Toaster(state = toasterState)
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Spacer(modifier = Modifier.height(16.dp))
+                
+                // Only show content when user data is loaded
+                if (state.originalUser != null) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    // Avatar Section
-                    AvatarSection(user = state.originalUser, onAvatarUpload = { uri ->
-                        store.sendAction(ProfileDetailAction.UpdateAvatar(uri))
-                    })
+                        // Avatar Section (always visible, can be edited independently)
+                        AvatarSection(user = state.originalUser, onAvatarUpload = { avatarData ->
+                            // Handle real file upload with user ID and file data
+                            state.originalUser?.let { user ->
+                                store.sendAction(ProfileDetailAction.UpdateAvatar(
+                                    userId = user.id,
+                                    fileData = avatarData.fileData,
+                                    fileName = avatarData.fileName,
+                                    mimeType = avatarData.mimeType
+                                ))
+                            }
+                        })
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                        Spacer(modifier = Modifier.height(32.dp))
 
-                    // User Information Section
-                    UserInfoSection(user = state.originalUser,
-
-                    )
+                        // User Information Section
+                        UserInfoSection(
+                            user = state.originalUser,
+                            pendingData = state.pendingUpdateData,
+                            isEditMode = state.isEditMode,
+                            onDataChanged = { updatedData ->
+                                store.sendAction(ProfileDetailAction.UpdatePendingData(updatedData))
+                            },
+                            onSaveClick = { updateData ->
+                                store.sendAction(ProfileDetailAction.ValidateAndSave(updateData))
+                            }
+                        )
+                        
+                        // Add some bottom spacing
+                        Spacer(modifier = Modifier.height(32.dp))
+                    }
+                } else if (!state.isLoading) {
+                    // Show empty state if no user data and not loading
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Unable to load profile data",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            PrimaryButton(
+                                onClick = {
+                                    store.sendAction(ProfileDetailAction.GetUser)
+                                },
+                                text = {
+                                    Text("Retry")
+                                }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -186,25 +290,66 @@ class ProfileDetailScreen : Screen, KoinComponent {
 @Composable
 fun AvatarSection(
     user: User?,
-    onAvatarUpload: (String) -> Unit,
+    onAvatarUpload: (AvatarUploadData) -> Unit,
 ) {
     val context = LocalContext.current
     var showImagePickerDialog by remember { mutableStateOf(false) }
 
     val pickImageLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        // In a real app, this would save the image URI from the result
-        // For now, we're mocking this by returning a dummy URI
-        onAvatarUpload("https://example.com/uploads/avatar-${System.currentTimeMillis()}.jpg")
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        Napier.d("Image picker result: $uri")
+        uri?.let {
+            try {
+                val fileData = it.readBytes(context)
+                val fileName = it.getFileName(context)
+                val mimeType = it.getMimeType(context)
+                
+                Napier.d("File data size: ${fileData?.size}, fileName: $fileName, mimeType: $mimeType")
+                
+                if (fileData != null) {
+                    onAvatarUpload(
+                        AvatarUploadData(
+                            fileData = fileData,
+                            fileName = fileName,
+                            mimeType = mimeType
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Napier.e("Error processing image: ${e.message}", e)
+                // Handle error - could show a toast or error dialog here
+            }
+        } ?: run {
+            Napier.d("No image selected")
+        }
     }
 
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
+        Napier.d("Permission result: $isGranted")
         if (isGranted) {
-            val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-            pickImageLauncher.launch(intent)
+            // Launch image picker directly
+            Napier.d("Permission granted, launching image picker")
+            pickImageLauncher.launch("image/*")
+        } else {
+            Napier.d("Permission denied")
+        }
+    }
+
+    // Function to handle image selection
+    val selectImage = {
+        Napier.d("selectImage called")
+        // For Android 13+ (API 33+), we don't need READ_EXTERNAL_STORAGE permission
+        // For older versions, we need to request permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Napier.d("Launching image picker directly (Android 13+)")
+            pickImageLauncher.launch("image/*")
+        } else {
+            Napier.d("Requesting permission first (Android < 13)")
+            requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
     }
 
@@ -255,7 +400,7 @@ fun AvatarSection(
             confirmButton = {
                 TextButton(onClick = {
                     showImagePickerDialog = false
-                    requestPermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+                    selectImage()
                 }) {
                     Text("Choose from Gallery")
                 }
@@ -273,27 +418,42 @@ fun AvatarSection(
 @Composable
 fun UserInfoSection(
     user: User?,
-    onSaveClick: (UpdateProfileData) -> Unit = {},
+    pendingData: UpdateProfileData?,
+    isEditMode: Boolean,
+    onDataChanged: (UpdateProfileData) -> Unit,
+    onSaveClick: (UpdateProfileData) -> Unit,
 ) {
-    val dataUpdate: MutableState<UpdateProfileData?> = remember { mutableStateOf(user?.toDateUpdate()) }
-    val isEditing = true
+    // Use current user data for display when not in edit mode, pending data when in edit mode
+    val displayData = if (isEditMode) pendingData else user?.toDateUpdate()
 
-    val datePickerState = rememberDatePickerState()
+    // Initialize date picker state with current date
+    val initialDateMillis = displayData?.dob?.let { localDate ->
+        try {
+            // Convert LocalDate to milliseconds for DatePicker
+            val instant = kotlinx.datetime.Instant.parse("${localDate}T00:00:00Z")
+            instant.toEpochMilliseconds()
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialDateMillis
+    )
 
     val dobTextField = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(dataUpdate.value?.dob?.toString() ?: ""))
+        mutableStateOf(TextFieldValue(displayData?.dob?.toDMY() ?: ""))
     }
 
     val genderTextField = rememberSaveable(stateSaver = TextFieldValue.Saver) {
-        mutableStateOf(TextFieldValue(dataUpdate.value?.gender?.text ?: ""))
+        mutableStateOf(TextFieldValue(displayData?.gender?.text ?: ""))
     }
 
-    // Update state when user is loaded or changed
-    LaunchedEffect(user) {
-        user?.let {
-            dataUpdate.value = it.toDateUpdate()
-            println("[DEUBG] user: $it")
-            println("Data update: ${dataUpdate.value}")
+    // Update text fields when data changes
+    LaunchedEffect(displayData) {
+        displayData?.let {
+            dobTextField.value = TextFieldValue(it.dob.toDMY())
+            genderTextField.value = TextFieldValue(it.gender.text)
         }
     }
 
@@ -320,292 +480,441 @@ fun UserInfoSection(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
+                
+                if (isEditMode) {
+                    Text(
+                        text = "Edit Mode",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Label
+            // User Code (Always disabled)
             Text(
                 text = "User Code",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            println("[DEBUG] user code: ${user?.code}")
-            BaseInputText(modifier = Modifier.fillMaxWidth(), default = user?.code, keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done, keyboardType = KeyboardType.Email
-            ), hint = "Code",  description = "Code", leadingIcon = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_email),
-                    contentDescription = null
-                )
-            }, enable = false)
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(), 
+                default = user?.code, 
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Text
+                ), 
+                hint = "Code",  
+                description = "Code", 
+                leadingIcon = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_email),
+                        contentDescription = null
+                    )
+                }, 
+                enable = false
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Label
+            // Email (Always disabled)
             Text(
                 text = "Email",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(), default = user?.email, keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done, keyboardType = KeyboardType.Email
-            ), hint = "Email",  description = "Email", leadingIcon = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_email),
-                    contentDescription = null
-                )
-            }, enable = false)
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(), 
+                default = user?.email, 
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Email
+                ), 
+                hint = "Email",  
+                description = "Email", 
+                leadingIcon = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_email),
+                        contentDescription = null
+                    )
+                }, 
+                enable = false
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Label
+            // Name (Editable)
             Text(
                 text = "Name",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(), default = dataUpdate.value?.name, keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Name", onTextChanged = {
-                dataUpdate.value = dataUpdate.value?.copy(name = it)
-            }, description = "Name", onImeAction = {
-                dataUpdate.value = dataUpdate.value?.copy(name = it)
-                Napier.d("name: $it")
-            }, validator = {
-                validateNotEmpty(it)
-            }, leadingIcon = {
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_user),
-                    contentDescription = null
-                )
-            }, enable = isEditing)
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(), 
+                default = displayData?.name, 
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Text
+                ), 
+                hint = "Name", 
+                onTextChanged = if (isEditMode) { newName ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(name = newName))
+                    }
+                } else null, 
+                description = "Name", 
+                onImeAction = if (isEditMode) { newName ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(name = newName))
+                    }
+                } else null, 
+                validator = { text ->
+                    if (isEditMode) { validateNotEmpty(text) } else null
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_user),
+                        contentDescription = null
+                    )
+                }, 
+                enable = isEditMode
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Label
+            // Gender (Editable)
             Text(
                 text = "Gender",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-
             val showGenderPicker = remember { mutableStateOf(false) }
-            BaseInputText(modifier = Modifier.fillMaxWidth(),
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(),
                 textFieldState = genderTextField,
                 keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Text
                 ),
-                hint = "Gender",
+                hint = if (isEditMode) "Tap to select gender" else "Gender",
                 description = "Gender",
-                validator = {
-                    validateNotEmpty(it)
+                validator = { text ->
+                    if (isEditMode) { validateNotEmpty(text) } else null
                 },
                 readOnly = true,
                 enable = false,
-                onClick = {
-                    showGenderPicker.value = true
-                })
+                onClick = if (isEditMode) {
+                    { showGenderPicker.value = true }
+                } else null,
+                trailingIcon = if (isEditMode) {
+                    {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                            contentDescription = "Select Gender",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                } else null,
+                leadingIcon = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_user),
+                        contentDescription = null,
+                        tint = if (isEditMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            )
 
             val listGender = listOf(Gender.MALE, Gender.FEMALE, Gender.OTHER)
 
-            if (showGenderPicker.value && isEditing) {
-                ListPickerDialog(title = "Gender",
+            if (showGenderPicker.value && isEditMode) {
+                ListPickerDialog(
+                    title = "Gender",
                     items = listGender,
-                    default = listOf(dataUpdate.value?.gender),
+                    default = listOf(pendingData?.gender ?: Gender.MALE),
                     onDismiss = {
                         showGenderPicker.value = false
                     },
-                    onConfirm = {
-                        val newGender = it.first()
-                        dataUpdate.value = dataUpdate.value?.copy(gender = it.first() ?: user?.gender ?: Gender.OTHER )
-                        genderTextField.value = TextFieldValue(it.first()?.text ?: "")
+                    onConfirm = { selectedGenders ->
+                        val newGender = selectedGenders.firstOrNull() ?: Gender.MALE
+                        pendingData?.let { currentData ->
+                            onDataChanged(currentData.copy(gender = newGender))
+                        }
+                        genderTextField.value = TextFieldValue(newGender.text)
                         showGenderPicker.value = false
                     },
-                    itemToString = {
-                        it?.text ?: ""
-                    })
-            }
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            val showDobPicker = remember { mutableStateOf(false) }
-
-            BaseInputText(modifier = Modifier.fillMaxWidth(),
-                textFieldState = dobTextField,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-                ),
-                hint = "Date of birth",
-                description = "Dob",
-                validator = {
-                    validateNotEmpty(it)
-                },
-                leadingIcon = {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_calendar),
-                        contentDescription = null
-                    )
-                },
-                readOnly = true,
-                enable = false,
-                onClick = {
-                    showDobPicker.value = true
-                })
-
-            if (showDobPicker.value && isEditing) {
-                PopupDatePicker(onDismiss = {
-                    showDobPicker.value = false
-                }, onDateSelected = {
-                    Napier.d("Selected date: $it")
-                    showDobPicker.value = false
-                    dobTextField.value = TextFieldValue(it.toString())
-                    dataUpdate.value = dataUpdate.value?.copy(dob = it)
-                }, showModeToggle = false, state = datePickerState
+                    itemToString = { it?.text ?: "" }
                 )
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Label
+            // Date of Birth (Editable)
+            Text(
+                text = "Date of Birth",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            val showDobPicker = remember { mutableStateOf(false) }
+
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(),
+                textFieldState = dobTextField,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Text
+                ),
+                hint = if (isEditMode) "Tap to select date" else "Date of birth",
+                description = "Date of Birth",
+                validator = { text ->
+                    if (isEditMode) { validateNotEmpty(text) } else null
+                },
+                leadingIcon = {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_calendar),
+                        contentDescription = null,
+                        tint = if (isEditMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                readOnly = true,
+                enable = false,
+                onClick = if (isEditMode) {
+                    { showDobPicker.value = true }
+                } else null
+            )
+
+            if (showDobPicker.value && isEditMode) {
+                PopupDatePicker(
+                    onDismiss = {
+                        showDobPicker.value = false
+                    }, 
+                    onDateSelected = { selectedDate ->
+                        Napier.d("Selected date: $selectedDate")
+                        showDobPicker.value = false
+                        dobTextField.value = TextFieldValue(selectedDate.toDMY())
+                        pendingData?.let { currentData ->
+                            onDataChanged(currentData.copy(dob = selectedDate))
+                        }
+                    }, 
+                    showModeToggle = false, 
+                    state = datePickerState
+                )
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            // Phone Number (Editable)
             Text(
                 text = "Phone Number",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(), default = dataUpdate.value?.phoneNumber, keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Phone number", description = "Phone number", validator = {
-                validateNotEmpty(it)
-            }, onTextChanged = {
-                dataUpdate.value = dataUpdate.value?.copy(phoneNumber = it)
-            }, onImeAction = {
-                dataUpdate.value = dataUpdate.value?.copy(phoneNumber = it)
-                Napier.d("phone number: $it")
-            }, enable = isEditing)
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(), 
+                default = displayData?.phoneNumber, 
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Phone
+                ), 
+                hint = "Phone number", 
+                description = "Phone number", 
+                validator = { text ->
+                    if (isEditMode) { validateNotEmpty(text) } else null
+                },
+                onTextChanged = if (isEditMode) { newPhone ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(phoneNumber = newPhone))
+                    }
+                } else null, 
+                onImeAction = if (isEditMode) { newPhone ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(phoneNumber = newPhone))
+                    }
+                } else null, 
+                enable = isEditMode
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Label
+            // Province (Editable)
             Text(
                 text = "Province",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(), default = dataUpdate.value?.province, keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Province", description = "Province", validator = {
-                validateNotEmpty(it)
-            }, onTextChanged = {
-                dataUpdate.value = dataUpdate.value?.copy(province = it)
-            }, onImeAction = {
-                dataUpdate.value = dataUpdate.value?.copy(province = it)
-            }, enable = isEditing)
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(), 
+                default = displayData?.province, 
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Text
+                ), 
+                hint = "Province", 
+                description = "Province", 
+                validator = { text ->
+                    if (isEditMode) { validateNotEmpty(text) } else null
+                },
+                onTextChanged = if (isEditMode) { newProvince ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(province = newProvince))
+                    }
+                } else null, 
+                onImeAction = if (isEditMode) { newProvince ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(province = newProvince))
+                    }
+                } else null, 
+                enable = isEditMode
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Label
+            // District (Editable)
             Text(
                 text = "District",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(), default = dataUpdate.value?.district, keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "District", description = "District", validator = {
-                validateNotEmpty(it)
-            }, onTextChanged = {
-                dataUpdate.value = dataUpdate.value?.copy(district = it)
-            }, onImeAction = {
-                dataUpdate.value = dataUpdate.value?.copy(district = it)
-            }, enable = isEditing)
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(), 
+                default = displayData?.district, 
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Text
+                ), 
+                hint = "District", 
+                description = "District", 
+                validator = { text ->
+                    if (isEditMode) { validateNotEmpty(text) } else null
+                },
+                onTextChanged = if (isEditMode) { newDistrict ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(district = newDistrict))
+                    }
+                } else null, 
+                onImeAction = if (isEditMode) { newDistrict ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(district = newDistrict))
+                    }
+                } else null, 
+                enable = isEditMode
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Label
+            // Commune (Editable)
             Text(
                 text = "Commune",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(), default = dataUpdate.value?.commune, keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Commune", description = "Commune", validator = {
-                validateNotEmpty(it)
-            }, onTextChanged = {
-                dataUpdate.value = dataUpdate.value?.copy(commune = it)
-            }, onImeAction = {
-                dataUpdate.value = dataUpdate.value?.copy(commune = it)
-            }, enable = isEditing)
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(), 
+                default = displayData?.commune, 
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Text
+                ), 
+                hint = "Commune", 
+                description = "Commune", 
+                validator = { text ->
+                    if (isEditMode) { validateNotEmpty(text) } else null
+                },
+                onTextChanged = if (isEditMode) { newCommune ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(commune = newCommune))
+                    }
+                } else null, 
+                onImeAction = if (isEditMode) { newCommune ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(commune = newCommune))
+                    }
+                } else null, 
+                enable = isEditMode
+            )
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // Label
+            // Address (Editable)
             Text(
                 text = "Address",
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
 
-            BaseInputText(modifier = Modifier.fillMaxWidth(), default = dataUpdate.value?.address, keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Address", description = "Address", validator = {
-                validateNotEmpty(it)
-            }, onTextChanged = {
-                dataUpdate.value = dataUpdate.value?.copy(address = it)
-            }, onImeAction = {
-                dataUpdate.value = dataUpdate.value?.copy(address = it)
-            }, maxLines = 3, enable = isEditing
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            val newUser = user?.copy(
-                name = dataUpdate.value?.name,
-                gender = dataUpdate.value?.gender ?: Gender.OTHER,
-                birthday = dataUpdate.value?.dob,
-                province = dataUpdate.value?.province,
-                district = dataUpdate.value?.district,
-                commune = dataUpdate.value?.commune,
-                address = dataUpdate.value?.address,
-                phoneNumber = dataUpdate.value?.phoneNumber
-            )
-
-            val enableSaveBtn = if (user == null) {
-                true
-            } else {
-                if (newUser == null) {
-                    false
-                } else if (user.compareTo(newUser)) {
-                    false
-                } else {
-                    true
-                }
-            }
-
-            // Save button
-            PrimaryButton(
-                onClick = {
-                    dataUpdate.value?.let {
-                        Napier.d("Update data: $it")
-                        onSaveClick(it)
+            BaseInputText(
+                modifier = Modifier.fillMaxWidth(), 
+                default = displayData?.address, 
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Done, 
+                    keyboardType = KeyboardType.Text
+                ), 
+                hint = "Address", 
+                description = "Address", 
+                validator = { text ->
+                    if (isEditMode) { validateNotEmpty(text) } else null
+                },
+                onTextChanged = if (isEditMode) { newAddress ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(address = newAddress))
                     }
-                }, text = {
-                    Text(
-                        text = "Save",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = Color.White
-                    )
-                }, enabled = enableSaveBtn,
+                } else null, 
+                onImeAction = if (isEditMode) { newAddress ->
+                    pendingData?.let { currentData ->
+                        onDataChanged(currentData.copy(address = newAddress))
+                    }
+                } else null, 
+                maxLines = 3, 
+                enable = isEditMode
             )
+
+            if (isEditMode) {
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Check if data has changed
+                val hasChanges = user?.let { originalUser ->
+                    pendingData?.let { pending ->
+                        val originalData = originalUser.toDateUpdate()
+                        originalData.name != pending.name ||
+                        originalData.gender != pending.gender ||
+                        originalData.dob != pending.dob ||
+                        originalData.phoneNumber != pending.phoneNumber ||
+                        originalData.province != pending.province ||
+                        originalData.district != pending.district ||
+                        originalData.commune != pending.commune ||
+                        originalData.address != pending.address
+                    } ?: false
+                } ?: false
+
+                // Save button (only visible in edit mode)
+                PrimaryButton(
+                    onClick = {
+                        pendingData?.let { data ->
+                            Napier.d("Save data: $data")
+                            onSaveClick(data)
+                        }
+                    }, 
+                    text = {
+                        Text(
+                            text = "Save Changes",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = Color.White
+                        )
+                    }, 
+                    enabled = hasChanges && pendingData != null,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }

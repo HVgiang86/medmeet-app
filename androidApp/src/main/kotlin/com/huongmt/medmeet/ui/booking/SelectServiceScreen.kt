@@ -61,7 +61,7 @@ private fun SelectServiceContent(
                     .wrapContentHeight()
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                text = "Book Appointment",
+                text = "Đặt lịch hẹn",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -106,7 +106,7 @@ private fun SelectServiceContent(
                 store.sendAction(BookingAction.CancelBooking)
             }, text = {
                 Text(
-                    text = "Back", style = MaterialTheme.typography.labelLarge, color = Color.Black
+                    text = "Quay lại", style = MaterialTheme.typography.labelLarge, color = Color.Black
                 )
             })
 
@@ -125,7 +125,7 @@ private fun SelectServiceContent(
                 )
             }, text = {
                 Text(
-                    text = "Next", style = MaterialTheme.typography.labelLarge, color = Color.White
+                    text = "Tiếp theo", style = MaterialTheme.typography.labelLarge, color = Color.White
                 )
             })
         }

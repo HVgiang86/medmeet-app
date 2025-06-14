@@ -78,11 +78,11 @@ fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.co
 
             Spacer(Modifier.height(32.dp))
 
-            Text("Hi, Welcome Back!", style = MaterialTheme.typography.titleMedium, modifier = Modifier.align(
+            Text("Chào bạn!", style = MaterialTheme.typography.titleMedium, modifier = Modifier.align(
                 Alignment.CenterHorizontally))
 
             Text(
-                "Hope you're doing fine.",
+                "Ngày mới tốt lành!",
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Normal),
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
@@ -136,7 +136,7 @@ fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.co
                     // do login
                     store.sendAction(AuthAction.RequestLogin(email.value, password.value))
                 }, text = {
-                    Text(text = "Sign In", color = Color.White)
+                    Text(text = "Đăng nhập", color = Color.White)
                 })
 
                 Spacer(Modifier.height(24.dp))
@@ -144,7 +144,7 @@ fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.co
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
                     Box(modifier = Modifier.wrapContentWidth().background(MaterialTheme.colorScheme.background).padding(start = 8.dp, end = 8.dp)) {
-                        Text(text = "or", color = Color.Black, modifier = Modifier.padding(start = 8.dp, end = 8.dp))
+                        Text(text = "hoặc", color = Color.Black, modifier = Modifier.padding(start = 8.dp, end = 8.dp))
                     }
                 }
 
@@ -152,8 +152,8 @@ fun LoginScreenContent(modifier: Modifier = Modifier.background(MaterialTheme.co
 
 
                 Row(modifier = Modifier.fillMaxWidth().wrapContentHeight(), horizontalArrangement = Arrangement.Center) {
-                    Text("Don't you have an account yet? ", style = MaterialTheme.typography.bodyMedium)
-                    Text("Sign Up", style = MaterialTheme.typography.bodyMedium, color = Color.Blue, modifier = Modifier.clickable {
+                    Text("Chưa có tài khoản? ", style = MaterialTheme.typography.bodyMedium)
+                    Text("Đăng ký", style = MaterialTheme.typography.bodyMedium, color = Color.Blue, modifier = Modifier.clickable {
                         store.sendAction(AuthAction.DisplaySignUp)
                     })
                 }

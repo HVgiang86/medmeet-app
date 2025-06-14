@@ -115,7 +115,7 @@ fun SignUpScreenContent(
         Spacer(Modifier.height(32.dp))
 
         Text(
-            "Create Account!",
+            "Đăng ký tài khoản!",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.align(
                 Alignment.CenterHorizontally
@@ -123,7 +123,7 @@ fun SignUpScreenContent(
         )
 
         Text(
-            "We are here to help you!",
+            "Đăng ký để bắt đầu đặt lịch ngay!",
             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Normal),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
@@ -134,9 +134,9 @@ fun SignUpScreenContent(
 
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Name", onTextChanged = {
+            ), hint = "Tên", onTextChanged = {
                 name.value = it
-            }, description = "Name", onImeAction = {
+            }, description = "Tên", onImeAction = {
                 name.value = it
                 Napier.d("name: $it")
             }, validator = {
@@ -171,7 +171,7 @@ fun SignUpScreenContent(
             PasswordField(modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxWidth(),
-                hint = "Password",
+                hint = "Mật khẩu",
                 onImeAction = {
                     password.value = it
                 },
@@ -197,7 +197,7 @@ fun SignUpScreenContent(
             PasswordField(modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxWidth(),
-                hint = "Confirm password",
+                hint = "Nhập lại mật khẩu",
                 onImeAction = {
                     confirmPassword.value = it
                 },
@@ -227,7 +227,7 @@ fun SignUpScreenContent(
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
                 ),
-                hint = "Date of birth",
+                hint = "Ngày sinh",
                 description = "Dob",
                 validator = {
                     validateNotEmpty(it)
@@ -252,7 +252,7 @@ fun SignUpScreenContent(
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
                 ),
-                hint = "Gender",
+                hint = "Giới tính",
                 description = "Gender",
                 validator = {
                     validateNotEmpty(it)
@@ -266,7 +266,7 @@ fun SignUpScreenContent(
             val listGender = listOf(Gender.MALE, Gender.FEMALE, Gender.OTHER)
 
             if (showGenderPicker.value) {
-                ListPickerDialog(title = "Gender",
+                ListPickerDialog(title = "Giới tính",
                     items = listGender,
                     default = listOf(gender.value),
                     onDismiss = {
@@ -286,7 +286,7 @@ fun SignUpScreenContent(
 
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Province", description = "Province", validator = {
+            ), hint = "Tỉnh", description = "Province", validator = {
                 validateNotEmpty(it)
             }, onTextChanged = {
                 province.value = it
@@ -298,7 +298,7 @@ fun SignUpScreenContent(
 
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "District", description = "District", validator = {
+            ), hint = "Huyện", description = "District", validator = {
                 validateNotEmpty(it)
             }, onTextChanged = {
                 district.value = it
@@ -310,7 +310,7 @@ fun SignUpScreenContent(
 
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Commune", description = "Commune", validator = {
+            ), hint = "Xã", description = "Commune", validator = {
                 validateNotEmpty(it)
             }, onTextChanged = {
                 commune.value = it
@@ -322,7 +322,7 @@ fun SignUpScreenContent(
 
             BaseInputText(modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done, keyboardType = KeyboardType.Text
-            ), hint = "Address", description = "Address", validator = {
+            ), hint = "Địa chỉ", description = "Address", validator = {
                 validateNotEmpty(it)
             }, onTextChanged = {
                 address.value = it
@@ -334,7 +334,7 @@ fun SignUpScreenContent(
             Spacer(Modifier.height(24.dp))
 
             PrimaryButton(text = {
-                Text(text = "Create Account", color = Color.White)
+                Text(text = "Tạo tài khoản", color = Color.White)
             }, modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp), onClick = {
@@ -367,7 +367,7 @@ fun SignUpScreenContent(
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "or",
+                        text = "hoặc",
                         color = Color.Black,
                         modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                     )
@@ -383,8 +383,8 @@ fun SignUpScreenContent(
                     .wrapContentHeight(),
                 horizontalArrangement = Arrangement.Center
             ) {
-                Text("Do you have an account? ", style = MaterialTheme.typography.bodyMedium)
-                Text("Sign In",
+                Text("Bạn đã có tài khoản? ", style = MaterialTheme.typography.bodyMedium)
+                Text("Đăng nhập",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Blue,
                     modifier = Modifier.clickable {

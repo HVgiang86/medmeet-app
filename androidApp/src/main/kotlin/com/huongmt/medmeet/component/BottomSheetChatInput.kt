@@ -157,7 +157,7 @@ fun ChatInputSection(
                     enabled = enable,
                     placeholder = {
                         Text(
-                            "Message something...",
+                            "Nhập tin nhắn...",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Grey_500,
                         )
@@ -200,7 +200,7 @@ fun ChatInputSection(
                     ChatActionItem(
                         enable = true,
                         actionIcon = ImageVector.vectorResource(R.drawable.ic_global_search),
-                        actionText = "Suggest",
+                        actionText = "Gợi ý",
                         onActionClick = {
                             onGenQueriesEnable(it)
                         },

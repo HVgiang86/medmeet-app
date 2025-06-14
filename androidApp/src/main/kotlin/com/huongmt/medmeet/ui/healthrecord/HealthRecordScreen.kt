@@ -157,7 +157,7 @@ fun HealthRecordScreen(
                     ) {
                         // Title
                         Text(
-                            text = "Body Parameters",
+                            text = "Thông số cơ thể",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -172,13 +172,13 @@ fun HealthRecordScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Your height (cm)",
+                                text = "Chiều cao của bạn (cm)",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
                             Text(
-                                text = state.healthRecord?.height?.toString() ?: "Not set",
+                                text = state.healthRecord?.height?.toString() ?: "Chưa đặt",
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Bold
                             )
@@ -193,13 +193,13 @@ fun HealthRecordScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Your weight (kg)",
+                                text = "Cân nặng của bạn (kg)",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
 
                             Text(
-                                text = state.healthRecord?.weight?.toString() ?: "Not set",
+                                text = state.healthRecord?.weight?.toString() ?: "Chưa đặt",
                                 style = MaterialTheme.typography.bodyLarge,
                                 fontWeight = FontWeight.Bold
                             )
@@ -229,7 +229,7 @@ fun HealthRecordScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = "Body Mass Index",
+                                    text = "Chỉ số khối cơ thể",
                                     style = MaterialTheme.typography.bodyLarge,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -280,7 +280,7 @@ fun HealthRecordScreen(
                             .padding(16.dp)
                     ) {
                         Text(
-                            text = "Blood Type",
+                            text = "Nhóm máu",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -320,7 +320,7 @@ fun HealthRecordScreen(
                                     .padding(vertical = 24.dp), contentAlignment = Alignment.Center
                             ) {
                                 Text(
-                                    text = "Not set",
+                                    text = "Chưa đặt",
                                     style = MaterialTheme.typography.headlineMedium,
                                     fontWeight = FontWeight.Bold,
                                     textAlign = TextAlign.Center,
@@ -353,7 +353,7 @@ fun HealthRecordScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Health History",
+                                text = "Lịch sử sức khỏe",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -366,7 +366,7 @@ fun HealthRecordScreen(
 
                         if (state.healthRecord?.healthHistory.isNullOrBlank()) {
                             Text(
-                                text = "No health history recorded",
+                                text = "Không có lịch sử sức khỏe nào được ghi lại",
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(vertical = 16.dp)

@@ -59,7 +59,7 @@ data class MedicalConsultationResponse(
         val updatedAtDate = updatedAt?.toLocalDateFromIso() ?: now
         val patientDOB = patientDateOfBirth?.toLocalDateFromIso() ?: now
 
-        val examinationDateTime = examinationDate?.toLocalDateFromIso()?.plusDate(1)?.date ?: now.date
+        val examinationDateTime = examinationDate?.toLocalDateFromIso()?.date ?: now.date
 
         val genderValue: Gender = when (patientGender) {
             Gender.MALE.value -> Gender.MALE

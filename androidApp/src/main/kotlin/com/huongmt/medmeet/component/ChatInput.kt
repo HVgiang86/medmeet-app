@@ -243,11 +243,11 @@ fun FunctionalityNotAvailablePanel() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = "Not available",
+                text = "Chức năng không có sẵn 🙈",
                 style = MaterialTheme.typography.titleMedium,
             )
             Text(
-                text = "Not available",
+                text = "Không có sẵn",
                 modifier = Modifier.paddingFrom(FirstBaseline, before = 32.dp),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -272,7 +272,7 @@ private fun UserInputSelector(
             onClick = { onSelectorChange(InputSelector.EMOJI) },
             icon = Icons.Outlined.Face,
             selected = currentInputSelector == InputSelector.EMOJI,
-            description = "",
+            description = "Biểu tượng cảm xúc",
         )
         InputSelectorButton(
             onClick = { onSelectorChange(InputSelector.DM) },
@@ -485,7 +485,7 @@ private fun RecordingIndicator(swipeOffset: () -> Float) {
                         alpha = 1 - (swipeOffset().absoluteValue / swipeThreshold)
                     },
                 textAlign = TextAlign.Center,
-                text = "Swipe to cancel",
+                text = "Vuốt để hủy",
                 style = MaterialTheme.typography.bodyLarge,
             )
         }
@@ -518,7 +518,7 @@ fun EmojiSelector(
                 modifier = Modifier.weight(1f),
             )
             ExtendedSelectorInnerButton(
-                text = "Sticker",
+                text = "Nhãn dán",
                 onClick = { selected = EmojiStickerSelector.STICKER },
                 selected = false,
                 modifier = Modifier.weight(1f),
@@ -609,7 +609,7 @@ fun FunctionalityNotAvailablePopup(onDismiss: () -> Unit) {
         )
     }, confirmButton = {
         TextButton(onClick = onDismiss) {
-            Text(text = "CLOSE")
+            Text(text = "ĐÓNG")
         }
     })
 }

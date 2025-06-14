@@ -8,8 +8,10 @@ import android.speech.RecognizerIntent
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.TopAppBar
@@ -47,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -55,8 +60,10 @@ import com.huongmt.medmeet.component.BotMessage
 import com.huongmt.medmeet.component.ChatInputSection
 import com.huongmt.medmeet.component.DrawerMenu
 import com.huongmt.medmeet.component.ErrorDialog
+import com.huongmt.medmeet.component.HorizontalMedicalServiceCard
 import com.huongmt.medmeet.component.HumanChatMessage
 import com.huongmt.medmeet.component.LoadingDialog
+import com.huongmt.medmeet.component.MedicalServiceBottomSheet
 import com.huongmt.medmeet.component.RecommendedQueriesOverlay
 import com.huongmt.medmeet.component.WavingDots
 import com.huongmt.medmeet.data.WholeApp
@@ -135,7 +142,6 @@ fun ChatScreenContentT(
         mutableStateOf(TextFieldValue(""))
     }
 
-
     val listState = rememberLazyListState()
 
     val refreshState = rememberPullRefreshState(refreshing = state.isLoading, onRefresh = {
@@ -197,6 +203,21 @@ fun ChatScreenContentT(
         })
     }
 
+    // Medical Service Bottom Sheet
+    if (state.showMedicalServiceBottomSheet && state.selectedMedicalService != null) {
+        MedicalServiceBottomSheet(
+            service = state.selectedMedicalService!!,
+            clinic = state.medicalServiceClinic,
+            onDismiss = {
+                store.sendAction(ChatAction.HideMedicalServiceBottomSheet)
+            },
+            onBook = {
+                store.sendAction(ChatAction.HideMedicalServiceBottomSheet)
+                // onNavigateToBooking(state.selectedMedicalService)
+            }
+        )
+    }
+
     val speechRecognitionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -208,7 +229,7 @@ fun ChatScreenContentT(
             inputState.value = TextFieldValue(spokenText)
         } else {
             // Handle errors or cancellation
-            spokenText = "Recognition failed or cancelled"
+            spokenText = "Nhận dạng thất bại hoặc bị hủy"
         }
         isListening = false // Reset listening state
     }
@@ -235,12 +256,12 @@ fun ChatScreenContentT(
                 isListening = true // Update listening state
             } catch (e: Exception) {
                 // Handle exceptions, e.g., recognizer not available
-                spokenText = "Error launching recognizer: ${e.message}"
+                spokenText = "Lỗi khởi chạy công cụ nhận dạng: ${e.message}"
                 isListening = false
             }
         } else {
             // Permission denied
-            spokenText = "Audio recording permission denied"
+            spokenText = "Quyền ghi âm bị từ chối"
             isListening = false
         }
     }
@@ -253,7 +274,7 @@ fun ChatScreenContentT(
     ) {
 
         TopAppBar(
-            title = { Text(text = "Med Meet ChatBot") },
+            title = { Text(text = "Trợ lý y tế MedMeet") },
             navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(
@@ -298,10 +319,42 @@ fun ChatScreenContentT(
 
                 items(itemNumber) { index ->
                     if (index == state.messages.size) {
-                        if (!state.isGenerating) {
-                            Spacer(modifier = Modifier.height(16.dp))
+//                        if (!state.isGenerating) {
+//                            // Show medical services after the last AI message (if there are messages and last message is from AI)
+//                            if (state.messages.isNotEmpty() && !state.messages.last().isHuman && state.medicalServices.isNotEmpty()) {
+//                                Column {
+//                                    Spacer(modifier = Modifier.height(16.dp))
+//
+//                                    Text(
+//                                        text = "Dịch vụ y tế được đề xuất",
+//                                        style = MaterialTheme.typography.titleMedium,
+//                                        fontWeight = FontWeight.Medium,
+//                                        color = MaterialTheme.colorScheme.onSurface,
+//                                        modifier = Modifier.padding(vertical = 8.dp)
+//                                    )
+//
+//                                    LazyRow(
+//                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+//                                        contentPadding = PaddingValues(horizontal = 4.dp)
+//                                    ) {
+//                                        items(state.medicalServices) { service ->
+//                                            HorizontalMedicalServiceCard(
+//                                                service = service,
+//                                                onClick = {
+//                                                    store.sendAction(ChatAction.SelectMedicalService(service))
+//                                                }
+//                                            )
+//                                        }
+//                                    }
+//                                }
+//                            }
+//
+//                            Spacer(modifier = Modifier.height(16.dp))
+//                            return@items
+//                        }
+
+                        if (!state.isGenerating)
                             return@items
-                        }
 
                         WavingDots()
                         return@items
@@ -372,7 +425,7 @@ fun ChatScreenContentT(
                                 speechRecognitionLauncher.launch(intent)
                                 isListening = true
                             } catch (e: Exception) {
-                                spokenText = "Error launching recognizer: ${e.message}"
+                                spokenText = "Lỗi khởi chạy công cụ nhận dạng: ${e.message}"
                                 isListening = false
                             }
                         }

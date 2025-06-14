@@ -3,6 +3,8 @@ package com.huongmt.medmeet.shared.app
 import com.huongmt.medmeet.shared.base.Store
 import com.huongmt.medmeet.shared.core.entity.Conversation
 import com.huongmt.medmeet.shared.core.entity.Message
+import com.huongmt.medmeet.shared.core.entity.MedicalService
+import com.huongmt.medmeet.shared.core.entity.Clinic
 import com.huongmt.medmeet.shared.core.repository.ChatRepository
 import com.huongmt.medmeet.shared.utils.ext.nowDateTime
 import io.github.aakira.napier.Napier
@@ -16,7 +18,11 @@ data class ChatState(
     val error: Throwable? = null,
     val isGenQueriesEnabled: Boolean = true,
     val recommendedQueries: List<String> = emptyList(),
-    val isLoadingQueries: Boolean = true
+    val isLoadingQueries: Boolean = true,
+    val medicalServices: List<MedicalService> = emptyList(),
+    val selectedMedicalService: MedicalService? = null,
+    val showMedicalServiceBottomSheet: Boolean = false,
+    val medicalServiceClinic: Clinic? = null
 ) : Store.State(loading = isLoading)
 
 sealed interface ChatAction : Store.Action {
@@ -77,6 +83,11 @@ sealed interface ChatAction : Store.Action {
     data class GetRecommendedQueries(val conversationId: String) : ChatAction
 
     data class GetRecommendedQueriesSuccess(val queries: List<String>) : ChatAction
+
+    data class SelectMedicalService(val service: MedicalService) : ChatAction
+    data object HideMedicalServiceBottomSheet : ChatAction
+    data class LoadMedicalServiceClinic(val clinicId: String) : ChatAction
+    data class LoadMedicalServiceClinicSuccess(val clinic: Clinic) : ChatAction
 }
 
 sealed interface ChatEffect : Store.Effect {
@@ -96,7 +107,44 @@ class ChatStore(
         isLoading = false,
         isGenQueriesEnabled = true,
         recommendedQueries = emptyList(),
-        isLoadingQueries = true
+        isLoadingQueries = true,
+        medicalServices = listOf(
+            MedicalService(
+                id = "1",
+                name = "Khám Tổng Quát",
+                currentPrice = 500000,
+                originalPrice = 600000,
+                clinicId = "clinic_1"
+            ),
+            MedicalService(
+                id = "2", 
+                name = "Khám Tim Mạch",
+                currentPrice = 800000,
+                originalPrice = 0,
+                clinicId = "clinic_2"
+            ),
+            MedicalService(
+                id = "3",
+                name = "Khám Da Liễu", 
+                currentPrice = 700000,
+                originalPrice = 850000,
+                clinicId = "clinic_3"
+            ),
+            MedicalService(
+                id = "4",
+                name = "Khám Mắt",
+                currentPrice = 600000,
+                originalPrice = 0,
+                clinicId = "clinic_4"
+            ),
+            MedicalService(
+                id = "5",
+                name = "Khám Răng Hàm Mặt",
+                currentPrice = 400000,
+                originalPrice = 500000,
+                clinicId = "clinic_5"
+            )
+        )
     )
 ) {
     override val onException: (Throwable) -> Unit
@@ -277,6 +325,30 @@ class ChatStore(
                 setState(oldState.copy(recommendedQueries = action.queries))
                 setEffect(ChatEffect.ScrollToBottom)
             }
+
+            is ChatAction.SelectMedicalService -> {
+                setState(oldState.copy(
+                    selectedMedicalService = action.service,
+                    showMedicalServiceBottomSheet = true
+                ))
+                sendAction(ChatAction.LoadMedicalServiceClinic(action.service.clinicId))
+            }
+
+            ChatAction.HideMedicalServiceBottomSheet -> {
+                setState(oldState.copy(
+                    selectedMedicalService = null, 
+                    showMedicalServiceBottomSheet = false,
+                    medicalServiceClinic = null
+                ))
+            }
+
+            is ChatAction.LoadMedicalServiceClinic -> {
+                loadMedicalServiceClinic(action.clinicId)
+            }
+
+            is ChatAction.LoadMedicalServiceClinicSuccess -> {
+                setState(oldState.copy(medicalServiceClinic = action.clinic))
+            }
         }
     }
 
@@ -362,5 +434,55 @@ class ChatStore(
                 sendAction(ChatAction.GetRecommendedQueriesSuccess(it))
             }
         }
+    }
+
+    private fun loadMedicalServiceClinic(clinicId: String) {
+        // Mock clinic data for now since we don't have the API
+        val mockClinic = when (clinicId) {
+            "clinic_1" -> Clinic(
+                id = "clinic_1",
+                name = "Bệnh viện Đa khoa Hồng Ngọc",
+                address = "55 Yên Ninh, Quán Thánh, Ba Đình, Hà Nội",
+                logo = "https://example.com/logo1.png",
+                hotline = "024 3927 5568"
+            )
+            "clinic_2" -> Clinic(
+                id = "clinic_2", 
+                name = "Bệnh viện Tim Hà Nội",
+                address = "92 Trần Hưng Đạo, Hoàn Kiếm, Hà Nội",
+                logo = "https://example.com/logo2.png", 
+                hotline = "024 3942 6969"
+            )
+            "clinic_3" -> Clinic(
+                id = "clinic_3",
+                name = "Bệnh viện Da liễu Hà Nội",
+                address = "15 Phùng Khoang, Trung Văn, Nam Từ Liêm, Hà Nội",
+                logo = "https://example.com/logo3.png",
+                hotline = "024 3556 7890"
+            )
+            "clinic_4" -> Clinic(
+                id = "clinic_4",
+                name = "Bệnh viện Mắt Hà Nội", 
+                address = "85 Bà Triệu, Hai Bà Trưng, Hà Nội",
+                logo = "https://example.com/logo4.png",
+                hotline = "024 3821 9191"
+            )
+            "clinic_5" -> Clinic(
+                id = "clinic_5",
+                name = "Bệnh viện Răng Hàm Mặt Trung ương Hà Nội",
+                address = "40A Tràng Thi, Hoàn Kiếm, Hà Nội", 
+                logo = "https://example.com/logo5.png",
+                hotline = "024 3825 4011"
+            )
+            else -> Clinic(
+                id = clinicId,
+                name = "Phòng khám Y tế", 
+                address = "Hà Nội",
+                logo = "https://example.com/default_logo.png",
+                hotline = "024 3xxx xxxx"
+            )
+        }
+        
+        sendAction(ChatAction.LoadMedicalServiceClinicSuccess(mockClinic))
     }
 }

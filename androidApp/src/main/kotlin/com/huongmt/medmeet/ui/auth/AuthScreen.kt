@@ -41,7 +41,7 @@ fun AuthScreen(store: AuthStore, onNavigateMain: () -> Unit) {
 
     if (state.validateError != null) {
         FailDialog(title = "Error",
-            content = state.validateError?.message ?: "Please check your input",
+            content = state.validateError?.message ?: "Không hợp lệ",
             cancelable = true,
             onCanceled = {
                 store.sendAction(AuthAction.DismissError)

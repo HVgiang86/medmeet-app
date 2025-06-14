@@ -1,5 +1,6 @@
 package com.huongmt.medmeet.ui.profile
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -35,13 +36,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,24 +60,40 @@ import com.dokar.sonner.rememberToasterState
 import com.huongmt.medmeet.R
 import com.huongmt.medmeet.component.ConfirmBottomSheet
 import com.huongmt.medmeet.component.ErrorDialog
+import com.huongmt.medmeet.component.LanguageSelectionDialog
 import com.huongmt.medmeet.component.LoadingDialog
+import com.huongmt.medmeet.shared.app.LanguageAction
+import com.huongmt.medmeet.shared.app.LanguageEffect
+import com.huongmt.medmeet.shared.app.LanguageStore
 import com.huongmt.medmeet.shared.app.ProfileAction
 import com.huongmt.medmeet.shared.app.ProfileEffect
 import com.huongmt.medmeet.shared.app.ProfileStore
+import com.huongmt.medmeet.shared.core.datasource.prefs.PrefsStorage
 import com.huongmt.medmeet.theme.Grey_200
 import com.huongmt.medmeet.ui.main.nav.MainScreenDestination
 import com.huongmt.medmeet.ui.profile.component.SettingBottomSheet
+import com.huongmt.medmeet.utils.LanguageManager
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.border
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     store: ProfileStore,
+    prefsStorage: PrefsStorage,
+    languageStore: LanguageStore,
     navigateTo: (MainScreenDestination) -> Unit,
     onLogout: () -> Unit,
 ) {
     val state by store.observeState().collectAsState()
     val sideEffect by store.observeSideEffect().collectAsState(initial = null)
+    
+    // Add language store
+    val languageState by languageStore.observeState().collectAsState()
+    val languageEffect by languageStore.observeSideEffect().collectAsState(initial = null)
+
+    val context = LocalContext.current
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(sideEffect) {
         when (sideEffect) {
@@ -98,6 +118,42 @@ fun ProfileScreen(
             }
         }
     }
+    
+    LaunchedEffect(languageEffect) {
+        when (languageEffect) {
+            is LanguageEffect.LanguageChanged -> {
+                // Handle language change - set locale and recreate activity
+                android.util.Log.d("ProfileScreen", "Language effect received: ${(languageEffect as LanguageEffect.LanguageChanged).language.code} (${(languageEffect as LanguageEffect.LanguageChanged).language.nativeName})")
+                LanguageManager.setLocale(context, (languageEffect as LanguageEffect.LanguageChanged).language)
+                
+                // Try different approaches for applying language change
+                when {
+                    context is androidx.activity.ComponentActivity -> {
+                        android.util.Log.d("ProfileScreen", "Recreating activity for language change")
+                        LanguageManager.recreateActivity(context)
+                    }
+                    context is android.app.Activity -> {
+                        android.util.Log.d("ProfileScreen", "Recreating activity (fallback)")
+                        LanguageManager.recreateActivity(context)
+                    }
+                    else -> {
+                        android.util.Log.w("ProfileScreen", "Context is not Activity: ${context.javaClass.simpleName}")
+                        // Force app restart as last resort
+                        try {
+                            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                            intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(intent)
+                            kotlin.system.exitProcess(0)
+                        } catch (e: Exception) {
+                            android.util.Log.e("ProfileScreen", "Failed to restart app: ${e.message}")
+                        }
+                    }
+                }
+            }
+            null -> {}
+        }
+    }
 
     val scope = rememberCoroutineScope()
     val toasterState = rememberToasterState()
@@ -120,7 +176,7 @@ fun ProfileScreen(
         store.sendAction(ProfileAction.GetUser)
     }
 
-    if (state.isLoading) {
+    if (state.isLoading || languageState.isLoading) {
         LoadingDialog()
     }
 
@@ -128,6 +184,23 @@ fun ProfileScreen(
         ErrorDialog(throwable = state.error, onDismissRequest = {
             store.sendAction(ProfileAction.DismissError)
         })
+    }
+    
+    if (languageState.error != null) {
+        ErrorDialog(throwable = languageState.error, onDismissRequest = {
+            languageStore.sendAction(LanguageAction.DismissError)
+        })
+    }
+
+    if (showLanguageDialog) {
+        LanguageSelectionDialog(
+            currentLanguage = languageState.currentLanguage,
+            availableLanguages = languageState.availableLanguages,
+            onLanguageSelected = { language ->
+                languageStore.sendAction(LanguageAction.ChangeLanguage(language))
+            },
+            onDismiss = { showLanguageDialog = false }
+        )
     }
 
     Box(
@@ -152,7 +225,7 @@ fun ProfileScreen(
                         .wrapContentHeight()
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally),
-                    text = "Profile",
+                    text = "Hồ sơ",
                     style = MaterialTheme.typography.titleLarge,
                     color = Color.Black,
                     textAlign = TextAlign.Center,
@@ -166,6 +239,8 @@ fun ProfileScreen(
                     modifier = Modifier
                         .fillMaxSize(0.35f)
                         .aspectRatio(1.0f)
+                        .clip(CircleShape)
+                        .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
                         .background(
                             Color.White, shape = CircleShape
                         )
@@ -203,25 +278,29 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_edit_profile),
-                    title = "Edit Profile",
+                    title = "Chỉnh sửa hồ sơ",
                     onClick = {
                         store.sendAction(ProfileAction.NavigateUpdateProfile)
                     })
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_heart),
-                    title = "Health Record",
+                    title = "Hồ sơ sức khỏe",
                     onClick = {
                         store.sendAction(ProfileAction.NavigateHealthRecord)
                     })
 
-//                SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_history),
-//                    title = "Medical Consultant History",
+//                // Add language setting item
+//                SettingItem(
+//                    icon = ImageVector.vectorResource(R.drawable.ic_language),
+//                    title = "Ngôn ngữ",
+//                    subtitle = languageState.currentLanguage.nativeName,
 //                    onClick = {
-//
-//                    })
+//                        showLanguageDialog = true
+//                    }
+//                )
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_setting),
-                    title = "Settings",
+                    title = "Cài đặt",
                     onClick = {
                         scope.launch {
                             bottomSheetState.animateTo(FullyExpanded)
@@ -229,18 +308,18 @@ fun ProfileScreen(
                     })
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_help),
-                    title = "Help & support",
+                    title = "Trợ giúp & hỗ trợ",
                     onClick = {
                     })
 
                 SettingItem(icon = ImageVector.vectorResource(R.drawable.ic_term),
-                    title = "Terms & Privacy",
+                    title = "Điều khoản & Quyền riêng tư",
                     onClick = {
                     })
 
                 SettingItem(
                     icon = ImageVector.vectorResource(R.drawable.ic_logout),
-                    title = "Logout",
+                    title = "Đăng xuất",
                     onClick = {
                         logoutDialogState.value = true
                     },
@@ -250,8 +329,8 @@ fun ProfileScreen(
 
             if (logoutDialogState.value) {
                 ConfirmBottomSheet(
-                    title = "Đăng xuất",
-                    content = "Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này?",
+                    title = "Đăng xuất",
+                    content = "Bạn có chắc chắn muốn đăng xuất khỏi tài khoản này?",
                     onConfirm = {
                         store.sendAction(ProfileAction.Logout)
                         logoutDialogState.value = false
@@ -259,12 +338,12 @@ fun ProfileScreen(
                     onDismiss = {
                         logoutDialogState.value = false
                     },
-                    confirmButtonText = "Đăng xuất",
-                    dismissButtonText = "Hủy",
+                    confirmButtonText = "Đăng xuất",
+                    dismissButtonText = "Hủy",
                 )
             }
 
-            SettingBottomSheet(appState = state, state = bottomSheetState, onChangeChatServer = {
+            SettingBottomSheet(appState = state, languageStore = languageStore, prefsStorage = prefsStorage, state = bottomSheetState, onChangeChatServer = {
                 store.sendAction(ProfileAction.ChangeChatServer(it))
             }, onChangeBackendServer = {
                 store.sendAction(ProfileAction.ChangeBackendServer(it))
@@ -278,6 +357,7 @@ fun SettingItem(
     modifier: Modifier = Modifier,
     icon: ImageVector,
     title: String? = "",
+    subtitle: String? = null,
     onClick: () -> Unit,
     trailingIcon: Boolean = true,
     bottomDivider: Boolean = true,
@@ -303,15 +383,27 @@ fun SettingItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Text(
-            text = title ?: "",
-            style = MaterialTheme.typography.titleSmall,
-            color = Color.Black,
-            maxLines = 1,
+        Column(
             modifier = Modifier
                 .weight(1f)
                 .align(Alignment.CenterVertically)
-        )
+        ) {
+            Text(
+                text = title ?: "",
+                style = MaterialTheme.typography.titleSmall,
+                color = Color.Black,
+                maxLines = 1,
+            )
+            
+            if (!subtitle.isNullOrEmpty()) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
+        }
 
         if (trailingIcon) {
             IconButton(onClick = onClick) {

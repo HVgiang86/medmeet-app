@@ -82,7 +82,7 @@ private fun SelectScheduleContent(
                     .wrapContentHeight()
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                text = "Select Schedule",
+                text = "Chọn lịch khám",
                 style = MaterialTheme.typography.titleLarge,
                 color = Color.Black,
                 textAlign = TextAlign.Center,
@@ -91,7 +91,7 @@ private fun SelectScheduleContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Select Date",
+                text = "Chọn ngày",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -105,7 +105,7 @@ private fun SelectScheduleContent(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Select Hour",
+                text = "Chọn giờ",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -158,7 +158,7 @@ private fun SelectScheduleContent(
                 )
             }, text = {
                 Text(
-                    text = "Back", style = MaterialTheme.typography.labelLarge, color = Color.Black
+                    text = "Quay lại", style = MaterialTheme.typography.labelLarge, color = Color.Black
                 )
             })
 
@@ -173,7 +173,7 @@ private fun SelectScheduleContent(
                 )
             }, text = {
                 Text(
-                    text = "Next", style = MaterialTheme.typography.labelLarge, color = Color.White
+                    text = "Tiếp theo", style = MaterialTheme.typography.labelLarge, color = Color.White
                 )
             })
         }

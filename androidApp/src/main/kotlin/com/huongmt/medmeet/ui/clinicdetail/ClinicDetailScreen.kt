@@ -209,7 +209,7 @@ private fun ClinicDetailContent(
 
                 // Working hours
                 Text(
-                    text = "Working Time",
+                    text = "Giờ làm việc",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -225,7 +225,7 @@ private fun ClinicDetailContent(
 
                 // About
                 Text(
-                    text = "About us",
+                    text = "Về chúng tôi",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -251,7 +251,7 @@ private fun ClinicDetailContent(
                 .align(Alignment.BottomCenter),
             text = {
                 Text(
-                    text = "Book Appointment",
+                    text = "Đặt lịch hẹn",
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )
